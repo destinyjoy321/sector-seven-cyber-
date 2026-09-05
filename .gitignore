@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Media and heavy specification files
+public/*
+public/*.docx
+public/*.mp4
+public/*.jpg
+public/*.png
+public/~$*
+*.mp4
+*.pdf
+*.docx
+
+# Local Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Build outputs
+dist
+dist-ssr
+*.local
+
+# Logs and Scratch Files
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+scratch/
+
+# Editor and OS junk
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+~$*

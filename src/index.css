@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-bg: #F5F5F7;
+    --brand-card: #FFFFFF;
+    --brand-dark: #1D1D1F;
+    --brand-blue: #2563EB;
+    --brand-emerald: #10B981;
+  }
+}
+
+/* Custom Noise Overlay (Subtle Apple/Anthropic Texture) */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Apple-Style Glass Pill */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+/* Magnetic Physics Button */
+.magnetic-btn {
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s ease, background-color 0.2s ease;
+}
+
+.magnetic-btn:hover {
+  transform: scale(1.025);
+}
+
+/* Tech Bracket Styling */
+.tech-bracket {
+  position: relative;
+}
+
+.tech-bracket::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #2563EB;
+  border-left: 2px solid #2563EB;
+}
+
+.tech-bracket::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid #2563EB;
+  border-right: 2px solid #2563EB;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F5F7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563EB;
+}
