@@ -42,14 +42,18 @@ CREATE POLICY "Staff admin full access"
   ON public.applications FOR ALL 
   USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
 
--- 3. Create erasure_requests audit table (Section 42.6)
+-- 3. Create erasure_requests audit table (Section 42.6 Logged Erasure Workflow)
 CREATE TABLE IF NOT EXISTS public.erasure_requests (
   id TEXT PRIMARY KEY,
   request_date TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   requester_email TEXT NOT NULL,
   application_id TEXT,
+  scope TEXT DEFAULT 'FULL_ERASURE_AND_ANONYMIZATION' NOT NULL,
   status TEXT DEFAULT 'PENDING' NOT NULL,
-  completed_at TIMESTAMPTZ
+  identity_verified_at TIMESTAMPTZ,
+  legal_hold_check BOOLEAN DEFAULT TRUE NOT NULL,
+  completed_at TIMESTAMPTZ,
+  notes TEXT
 );
 
 ALTER TABLE public.erasure_requests ENABLE ROW LEVEL SECURITY;

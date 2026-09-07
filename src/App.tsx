@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
-import { ApplyPage } from './pages/ApplyPage';
-import { ThankYouPage } from './pages/ThankYouPage';
-import { TermsPage } from './pages/TermsPage';
-import { PrivacyPage } from './pages/PrivacyPage';
-import { AdminDashboard } from './pages/AdminDashboard';
+import { SmoothScroll } from './components/layout/SmoothScroll';
+import { Preloader } from './components/layout/Preloader';
+
+const ApplyPage = lazy(() => import('./pages/ApplyPage').then(m => ({ default: m.ApplyPage })));
+const ThankYouPage = lazy(() => import('./pages/ThankYouPage').then(m => ({ default: m.ThankYouPage })));
+const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 
 export function App() {
   const [currentPath, setCurrentPath] = useState<string>(
     window.location.pathname + window.location.search
   );
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   // Sync client router with popstate
   useEffect(() => {
@@ -22,12 +21,6 @@ export function App() {
       setCurrentPath(window.location.pathname + window.location.search);
     };
     window.addEventListener('popstate', handlePopState);
-
-    // Touch device detection
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-      setIsTouchDevice(true);
-    }
-
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
@@ -37,33 +30,6 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Custom Cursor Mouse Tracking
-  useEffect(() => {
-    if (isTouchDevice) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-      
-      const target = e.target as HTMLElement;
-      if (
-        target && (
-          target.tagName === 'BUTTON' || 
-          target.tagName === 'A' || 
-          target.closest('button') || 
-          target.closest('a') ||
-          target.classList.contains('cursor-pointer')
-        )
-      ) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isTouchDevice]);
-
   // Extract base pathname and search query dynamically
   const [rawPathname, rawSearch] = currentPath.split('?');
   const cleanPathname = rawPathname === '/' ? '/' : rawPathname.replace(/\/+$/, '');
@@ -72,63 +38,58 @@ export function App() {
 
   const renderPage = () => {
     if (cleanPathname === '/apply') {
-      return <ApplyPage onNavigate={navigate} />;
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Secure Intake Portal...</div>}>
+          <ApplyPage onNavigate={navigate} />
+        </Suspense>
+      );
     }
     if (cleanPathname === '/thank-you') {
-      return <ThankYouPage onNavigate={navigate} applicationId={appIdParam} />;
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Confirmation...</div>}>
+          <ThankYouPage onNavigate={navigate} applicationId={appIdParam} />
+        </Suspense>
+      );
     }
     if (cleanPathname === '/terms') {
-      return <TermsPage onNavigate={navigate} />;
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Terms...</div>}>
+          <TermsPage onNavigate={navigate} />
+        </Suspense>
+      );
     }
     if (cleanPathname === '/privacy') {
-      return <PrivacyPage onNavigate={navigate} />;
-    }
-    if (cleanPathname === '/admin') {
-      return <AdminDashboard onNavigate={navigate} />;
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Privacy Policy...</div>}>
+          <PrivacyPage onNavigate={navigate} />
+        </Suspense>
+      );
     }
     return <HomePage onNavigate={navigate} />;
   };
 
-
   return (
-    <div className="relative min-h-screen bg-cyber-bg text-cyber-dark font-sans selection:bg-cyber-teal selection:text-white">
-      
-      {/* Global Noise Overlay Filter (Section II Global Visual Texture) */}
-      <div className="noise-overlay" aria-hidden="true" />
+    <SmoothScroll>
+      <Preloader />
+      <div className="relative min-h-screen bg-white text-slate-900 font-sans selection:bg-[#0284C7] selection:text-white">
+        
+        {/* Global Fixed Film Grain Noise Overlay */}
+        <div className="noise-overlay" aria-hidden="true" />
 
-      {/* Custom Cursor Ring & Dot (Disabled on Touch Devices) */}
-      {!isTouchDevice && (
-        <>
-          <div
-            className={`fixed rounded-full pointer-events-none z-[9999] transition-transform duration-75 ease-out mix-blend-difference bg-white ${
-              isHovered ? 'w-10 h-10 -ml-5 -mt-5 opacity-40 scale-125' : 'w-3 h-3 -ml-1.5 -mt-1.5 opacity-80'
-            }`}
-            style={{
-              left: `${cursorPos.x}px`,
-              top: `${cursorPos.y}px`,
-            }}
-          />
-          <div
-            className={`fixed rounded-full border border-cyber-teal pointer-events-none z-[9998] transition-all duration-200 ease-out ${
-              isHovered ? 'w-12 h-12 -ml-6 -mt-6 opacity-80 border-2' : 'w-8 h-8 -ml-4 -mt-4 opacity-30'
-            }`}
-            style={{
-              left: `${cursorPos.x}px`,
-              top: `${cursorPos.y}px`,
-            }}
-          />
-        </>
-      )}
+        {/* Floating Navbar */}
+        <Navbar currentPath={currentPath} onNavigate={navigate} />
 
-      {/* Floating Navbar */}
-      <Navbar currentPath={currentPath} onNavigate={navigate} />
+        {/* Main Page Body */}
+        {renderPage()}
 
-      {/* Main Page Body */}
-      {renderPage()}
+        {/* Universal Footer */}
+        <Footer onNavigate={navigate} />
 
-      {/* Universal Footer */}
-      <Footer onNavigate={navigate} />
-
-    </div>
+      </div>
+    </SmoothScroll>
   );
 }
+
+
+
+

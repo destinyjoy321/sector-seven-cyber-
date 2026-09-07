@@ -1,101 +1,145 @@
-import React from 'react';
-import { Upload, Search, Wrench, ShieldCheck, ArrowRight } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { Upload, FileSearch, PhoneCall, ShieldCheck, RefreshCw, ArrowRight } from 'lucide-react';
 
 interface HowItWorksProps {
   onNavigate: (path: string) => void;
 }
 
 export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll progress for drawing vertical Sector Seven Cyan timeline line
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start 65%', 'end 70%'],
+  });
+
+  const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 22 });
+
   const steps = [
     {
       step: '01',
-      title: 'Upload Carrier Questionnaire',
-      desc: 'Submit your raw cyber insurance test sheet or renewal application (.pdf, .docx, .xlsx) via our private upload portal.',
+      title: 'You Send the Documentation.',
+      desc: 'Upload the questionnaire, renewal notice or deficiency letter your broker or carrier provided.',
       icon: Upload,
     },
     {
       step: '02',
-      title: 'Gap Analysis & Underwriter Sync',
-      desc: 'Our Georgia security architects analyze your infrastructure against carrier mandates (Travelers, Chubb, Coalition), identifying missing MFA or backup controls.',
-      icon: Search,
+      title: 'We Review the Requirements.',
+      desc: 'We examine what your insurer is asking for and identify the relevant security requirements.',
+      icon: FileSearch,
     },
     {
       step: '03',
-      title: 'Turn-Key Technical Remediation',
-      desc: 'We deploy required EDR agents, hardware MFA, and immutable air-gapped backups with zero disruption to your daily legal or clinical operations.',
-      icon: Wrench,
+      title: 'You Have a Security Fit Call.',
+      desc: 'During your 15-minute call, we clarify the requirements, discuss your environment and determine whether Sector Seven is the appropriate security partner for your organization.',
+      icon: PhoneCall,
     },
     {
       step: '04',
-      title: 'Carrier Sign-Off & Certification',
-      desc: 'We issue an underwriter-approved compliance certificate, ensuring immediate policy approval.',
+      title: 'We Build the Security Environment.',
+      desc: 'If there is a fit, Sector Seven Cyber implements the appropriate security protections and establishes continuous monitoring and management.',
       icon: ShieldCheck,
+    },
+    {
+      step: '05',
+      title: 'We Maintain the Position.',
+      desc: 'Security isn\'t a once-a-year exercise. Your environment continues to be monitored, managed and documented as requirements and threats evolve.',
+      icon: RefreshCw,
     },
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-white border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="py-28 bg-[#F8FAFC] text-slate-900 border-b border-slate-200 relative">
+      
+      {/* Background ambient soft glow */}
+      <div className="absolute top-1/2 right-10 w-[450px] h-[450px] bg-sky-100/50 rounded-full blur-[140px] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
-            <span>TRANSPARENT WORKFLOW</span>
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
+            <span>TRANSPARENT PROCESS</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            How The Sector Seven System Works
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold text-slate-900 tracking-tighter">
+            What Happens After You Submit?
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base">
-            From initial document upload to guaranteed insurance underwriter sign-off in 4 clear steps.
-          </p>
         </div>
 
-        {/* 4 Step Process Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Vertical Timeline Container */}
+        <div ref={containerRef} className="relative pl-8 sm:pl-16 space-y-12 text-left">
+          
+          {/* Base Inactive Vertical Line */}
+          <div className="absolute left-3 sm:left-6 top-3 bottom-3 w-0.5 bg-slate-300 rounded-full" />
+
+          {/* Active Sector Seven Cyan Scroll Line */}
+          <motion.div
+            style={{ scaleY }}
+            className="absolute left-3 sm:left-6 top-3 bottom-3 w-0.5 bg-[#0284C7] origin-top rounded-full shadow-[0_0_10px_#0284C7]"
+          />
+
           {steps.map((s, idx) => {
             const Icon = s.icon;
             return (
-              <div 
+              <motion.div 
                 key={idx}
-                className="bg-slate-50 rounded-3xl p-7 border border-slate-200 hover:bg-white hover:border-brand-blue/40 hover:shadow-xl transition-all duration-300 space-y-4 text-left group tech-bracket"
+                initial={{ opacity: 0.4, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                className="relative flex items-start gap-6 group transition-opacity duration-500"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-2xl font-black text-brand-blue">{s.step}</span>
-                  <div className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 shadow-sm group-hover:bg-brand-blue group-hover:text-white transition-colors">
-                    <Icon className="w-5 h-5" />
+                {/* Timeline Dot Indicator */}
+                <div className="absolute -left-8 sm:-left-16 top-1 -translate-x-1/2 w-8 h-8 rounded-full bg-white border-2 border-slate-300 group-hover:border-[#0284C7] group-hover:shadow-md flex items-center justify-center transition-all duration-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7] group-hover:scale-125 transition-transform" />
+                </div>
+
+                {/* Step Content Card */}
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-soft-card hover:border-sky-300 hover:shadow-lg transition-all duration-300 w-full space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-sm font-black text-[#0284C7] tracking-wider">
+                      STEP {s.step}
+                    </span>
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0284C7]">
+                      <Icon className="w-5 h-5" />
+                    </div>
                   </div>
+
+                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">{s.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{s.desc}</p>
                 </div>
 
-                <h3 className="text-base font-bold text-slate-900">{s.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{s.desc}</p>
-
-                <div className="pt-2 border-t border-slate-200/80 flex items-center gap-1.5 text-[11px] font-mono text-slate-500 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-emerald"></span>
-                  <span>Timeline: &lt;24-48 Hours</span>
-                </div>
-              </div>
+              </motion.div>
             );
           })}
+
         </div>
 
-        {/* Telemetry Feed Banner */}
-        <div className="mt-14 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-brand-emerald animate-ping"></span>
-            <span className="text-slate-300">
-              <span className="text-brand-blue-light font-bold">[LIVE FEED]</span> Current Georgia Intake Queue: 
-              <span className="text-brand-emerald font-bold ml-2">Active Processing (3 Spots Remaining This Week)</span>
-            </span>
+        {/* Action Callout Box */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left"
+        >
+          <div className="space-y-1">
+            <h4 className="font-bold text-white text-base">Ready to review your requirements?</h4>
+            <p className="text-xs text-slate-400 font-mono">
+              Upload the questionnaire, renewal notice or deficiency letter your broker or carrier provided.
+            </p>
           </div>
 
           <button
             onClick={() => onNavigate('/apply')}
-            className="magnetic-btn bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs px-6 py-3 rounded-full flex items-center gap-1.5 shrink-0"
+            className="btn-primary shrink-0 bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-6 py-4 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-[1.03]"
           >
-            <span>Start Intake Process</span>
-            <ArrowRight className="w-4 h-4 text-brand-amber" />
+            <span>BOOK A SECURITY FIT CALL →</span>
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
-        </div>
+        </motion.div>
 
       </div>
     </section>

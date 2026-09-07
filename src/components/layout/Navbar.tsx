@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Phone, Lock, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Phone, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   currentPath: string;
@@ -46,11 +46,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
       <div className={`max-w-7xl mx-auto rounded-full transition-all duration-300 ${
         scrolled 
           ? 'glass-pill py-2.5 px-6 border border-slate-200/90 shadow-pill' 
-          : 'bg-white/95 backdrop-blur-md py-3 px-6 border border-slate-200 shadow-sm'
+          : 'bg-white/95 backdrop-blur-md py-3 px-6 border border-slate-200/80 shadow-sm'
       }`}>
         <div className="flex items-center justify-between">
           
-          {/* Prominent Official Sector Seven Cyber Logo & Full Brand Name */}
+          {/* Official Sector Seven Cyber Logo & Brand Name */}
           <div 
             onClick={() => onNavigate('/')}
             className="flex items-center gap-3 cursor-pointer group"
@@ -58,20 +58,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
             <img 
               src="/logo.jpg" 
               alt="Sector Seven Cyber LLC Official Logo" 
-              className="h-12 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105" 
+              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 rounded-full border border-slate-200" 
             />
             <div className="hidden sm:block text-left">
-              <div className="font-black text-slate-900 tracking-tight text-lg sm:text-xl leading-none">
+              <div className="font-black text-slate-900 tracking-tight text-lg leading-none">
                 SECTOR SEVEN
               </div>
-              <div className="font-extrabold text-brand-blue tracking-widest text-xs uppercase mt-0.5">
+              <div className="font-extrabold text-[#0284C7] tracking-widest text-[10px] uppercase mt-0.5">
                 CYBER LLC
               </div>
             </div>
           </div>
 
-          {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/80">
+          {/* Desktop Nav Links */}
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/90 p-1 rounded-full border border-slate-200/90">
             <button
               onClick={() => onNavigate('/')}
               className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-200 ${
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-brand-blue transition-colors duration-200"
+                className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-[#0284C7] transition-colors duration-200"
               >
                 {link.label}
               </a>
@@ -96,26 +96,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           <div className="hidden sm:flex items-center gap-3">
             <a 
               href="tel:+14048923400" 
-              className="flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-full hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-mono font-semibold text-slate-700 hover:text-[#0284C7] px-3 py-2 rounded-full hover:bg-slate-100 transition-colors"
             >
-              <Phone className="w-3.5 h-3.5 text-brand-blue" />
+              <Phone className="w-3.5 h-3.5 text-[#0284C7]" />
               <span>(404) 892-3400</span>
             </a>
 
             <button
-              onClick={() => onNavigate('/admin')}
-              className="text-slate-400 hover:text-slate-900 p-2 rounded-full hover:bg-slate-100 transition-colors"
-              title="Staff Portal Access"
-            >
-              <Lock className="w-4 h-4" />
-            </button>
-
-            <button
               onClick={() => onNavigate('/apply')}
-              className="magnetic-btn relative overflow-hidden bg-slate-900 text-white hover:bg-brand-blue text-xs font-extrabold px-5 py-2.5 rounded-full flex items-center gap-2 shadow-md transition-all duration-300"
+              className="btn-primary relative overflow-hidden bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-mono font-bold tracking-wider px-5 py-2.5 rounded-full flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.03]"
             >
-              <span>Submit Assessment</span>
-              <ArrowUpRight className="w-4 h-4 text-brand-amber" />
+              <span>BOOK A SECURITY FIT CALL</span>
             </button>
           </div>
 
@@ -123,10 +114,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           <div className="flex sm:hidden items-center gap-2">
             <button
               onClick={() => onNavigate('/apply')}
-              className="bg-slate-900 text-white text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-1"
+              className="bg-[#0284C7] text-white text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-1 shadow-sm"
             >
               <span>Apply</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-brand-amber" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-white" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -140,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="sm:hidden mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3 pb-2 animate-fadeIn">
+          <div className="sm:hidden mt-4 pt-4 border-t border-slate-200 flex flex-col gap-3 pb-2 animate-fadeIn text-left">
             <button
               onClick={() => { onNavigate('/'); setMobileMenuOpen(false); }}
               className="text-left py-1.5 text-sm font-semibold text-slate-900"
@@ -152,25 +143,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="py-1 text-sm text-slate-600 hover:text-brand-blue"
+                className="py-1 text-sm text-slate-600 hover:text-[#0284C7]"
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+            <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
               <button
                 onClick={() => { onNavigate('/apply'); setMobileMenuOpen(false); }}
-                className="w-full bg-slate-900 text-white text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2"
+                className="w-full bg-[#0284C7] text-white text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>Upload Questionnaire & Apply</span>
-                <ArrowUpRight className="w-4 h-4 text-brand-amber" />
-              </button>
-              <button
-                onClick={() => { onNavigate('/admin'); setMobileMenuOpen(false); }}
-                className="w-full text-xs font-mono text-slate-500 py-2 flex items-center justify-center gap-1"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>Staff Portal (/admin)</span>
+                <ArrowUpRight className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>

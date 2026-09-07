@@ -5,7 +5,7 @@ export const applicationFormSchema = z.object({
   company_name: z.string().min(2, 'Company or practice name is required'),
   email: z.string().email('Please enter a valid business email address'),
   phone: z.string().min(10, 'Please enter a valid phone number (minimum 10 digits)'),
-  industry: z.enum(['Law Firm', 'Medical Clinic', 'Other B2B Professional Service'], {
+  industry: z.enum(['Law Firm', 'Medical Clinic'], {
     required_error: 'Please select your industry sector',
   }),
   employee_count: z.string().min(1, 'Please select employee count range'),

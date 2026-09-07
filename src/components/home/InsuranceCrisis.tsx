@@ -1,95 +1,237 @@
-import React from 'react';
-import { AlertTriangle, ShieldX, FileX, ArrowRight } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { AlertCircle, ArrowRight, ShieldCheck, FileCheck, Layers } from 'lucide-react';
 
 interface InsuranceCrisisProps {
   onNavigate: (path: string) => void;
 }
 
+const TextMaskLine: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => (
+  <div className="overflow-hidden">
+    <motion.div
+      initial={{ y: '100%', opacity: 0, filter: 'blur(4px)' }}
+      whileInView={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] as const, delay }}
+    >
+      {children}
+    </motion.div>
+  </div>
+);
+
 export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) => {
-  const problems = [
-    {
-      title: 'Drastic Questionnaire Shift',
-      desc: 'Insurance carriers like Travelers, Chubb, and Coalition no longer accept simple self-attestation checkboxes. They require technical proof of EDR logs, SIEM telemetry, and MFA coverage across 100% of endpoints.',
-      icon: FileX,
-    },
-    {
-      title: 'Policy Non-Renewal Risk',
-      desc: 'Georgia law firms and medical clinics face immediate non-renewal notices or 300%+ premium penalties if technical questionnaires contain unanswered security gaps.',
-      icon: AlertTriangle,
-    },
-    {
-      title: 'Strict Carrier Denial Clauses',
-      desc: 'If a ransomware breach occurs and your actual technical controls do not match what was submitted on the intake form, insurance carriers can void coverage entirely.',
-      icon: ShieldX,
-    },
-  ];
+  const marcusContainerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: marcusContainerRef,
+    offset: ["start end", "end start"]
+  });
+  const imageY = useTransform(scrollYProgress, [0, 1], [-30, 30]);
 
   return (
-    <section id="problem" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+    <section id="problem" className="py-24 md:py-32 bg-[#F8FAFC] text-slate-900 relative overflow-hidden border-b border-slate-200">
       
-      {/* Background Accent */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/15 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* Ambient Soft Glow */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0284C7]/5 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-left space-y-20">
         
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>COMMUNICATING THE BUSINESS PROBLEM</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Why Georgia Law Firms & Medical Practices <br />
-            <span className="text-brand-blue-light">Get Stuck on Cyber Insurance</span>
-          </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Obtaining and renewing cyber insurance in 2026 requires strict technical compliance. Sector Seven Cyber bridges the gap between carrier requirements and your IT infrastructure.
-          </p>
-        </div>
+        {/* Story Section: Marcus Whitfield Narrative (Scroll-Linked Parallax & 2-Column Desktop Grid) */}
+        <div ref={marcusContainerRef} className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-soft-card overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Column: Narrative Text */}
+            <div className="lg:col-span-7 space-y-6">
+              
+              <div className="space-y-3 border-b border-slate-200 pb-6">
+                <TextMaskLine delay={0}>
+                  <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7] bg-sky-50 px-3.5 py-1 rounded-full border border-sky-200 inline-flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 text-[#0284C7]" />
+                    COMMUNICATING THE BUSINESS PROBLEM
+                  </span>
+                </TextMaskLine>
 
-        {/* 3-Column Problem Cards with Staggered Entrance & Elevation Hover (Point 3) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14">
-          {problems.map((p, idx) => {
-            const Icon = p.icon;
-            return (
-              <div 
-                key={idx} 
-                className="bg-slate-800/90 rounded-3xl p-8 border border-slate-700/80 hover:border-brand-blue hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 space-y-4 text-left group shadow-xl hover:shadow-blue-glow"
-                style={{ transitionDelay: `${idx * 100}ms` }}
-              >
-                <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-700 flex items-center justify-center text-amber-400 group-hover:text-brand-blue-light group-hover:border-brand-blue transition-colors">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-brand-blue-light transition-colors">{p.title}</h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{p.desc}</p>
-                <div className="pt-2 flex items-center gap-1.5 text-xs font-mono text-amber-400 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  <span>Carrier Risk Factor #{idx + 1}</span>
+                <TextMaskLine delay={0.1}>
+                  <h2 className="text-[clamp(1.75rem,3.8vw,3.25rem)] font-extrabold text-slate-900 tracking-tighter leading-tight">
+                    Your Insurance Company Doesn't Care That You've Never Been Hacked
+                  </h2>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.2}>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0284C7]">
+                    They care whether they can prove you're protected.
+                  </h3>
+                </TextMaskLine>
+              </div>
+
+              <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
+                <TextMaskLine delay={0.1}>
+                  <p>
+                    Marcus Whitfield had run his law practice for eleven years. Three attorneys. One paralegal. A client list built almost entirely on referrals and reputation.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.15}>
+                  <p>
+                    Then his cyber insurance renewal arrived.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.2}>
+                  <p>
+                    There was no breach. No ransomware. No stolen client files.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.25}>
+                  <p>
+                    Instead, there was a letter attached to his renewal: conditional approval.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.3}>
+                  <p>
+                    His carrier had flagged the application because Marcus couldn't provide evidence of continuous, 24/7 monitored endpoint protection. He had antivirus software, installed years ago, and nobody had been actively monitoring it.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.35}>
+                  <p>
+                    The carrier gave him 30 days to fix the gap. Otherwise, his premium would triple. Some carriers wouldn't renew him at all.
+                  </p>
+                </TextMaskLine>
+                
+                <TextMaskLine delay={0.4}>
+                  <div className="p-5 rounded-2xl bg-sky-50/60 border border-sky-200 italic text-slate-900 font-medium my-4">
+                    “Marcus called his broker. The answer was blunt: ‘This isn't optional anymore. Underwriters aren't taking your word for it. They want proof.’”
+                  </div>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.45}>
+                  <p>
+                    Marcus didn't need another antivirus product. He needed someone who could understand the requirement, identify the gap, put the appropriate protection in place, continuously monitor it, and maintain the evidence.
+                  </p>
+                </TextMaskLine>
+
+                <TextMaskLine delay={0.5}>
+                  <p className="font-bold text-[#0284C7] text-lg pt-2">
+                    That's the problem Sector Seven Cyber was built to solve.
+                  </p>
+                </TextMaskLine>
+              </div>
+
+            </div>
+
+            {/* Right Column: Generated High-Fidelity Image with Parallax Effect */}
+            <div className="lg:col-span-5 relative w-full h-full flex items-center justify-center">
+              <div className="w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-lg relative group bg-slate-100">
+                <motion.div style={{ y: imageY }} className="w-full h-[360px] sm:h-[440px] lg:h-[480px]">
+                  <img 
+                    src="/images/marcus_whitfield_legal_desk.jpg" 
+                    alt="Marcus Whitfield Law Practice Confidential Document Desk" 
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  />
+                </motion.div>
+
+                {/* Subtle Frosted Glass HUD Overlay Tag */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/85 backdrop-blur-md p-3.5 rounded-xl border border-slate-200/90 text-xs text-slate-800 flex items-center justify-between shadow-sm z-10">
+                  <span className="font-mono font-bold text-[#0284C7] uppercase tracking-wider text-[11px]">CASE #1042 · UNDERWRITING AUDIT</span>
+                  <span className="font-mono text-slate-500 text-[11px]">MARCUS WHITFIELD FIRM</span>
                 </div>
               </div>
-            );
-          })}
+            </div>
+
+          </div>
         </div>
 
-        {/* Sector Seven Solution Banner (Point 4: Clean typography, no /art, increased font size) */}
-        <div className="mt-16 bg-gradient-to-r from-slate-800 via-slate-800/95 to-slate-900 rounded-3xl p-8 sm:p-10 border border-brand-blue/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-          <div className="space-y-3 text-left">
-            <h2 className="text-3xl sm:text-4xl font-black text-brand-blue-light tracking-wide uppercase font-sans">
-              SECTOR SEVEN SOLUTION
-            </h2>
-            <h3 className="text-xl font-bold text-white">Proven Technical Remediation & Carrier Underwriter Approval</h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              We audit your questionnaire, implement missing technical controls (MFA, Immutable Backups, EDR), and issue a certified readiness report directly to your broker.
-            </p>
-          </div>
-
-          <button
-            onClick={() => onNavigate('/apply')}
-            className="magnetic-btn shrink-0 bg-brand-blue hover:bg-blue-600 text-white font-extrabold text-xs sm:text-sm px-8 py-4 rounded-full flex items-center gap-2 shadow-blue-glow transition-all"
+        {/* Section: The Rules Have Changed */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
+            className="lg:col-span-6 space-y-4"
           >
-            <span>Submit Questionnaire For Audit</span>
-            <ArrowRight className="w-4 h-4 text-brand-amber" />
-          </button>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              The Rules Have Changed
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Cyber insurance used to feel like another box on the business checklist: get a policy, install antivirus, answer the questionnaire, renew.
+            </p>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              That's not the environment you're operating in anymore. Underwriters are scrutinizing the controls behind cyber-risk applications more closely. They want evidence. They want monitoring. They want documented controls. And increasingly, they want security measures that aren't simply installed, but continuously managed and verifiable.
+            </p>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              At the same time, your practice has responsibilities beyond the insurance policy. Your clients expect you to protect confidential information. Your patients expect you to protect sensitive health information. Georgia law imposes obligations around the security and breach notification of certain computerized personal information.
+            </p>
+            <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 text-[#0284C7] font-bold text-sm">
+              Security is no longer just an IT concern. It's an operational, insurance and regulatory responsibility.
+            </div>
+          </motion.div>
+
+          {/* Section: Cybersecurity Is What We Do. Security Position Is What We Build. */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
+            className="lg:col-span-6 bg-white p-8 rounded-3xl border border-slate-200 space-y-6 shadow-soft-card"
+          >
+            <div>
+              <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                Cybersecurity Is What We Do. <br />
+                <span className="text-[#0284C7]">Security Position Is What We Build.</span>
+              </h3>
+              <p className="text-slate-600 text-sm mt-3 leading-relaxed">
+                Most cybersecurity companies sell cybersecurity. Sector Seven Cyber builds and continuously operates the security environment surrounding high-value professional practices.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
+                <ShieldCheck className="w-5 h-5 text-[#0284C7] shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Security</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                    Protect the systems, endpoints, networks and cloud environments your practice depends on.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
+                <FileCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Insurance</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                    Align your security posture with the requirements identified by your broker and carrier.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
+                <Layers className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Regulatory</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                    Build stronger security practices around the obligations that apply to your organization.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs font-mono font-bold text-slate-800 border-t border-slate-200 pt-4">
+              The result isn't simply another security product installed on your computers. It's a security position you can demonstrate.
+            </p>
+
+            <button
+              onClick={() => onNavigate('/apply')}
+              className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-[1.02]"
+            >
+              <span>BOOK A SECURITY FIT CALL</span>
+            </button>
+          </motion.div>
+
         </div>
 
       </div>

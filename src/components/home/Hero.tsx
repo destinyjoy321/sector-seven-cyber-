@@ -1,124 +1,146 @@
 import React from 'react';
-import { ArrowUpRight, FileText, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, PhoneCall } from 'lucide-react';
 
 interface HeroProps {
   onNavigate: (path: string) => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
+  // Custom cubic-bezier easing curve [0.16, 1, 0.3, 1]
+  const deepZTransition = {
+    duration: 1.5,
+    ease: [0.16, 1, 0.3, 1] as const,
+  };
+
   return (
-    <section className="relative pt-32 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-slate-900 border-b border-slate-200 text-white min-h-[90vh] flex flex-col justify-center">
+    <section 
+      className="relative pt-32 pb-24 md:pt-44 md:pb-36 overflow-hidden bg-white text-slate-900 min-h-[90vh] flex flex-col justify-center border-b border-slate-200 group"
+    >
       
-      {/* High-Resolution Executive Office Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-65 mix-blend-luminosity scale-105 transition-transform duration-1000"
-        style={{ backgroundImage: `url('/hero_bg.jpg')` }}
-      ></div>
+      {/* Background Subtle Gradient Flare & Ambient Atmosphere */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-[#0284C7]/5 rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-sky-200/30 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      {/* Ambient Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-slate-950/70"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950"></div>
-      
-      {/* Sapphire Glow */}
-      <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-brand-blue/20 blur-[150px] rounded-full pointer-events-none"></div>
+      {/* Abstract 3D Topographical Mesh Background */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <img 
+          src="/images/hero_topographical_mesh.jpg" 
+          alt="Abstract 3D Topographical Mesh Background" 
+          className="w-full h-full object-cover object-center opacity-30 mix-blend-multiply select-none"
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
-          {/* Left Hero Main Content */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            
-            {/* Top Pill Badge with Full Company Name */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-mono shadow-sm border border-white/20">
-              <span className="w-2.5 h-2.5 rounded-full bg-brand-amber animate-pulse"></span>
-              <span className="font-extrabold text-brand-amber uppercase tracking-wider">SECTOR SEVEN CYBER LLC</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-slate-200 font-semibold">Georgia Cyber Readiness</span>
-            </div>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto text-center flex flex-col items-center">
+        
+        {/* Top Header Brand Tag */}
+        <motion.div 
+          initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
+          transition={{ ...deepZTransition, delay: 0.1 }}
+          className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-slate-100/90 border border-slate-200/90 backdrop-blur-md shadow-sm"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#0284C7] animate-ping" />
+          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#0284C7]">
+            SECTOR SEVEN CYBER
+          </span>
+        </motion.div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12]">
-              Reliable Cyber Defense <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-white via-brand-blue-light to-brand-blue bg-clip-text text-transparent">
-                When It Matters Most.
-              </span>
-            </h1>
+        {/* Primary Headline - Z-Axis Reveal with Dark Slate Text */}
+        <motion.h1
+          initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.95 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+          transition={{ ...deepZTransition, delay: 0.2 }}
+          className="text-[clamp(2.3rem,5.2vw,5.25rem)] font-extrabold text-slate-900 tracking-tighter leading-[1.08] max-w-4xl"
+        >
+          Enterprise-Grade Cyber Defense for{' '}
+          <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-[#0284C7] bg-clip-text text-transparent">
+            High-Value Georgia Practices.
+          </span>
+        </motion.h1>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-200 font-normal leading-relaxed max-w-2xl">
-              <strong className="text-white font-bold">Sector Seven Cyber LLC</strong> turns strict carrier questionnaires into guaranteed policy approvals for Georgia law firms and medical clinics with verified MFA, EDR, and immutable backup remediation.
-            </p>
+        {/* Sub-headline - Light Mode Contrast */}
+        <motion.p
+          initial={{ opacity: 0, filter: 'blur(16px)', scale: 0.95 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+          transition={{ ...deepZTransition, delay: 0.4 }}
+          className="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-3xl text-center"
+        >
+          24/7/365 human-led threat monitoring, endpoint defense, and insurance-compliance engineering for Georgia law firms and medical clinics facing increasingly demanding security and underwriting requirements.
+        </motion.p>
 
-            {/* Main CTAs strictly directing to /apply */}
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <button
-                onClick={() => onNavigate('/apply')}
-                className="magnetic-btn bg-brand-blue hover:bg-blue-600 text-white font-extrabold text-sm px-8 py-4 rounded-full shadow-blue-glow flex items-center justify-center gap-2 transition-all duration-300 group"
-              >
-                <span>Upload Cyber Questionnaire & Apply</span>
-                <ArrowUpRight className="w-4 h-4 text-brand-amber group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </button>
+        {/* Callout Quote Block */}
+        <motion.div 
+          initial={{ opacity: 0, filter: 'blur(14px)', scale: 0.95, y: 30 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
+          transition={{ ...deepZTransition, delay: 0.6 }}
+          className="mt-8 p-6 sm:p-8 rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/90 max-w-2xl text-center space-y-1.5 shadow-soft-card"
+        >
+          <p className="text-sm sm:text-base font-semibold text-slate-800">
+            “Your insurer isn't simply asking whether you have cybersecurity.”
+          </p>
+          <p className="text-sm sm:text-base font-bold text-[#0284C7] italic font-serif">
+            “They're asking whether you can demonstrate it.”
+          </p>
+        </motion.div>
 
-              <button
-                onClick={() => onNavigate('/apply')}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold text-sm px-7 py-4 rounded-full border border-white/20 shadow-sm flex items-center justify-center gap-2 transition-colors"
-              >
-                <FileText className="w-4 h-4 text-brand-blue-light" />
-                <span>Start Lead Intake Form</span>
-              </button>
-            </div>
+        {/* Action Button */}
+        <motion.div 
+          initial={{ opacity: 0, filter: 'blur(12px)', scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
+          transition={{ ...deepZTransition, delay: 0.8 }}
+          className="mt-9 flex items-center justify-center w-full sm:w-auto"
+        >
+          <button
+            onClick={() => onNavigate('/apply')}
+            className="btn-primary w-full sm:w-auto bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-9 py-4 rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 group border border-sky-400/30 hover:scale-[1.03]"
+          >
+            <span>BOOK A SECURITY FIT CALL</span>
+          </button>
+        </motion.div>
 
-            {/* Avatar Stack & Social Proof */}
-            <div className="pt-4 flex items-center gap-4 border-t border-white/15 max-w-lg">
-              <div className="flex -space-x-2 overflow-hidden">
-                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Georgia Client" />
-                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Georgia Client" />
-                <img className="inline-block h-8 w-8 rounded-full ring-2 ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80" alt="Georgia Client" />
+        {/* Caption & Georgia Compliance Digital Seal */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...deepZTransition, delay: 1 }}
+          className="mt-8 text-xs space-y-4 text-center max-w-xl"
+        >
+          <p className="text-slate-500">
+            Begin by securely uploading the compliance documentation provided by your broker or carrier.
+          </p>
+
+          {/* Interactive Georgia Compliance Digital Seal */}
+          <div>
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              onClick={(e) => {
+                e.preventDefault();
+                const target = document.getElementById('georgia-law');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-900 text-white border border-slate-700/80 shadow-md backdrop-blur-md cursor-pointer group transition-all duration-300 hover:border-[#00D2FF] hover:shadow-[0_0_20px_rgba(0,210,255,0.3)]"
+            >
+              {/* Spinning / Glowing Seal Icon Ring */}
+              <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
+                <div className="absolute inset-0 rounded-full border border-[#00D2FF]/60 border-t-transparent group-hover:rotate-90 transition-transform duration-500" />
+                <span className="w-2 h-2 rounded-full bg-[#00D2FF] group-hover:scale-125 transition-transform" />
               </div>
-              <div className="text-xs">
-                <div className="flex items-center gap-1 text-brand-amber font-bold">
-                  ★★★★★ <span className="text-white font-mono font-semibold ml-1">4.9/5.0</span>
-                </div>
-                <p className="text-slate-300 font-medium">Trusted by 150+ Georgia Practices & Law Firms</p>
-              </div>
-            </div>
 
+              <div className="text-left font-mono text-xs">
+                <span className="block font-extrabold text-white group-hover:text-[#00D2FF] transition-colors tracking-wide text-[11px]">
+                  GEORGIA O.C.G.A. § 10-1-912 SEAL
+                </span>
+                <span className="block text-[10px] text-slate-400">
+                  Review Statutory Security Mandates →
+                </span>
+              </div>
+            </motion.div>
           </div>
-
-          {/* Right Column: Wide Rectangular 3D Rotating Video Container (White Background Eliminated) */}
-          <div className="lg:col-span-6 flex flex-col items-center justify-center space-y-4">
-            
-            {/* Wide Rectangular Video Card Frame */}
-            <div className="relative w-full aspect-video h-72 sm:h-96 md:h-[400px] rounded-3xl overflow-hidden bg-white/95 backdrop-blur-md shadow-2xl border border-white/30 flex items-center justify-center p-3 group">
-              
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover mix-blend-multiply scale-105 transition-transform duration-700 group-hover:scale-110"
-              >
-                <source src="/mobius_loop.mp4" type="video/mp4" />
-              </video>
-
-              {/* Dynamic 95% Carrier Audit Progress Bar Indicator */}
-              <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-left space-y-2 shadow-xl">
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="text-white font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-brand-emerald" /> Sector Seven Cyber Carrier Compliance
-                  </span>
-                  <span className="text-brand-emerald font-extrabold text-sm">95%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-gradient-to-r from-brand-blue via-brand-blue-light to-brand-emerald h-full w-[95%] rounded-full shadow-blue-glow animate-pulse"></div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
+        </motion.div>
 
       </div>
     </section>

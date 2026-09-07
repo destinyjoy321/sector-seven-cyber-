@@ -4,15 +4,23 @@
 
 @layer base {
   :root {
-    --brand-bg: #F5F5F7;
+    --brand-bg: #FFFFFF;
     --brand-card: #FFFFFF;
-    --brand-dark: #1D1D1F;
-    --brand-blue: #2563EB;
+    --brand-dark: #0F172A;
+    --brand-blue: #0284C7;
+    --brand-steel: #64748B;
     --brand-emerald: #10B981;
+  }
+
+  html, body {
+    background-color: #FFFFFF;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+    overflow-x: hidden;
   }
 }
 
-/* Custom Noise Overlay (Subtle Apple/Anthropic Texture) */
+/* Global Fixed 2% Opacity Film Grain Noise Overlay for Tactile Texture */
 .noise-overlay {
   position: fixed;
   top: 0;
@@ -20,54 +28,37 @@
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 999;
+  z-index: 9999;
   opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Apple-Style Glass Pill */
-.glass-pill {
+/* Crisp Light Mode Glassmorphic Card */
+.glass-vault {
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(229, 231, 235, 0.8);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
-/* Magnetic Physics Button */
-.magnetic-btn {
-  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s ease, background-color 0.2s ease;
+/* Glass Pill Navbar */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06);
 }
 
-.magnetic-btn:hover {
-  transform: scale(1.025);
+/* Standard Premium Button Hover Physics */
+.btn-primary {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-/* Tech Bracket Styling */
-.tech-bracket {
-  position: relative;
-}
-
-.tech-bracket::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 8px;
-  height: 8px;
-  border-top: 2px solid #2563EB;
-  border-left: 2px solid #2563EB;
-}
-
-.tech-bracket::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 8px;
-  height: 8px;
-  border-bottom: 2px solid #2563EB;
-  border-right: 2px solid #2563EB;
+.btn-primary:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 12px 25px -5px rgba(2, 132, 199, 0.3);
 }
 
 /* Custom Scrollbar */
@@ -76,14 +67,37 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F5F7;
+  background: #F8FAFC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563EB;
+  background: #0284C7;
 }
+
+/* Smooth Lenis HTML scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+

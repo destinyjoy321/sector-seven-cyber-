@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, ArrowUpRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
 
 interface FAQProps {
   onNavigate: (path: string) => void;
@@ -10,95 +11,116 @@ export const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
 
   const faqs = [
     {
-      q: 'Why are cyber insurance carriers in Georgia rejecting self-attestations?',
-      a: 'Following massive increases in ransomware claims, underwriters (Travelers, Chubb, Coalition) now require technical proof of EDR logs, hardware MFA, and air-gapped backups. Simple checkboxes without technical audit trails can lead to policy cancellation or claim denial.',
+      q: '“We already have antivirus. Why isn\'t that enough?”',
+      a: 'Because having antivirus installed isn\'t necessarily the same thing as maintaining continuously monitored endpoint protection. Modern underwriting increasingly focuses on the security controls an organization has in place, and whether those controls are being actively maintained and monitored.',
     },
     {
-      q: 'What document formats do you accept for the questionnaire upload?',
-      a: 'Our secure intake system accepts PDF (.pdf), Word (.doc, .docx), and Excel (.xls, .xlsx) files up to 50MB. All uploaded questionnaires are encrypted and stored in a private Supabase bucket with restricted 15-minute signed access URLs.',
+      q: '“We\'ve never had a cyberattack. Why should we worry?”',
+      a: 'Because underwriting is concerned with your risk exposure, not simply your incident history. A clean breach history doesn\'t automatically mean your current security posture satisfies your carrier\'s requirements.',
     },
     {
-      q: 'How fast can Sector Seven Cyber remediate our infrastructure gaps?',
-      a: 'Our initial gap audit is completed within 24 hours. Full technical remediation (MFA, EDR agent installation, immutable backup configuration) is typically completed within 48 to 72 hours without interrupting daily firm or clinic workflows.',
+      q: '“Can Sector Seven guarantee that our insurer will renew us?”',
+      a: 'Sector Seven Cyber\'s role is to help you address the security requirements your insurer is looking for before those requirements become a renewal problem. We identify gaps, help remediate them, continuously monitor your security environment, and maintain evidence of the controls you\'re operating. Your carrier makes the final underwriting decision. Our job is to make sure your security posture isn\'t the reason you get flagged.',
     },
     {
-      q: 'Will you interface directly with our insurance broker?',
-      a: 'Yes. Once we complete your technical remediation, we issue a formal Security Architecture & Remediation Certificate directly to your insurance broker or carrier underwriter.',
+      q: '“What if our renewal isn\'t for several months?”',
+      a: 'That\'s actually ideal. The earlier you identify gaps, the more time you have to address them without being forced into a last-minute scramble.',
     },
     {
-      q: 'Is Sector Seven Cyber based in Georgia?',
-      a: 'Yes. Sector Seven Cyber LLC is headquartered in Fulton County, Georgia, serving law firms, medical clinics, and B2B practices statewide.',
+      q: '“Do we need to understand cybersecurity to work with you?”',
+      a: 'No. That\'s part of the point. You run the law firm or medical practice. We handle the security side.',
+    },
+    {
+      q: '“What should I upload?”',
+      a: 'Upload the official documentation provided by your broker or carrier, such as your Cyber Security Risk Questionnaire, Policy Renewal Notice, or Underwriter Deficiency Letter. If you received multiple relevant documents, upload them all.',
+    },
+    {
+      q: '“Is my questionnaire confidential?”',
+      a: 'Yes. Your questionnaire and business information are kept confidential and handled securely by Sector Seven Cyber.',
     },
   ];
 
   return (
-    <section id="faq" className="py-20 bg-white border-b border-slate-200">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="faq" className="py-28 bg-white text-slate-900 border-b border-slate-200 relative">
+      
+      {/* Background Soft Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-100/40 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
         
         {/* Header */}
-        <div className="text-center space-y-3 mb-12">
-          <div className="inline-flex items-center gap-2 bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-3.5 py-1 rounded-full text-xs font-mono">
-            <HelpCircle className="w-3.5 h-3.5 text-brand-blue" />
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
+            <HelpCircle className="w-3.5 h-3.5 text-[#0284C7]" />
             <span>FREQUENTLY ASKED QUESTIONS</span>
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Clear Answers for Practice Partners & IT Leads
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold text-slate-900 tracking-tighter">
+            Frequently Asked Questions
           </h2>
-          <p className="text-slate-600 text-sm">
-            Click any question below to expand the detailed technical explanation.
-          </p>
         </div>
 
-        {/* Standard Dropdown Accordion List */}
-        <div className="space-y-4">
+        {/* Clean Accordion with Steel Blue-Gray Bottom Border */}
+        <div className="space-y-2 text-left">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
               <div 
                 key={idx}
-                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                  isOpen 
-                    ? 'bg-slate-50 border-brand-blue/40 shadow-sm' 
-                    : 'bg-white border-slate-200 hover:border-slate-300'
-                }`}
+                className="border-b border-slate-200 transition-colors duration-200 group hover:border-[#0284C7]"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-slate-900 text-sm sm:text-base hover:text-brand-blue transition-colors"
+                  className="w-full text-left py-6 px-2 flex items-center justify-between gap-4 font-bold text-slate-900 text-base sm:text-lg group-hover:text-[#0284C7] transition-colors focus-visible:outline-none focus-visible:text-[#0284C7]"
                 >
-                  <span className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-mono flex items-center justify-center shrink-0">
+                  <span className="flex items-center gap-4">
+                    <span className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-[#0284C7] text-xs font-mono flex items-center justify-center shrink-0 group-hover:bg-sky-50 group-hover:border-sky-300 transition-colors">
                       {idx + 1}
                     </span>
-                    {faq.q}
+                    <span className="leading-snug">{faq.q}</span>
                   </span>
-                  <ChevronDown className={`w-5 h-5 text-slate-500 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-brand-blue' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#0284C7]' : 'group-hover:text-[#0284C7]'}`} />
                 </button>
 
-                {isOpen && (
-                  <div className="px-6 pb-5 pt-2 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-200/80 animate-fadeIn">
-                    {faq.a}
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-2 pb-6 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
         </div>
 
         {/* Bottom CTA Box */}
-        <div className="mt-12 text-center bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-left">
-            <h4 className="font-bold text-sm text-slate-900">Have a specific carrier questionnaire question?</h4>
-            <p className="text-xs text-slate-500">Speak directly with a Georgia cybersecurity specialist.</p>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="bg-slate-900 text-white p-8 sm:p-10 rounded-3xl border border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left"
+        >
+          <div className="space-y-1">
+            <h4 className="font-extrabold text-white text-lg">Your Insurer Is Asking a Simple Question</h4>
+            <p className="text-xs sm:text-sm text-sky-400 font-mono font-semibold">Can you prove you're protected?</p>
           </div>
           <button
             onClick={() => onNavigate('/apply')}
-            className="magnetic-btn bg-slate-900 hover:bg-brand-blue text-white text-xs font-bold px-6 py-3 rounded-full flex items-center gap-1.5 shrink-0 transition-colors"
+            className="btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono text-xs font-extrabold tracking-wider px-6 py-4 rounded-full flex items-center gap-2 shrink-0 transition-all shadow-md hover:scale-[1.03]"
           >
-            <span>Submit Questionnaire</span>
-            <ArrowUpRight className="w-4 h-4 text-brand-amber" />
+            <span>BOOK A SECURITY FIT CALL →</span>
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
-        </div>
+        </motion.div>
 
       </div>
     </section>

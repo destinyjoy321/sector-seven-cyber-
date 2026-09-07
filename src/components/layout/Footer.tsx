@@ -1,5 +1,6 @@
 import React from 'react';
-import { Mail, Phone, MapPin, ArrowUpRight, Lock } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -7,117 +8,152 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="bg-slate-900 text-white pt-16 pb-12 border-t border-slate-800 relative overflow-hidden">
-      {/* Background Decorative Grid Accent */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+    <footer className="bg-white text-slate-900 border-t border-slate-200 relative overflow-hidden font-sans">
+      {/* Background Architectural Grid Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16 sm:py-20 space-y-16">
+        
+        {/* Massive Oversized Secure Communication Gateway Banner */}
+        <div className="border-b border-slate-200 pb-12 text-left space-y-3">
+          <div className="inline-flex items-center gap-2 text-[#0284C7] font-mono text-xs font-bold uppercase tracking-widest bg-sky-50 px-3.5 py-1 rounded-full border border-sky-200">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#0284C7]" />
+            <span>SECURE COMMUNICATION GATEWAY</span>
+          </div>
+
+          <div>
+            <a 
+              href="mailto:contact@sectorsevencyber.com" 
+              className="group relative inline-block text-[clamp(1.5rem,4.5vw,3.75rem)] font-extrabold text-slate-900 tracking-tighter hover:text-[#0284C7] transition-colors duration-300"
+            >
+              <span>contact@sectorsevencyber.com</span>
+              {/* Electric Cyan Underline Animation */}
+              <motion.span 
+                className="absolute bottom-0 left-0 w-full h-[3px] bg-[#00D2FF] origin-left"
+                initial={{ scaleX: 0 }}
+                whileHover={{ scaleX: 1 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </a>
+          </div>
+        </div>
+
+        {/* Rigid Grid Layout (4 Columns) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 border-b border-slate-200 pb-12 text-left">
           
-          {/* Brand Info with Official Sector Seven Cyber Logo */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Column 1: Brand Info (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
               <img 
                 src="/logo.jpg" 
                 alt="Sector Seven Cyber LLC Official Logo" 
-                className="h-10 w-auto object-contain bg-white/90 p-1 rounded" 
+                className="h-10 w-auto object-contain rounded-full border border-slate-300 bg-white p-0.5" 
               />
+              <div className="text-left">
+                <div className="font-black text-slate-900 tracking-tight text-base leading-none">
+                  SECTOR SEVEN
+                </div>
+                <div className="font-extrabold text-[#0284C7] tracking-widest text-[9px] uppercase mt-0.5">
+                  CYBER LLC
+                </div>
+              </div>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Sector Seven Cyber LLC provides end-to-end technical remediation, cyber insurance alignment, and 24/7 managed defense for Georgia law firms, healthcare providers, and high-liability enterprises.
+            <p className="text-slate-600 text-xs leading-relaxed max-w-sm">
+              Sector Seven Cyber LLC builds and operates continuously managed cybersecurity environments for Georgia law firms, medical clinics, and high-liability enterprises.
             </p>
-            <div className="pt-2 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 bg-slate-800 text-brand-blue-light text-xs font-mono px-3 py-1 rounded-full border border-slate-700">
-                <span className="w-2 h-2 rounded-full bg-brand-emerald animate-pulse"></span>
-                Georgia Jurisdiction (Fulton County)
+            <div className="pt-1">
+              <span className="inline-flex items-center gap-1.5 bg-slate-100 text-[#0284C7] text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-200">
+                <span className="w-2 h-2 rounded-full bg-[#00D2FF] animate-ping" />
+                Atlanta, Georgia Jurisdiction (Fulton County)
               </span>
             </div>
           </div>
 
-          {/* Core Services */}
-          <div>
-            <h4 className="font-mono text-xs font-bold text-brand-blue-light uppercase tracking-wider mb-4">// Services</h4>
-            <ul className="space-y-2.5 text-xs text-slate-300">
-              <li><a href="#services" className="hover:text-brand-blue-light transition-colors">Carrier Audit & Alignment</a></li>
-              <li><a href="#services" className="hover:text-brand-blue-light transition-colors">MFA & Hardware Backup Setup</a></li>
-              <li><a href="#services" className="hover:text-brand-blue-light transition-colors">EDR & Endpoint Protection</a></li>
-              <li><a href="#services" className="hover:text-brand-blue-light transition-colors">Continuous Compliance Monitoring</a></li>
-              <li><a href="#services" className="hover:text-brand-blue-light transition-colors">Incident Response & Guarantees</a></li>
+          {/* Column 2: Core Services (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Core Practices</h4>
+            <ul className="space-y-2 text-xs text-slate-600 font-medium">
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Carrier Audit & Alignment</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">MFA & Hardware Backup Setup</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">EDR & Endpoint Protection</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Continuous Compliance Monitoring</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Georgia Breach Law Alignment</a></li>
             </ul>
           </div>
 
-          {/* Quick Links & Legal (Section 42.1 Links) */}
-          <div>
-            <h4 className="font-mono text-xs font-bold text-brand-blue-light uppercase tracking-wider mb-4">// Navigation</h4>
-            <ul className="space-y-2.5 text-xs text-slate-300">
+          {/* Column 3: Navigation (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Navigation</h4>
+            <ul className="space-y-2 text-xs text-slate-600 font-medium">
               <li>
-                <button onClick={() => onNavigate('/')} className="hover:text-brand-blue-light transition-colors text-left">
-                  Home Overview
+                <button onClick={() => onNavigate('/')} className="hover:text-[#0284C7] transition-colors text-left">
+                  Overview
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/apply')} className="hover:text-brand-blue-light transition-colors text-left font-semibold text-white flex items-center gap-1">
-                  Intake Application <ArrowUpRight className="w-3 h-3 text-brand-amber" />
+                <button onClick={() => onNavigate('/apply')} className="hover:text-[#0284C7] transition-colors text-left font-bold text-slate-900 flex items-center gap-1">
+                  Intake Application <ArrowUpRight className="w-3 h-3 text-[#0284C7]" />
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/terms')} className="hover:text-brand-blue-light transition-colors text-left">
+                <button onClick={() => onNavigate('/terms')} className="hover:text-[#0284C7] transition-colors text-left">
                   Terms of Service
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/privacy')} className="hover:text-brand-blue-light transition-colors text-left">
+                <button onClick={() => onNavigate('/privacy')} className="hover:text-[#0284C7] transition-colors text-left">
                   Privacy Policy
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('/admin')} className="hover:text-brand-blue-light transition-colors text-left font-mono text-slate-400 flex items-center gap-1">
-                  <Lock className="w-3 h-3 text-brand-blue-light" /> Staff Portal
-                </button>
-              </li>
             </ul>
           </div>
 
-          {/* Contact Direct */}
-          <div>
-            <h4 className="font-mono text-xs font-bold text-brand-blue-light uppercase tracking-wider mb-4">// Direct Intake</h4>
-            <ul className="space-y-3 text-xs text-slate-300">
+          {/* Column 4: Contact Direct (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Direct Contact</h4>
+            <ul className="space-y-2.5 text-xs text-slate-600 font-medium">
               <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-brand-blue-light shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
                 <span>Atlanta, Georgia 30309</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-brand-blue-light shrink-0" />
-                <a href="tel:+14048923400" className="hover:text-white transition-colors">+1 (404) 892-3400</a>
+                <Phone className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
+                <a href="tel:+14048923400" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">+1 (404) 892-3400</a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-brand-blue-light shrink-0" />
-                <a href="mailto:intake@sectorsevencyber.com" className="hover:text-white transition-colors">intake@sectorsevencyber.com</a>
+                <Mail className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
+                <a href="mailto:contact@sectorsevencyber.com" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">contact@sectorsevencyber.com</a>
               </li>
             </ul>
           </div>
 
         </div>
 
-        {/* Bottom Legal Copyright Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>© {new Date().getFullYear()} Sector Seven Cyber LLC. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => onNavigate('/terms')} 
-              className="hover:text-white transition-colors"
-            >
-              Terms of Service (/terms)
-            </button>
+        {/* Bottom Architectural Copyright & Legal Links Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          {/* Bottom Left: Monospace Copyright */}
+          <p className="font-mono text-xs text-slate-500 font-normal text-left">
+            © 2026 Sector Seven Cyber LLC. All rights reserved. Atlanta, Georgia.
+          </p>
+
+          {/* Bottom Right: Mandatory Legal Links */}
+          <div className="flex items-center gap-6 font-mono text-xs text-slate-600">
             <button 
               onClick={() => onNavigate('/privacy')} 
-              className="hover:text-white transition-colors"
+              className="hover:text-[#0284C7] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] rounded px-1"
             >
-              Privacy Policy (/privacy)
+              Privacy Policy
             </button>
-            <span className="font-mono text-[10px] text-slate-400">UUID SS-SPEC-2026</span>
+            <span className="text-slate-300">•</span>
+            <button 
+              onClick={() => onNavigate('/terms')} 
+              className="hover:text-[#0284C7] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] rounded px-1"
+            >
+              Terms of Service
+            </button>
           </div>
         </div>
+
       </div>
     </footer>
   );

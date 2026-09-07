@@ -16,7 +16,7 @@ export interface ProspectApplication {
   company_name: string;
   email: string;
   phone: string;
-  industry: 'Law Firm' | 'Medical Clinic' | 'Other B2B Professional Service';
+  industry: 'Law Firm' | 'Medical Clinic';
   employee_count: string;
   insurance_status: 'Existing Policy / Renewal' | 'New Policy Application' | 'Carrier Compliance Audit';
   insurance_provider: string;
@@ -26,6 +26,7 @@ export interface ProspectApplication {
   file_type: string;
   file_path: string;
   status: ApplicationStatus;
+  notification_status?: 'SENT' | 'FAILED' | 'PENDING';
   terms_accepted: boolean;
   terms_accepted_at: string;
   terms_version: string;
@@ -37,8 +38,12 @@ export interface ErasureRequest {
   request_date: string;
   requester_email: string;
   application_id?: string;
+  scope: string; // e.g. 'FULL_ERASURE_AND_ANONYMIZATION' | 'FILE_ONLY' | 'ANONYMIZE_RECORD'
   status: 'PENDING' | 'VERIFIED' | 'COMPLETED';
+  identity_verified_at?: string;
+  legal_hold_check: boolean; // True if legal/tax hold check passed with no active hold
   completed_at?: string;
+  notes?: string;
 }
 
 export interface RiskCalculatorInput {
