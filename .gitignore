@@ -45,3 +45,5 @@ scratch/
 *.sln
 *.sw?
 ~$*
+
+.vercel

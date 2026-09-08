@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const fromEmail = process.env.FROM_EMAIL || process.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <onboarding@resend.dev>';
     const teamEmail = process.env.VITE_INTERNAL_NOTIFICATION_EMAIL || process.env.INTERNAL_NOTIFICATION_EMAIL || 'ikehemmanuel70@gmail.com';
     const gmailUser = process.env.GMAIL_USER || '';
-    const gmailPass = process.env.GMAIL_APP_PASSWORD || '';
+    const gmailPass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
     const siteUrl = process.env.VITE_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
     const rawPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;

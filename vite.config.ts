@@ -27,7 +27,7 @@ function apiMiddlewarePlugin(): Plugin {
         const fromEmail = env.FROM_EMAIL || env.VITE_FROM_EMAIL || 'Sector Seven Cyber <onboarding@resend.dev>';
         const teamEmail = env.VITE_INTERNAL_NOTIFICATION_EMAIL || 'ikehemmanuel70@gmail.com';
         const gmailUser = env.GMAIL_USER || '';
-        const gmailPass = env.GMAIL_APP_PASSWORD || '';
+        const gmailPass = (env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
         const siteUrl = env.VITE_SITE_URL || 'http://localhost:3000';
 
         const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
