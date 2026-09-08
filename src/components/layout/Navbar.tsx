@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Phone, Menu, X } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface NavbarProps {
   currentPath: string;
@@ -53,21 +54,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           {/* Official Sector Seven Cyber Logo & Brand Name */}
           <div 
             onClick={() => onNavigate('/')}
-            className="flex items-center gap-3 cursor-pointer group"
+            className="cursor-pointer group"
           >
-            <img 
-              src="/logo.jpg" 
-              alt="Sector Seven Cyber LLC Official Logo" 
-              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 rounded-full border border-slate-200" 
-            />
-            <div className="hidden sm:block text-left">
-              <div className="font-black text-slate-900 tracking-tight text-lg leading-none">
-                SECTOR SEVEN
-              </div>
-              <div className="font-extrabold text-[#0284C7] tracking-widest text-[10px] uppercase mt-0.5">
-                CYBER LLC
-              </div>
-            </div>
+            <Logo size="md" />
           </div>
 
           {/* Desktop Nav Links */}

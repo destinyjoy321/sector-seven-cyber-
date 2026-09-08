@@ -3,11 +3,8 @@ node_modules
 .pnpm-store
 
 # Media and heavy specification files
-public/*
 public/*.docx
 public/*.mp4
-public/*.jpg
-public/*.png
 public/~$*
 *.mp4
 *.pdf

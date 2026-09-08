@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Phone, MapPin, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Logo } from './Logo';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -43,21 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           
           {/* Column 1: Brand Info (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/logo.jpg" 
-                alt="Sector Seven Cyber LLC Official Logo" 
-                className="h-10 w-auto object-contain rounded-full border border-slate-300 bg-white p-0.5" 
-              />
-              <div className="text-left">
-                <div className="font-black text-slate-900 tracking-tight text-base leading-none">
-                  SECTOR SEVEN
-                </div>
-                <div className="font-extrabold text-[#0284C7] tracking-widest text-[9px] uppercase mt-0.5">
-                  CYBER LLC
-                </div>
-              </div>
-            </div>
+            <Logo size="md" />
             <p className="text-slate-600 text-xs leading-relaxed max-w-sm">
               Sector Seven Cyber LLC builds and operates continuously managed cybersecurity environments for Georgia law firms, medical clinics, and high-liability enterprises.
             </p>

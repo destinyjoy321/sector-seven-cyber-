@@ -184,25 +184,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 2. Resend API Fallback
     if (resendApiKey) {
-      const teamRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${resendApiKey}`,
-        },
-        body: JSON.stringify({
-          from: fromEmail,
-          to: [teamEmail],
-          subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
-          html: teamEmailHtml,
-          attachments: attachments.length > 0 ? attachments : undefined,
-        }),
-      });
-      const teamData = await teamRes.json();
-
-      let clientData = null;
-      if (payload.email) {
-        let clientRes = await fetch('https://api.resend.com/emails', {
+      try {
+        const teamRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -210,15 +193,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           },
           body: JSON.stringify({
             from: fromEmail,
-            to: [payload.email],
-            subject: 'Your Cyber Insurance Assessment Request Has Been Received',
-            html: clientEmailHtml,
+            to: [teamEmail],
+            subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
+            html: teamEmailHtml,
+            attachments: attachments.length > 0 ? attachments : undefined,
           }),
         });
-        clientData = await clientRes.json();
+        const teamData = await teamRes.json();
 
-        if (!clientRes.ok) {
-          const copyRes = await fetch('https://api.resend.com/emails', {
+        let clientData = null;
+        if (payload.email) {
+          let clientRes = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -226,19 +211,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             },
             body: JSON.stringify({
               from: fromEmail,
-              to: [teamEmail],
-              subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
+              to: [payload.email],
+              subject: 'Your Cyber Insurance Assessment Request Has Been Received',
               html: clientEmailHtml,
             }),
           });
-          clientData = await copyRes.json();
-        }
-      }
+          clientData = await clientRes.json();
 
-      return res.status(200).json({ success: true, provider: 'resend_api', teamResend: teamData, clientResend: clientData });
+          if (!clientRes.ok) {
+            const copyRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${resendApiKey}`,
+              },
+              body: JSON.stringify({
+                from: fromEmail,
+                to: [teamEmail],
+                subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
+                html: clientEmailHtml,
+              }),
+            });
+            clientData = await copyRes.json();
+          }
+        }
+
+        return res.status(200).json({ success: true, provider: 'resend_api', teamResend: teamData, clientResend: clientData });
+      } catch (resendErr: any) {
+        console.warn('Resend API error:', resendErr);
+      }
     }
 
-    return res.status(500).json({ error: 'No email service configured' });
+    return res.status(500).json({
+      error: 'No email service configured or delivery failed',
+      debug: {
+        hasGmailUser: !!gmailUser,
+        hasGmailPass: !!gmailPass,
+        hasResendKey: !!resendApiKey,
+      }
+    });
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || 'Server error' });
   }

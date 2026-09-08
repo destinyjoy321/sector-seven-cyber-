@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 220" width="500" height="220" fill="none">
+  <defs>
+    <linearGradient id="s7-shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D2FF" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+
+    <linearGradient id="s7-facet-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00D2FF" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0.05" />
+    </linearGradient>
+
+    <filter id="cyan-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00D2FF" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  {/* Logo Icon Mark (Left Positioned) */}
+  <g transform="translate(10, 0)">
+    {/* Outer Shield Frame */}
+    <path 
+      d="M 100 8 L 178 42 L 188 108 L 100 208 L 12 108 L 22 42 Z" 
+      stroke="url(#s7-shield-gradient)" 
+      stroke-width="4.5" 
+      stroke-linejoin="round"
+      fill="url(#s7-facet-glow)"
+      filter="url(#cyan-glow)"
+    />
+
+    {/* Inner Bevel Line */}
+    <path 
+      d="M 100 24 L 165 52 L 173 105 L 100 190 L 27 105 L 35 52 Z" 
+      stroke="#00D2FF" 
+      stroke-width="2" 
+      stroke-opacity="0.6" 
+      stroke-linejoin="round" 
+      fill="none"
+    />
+
+    {/* Center 3D Facet Spine */}
+    <path d="M 100 8 L 100 208" stroke="#00D2FF" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="3 3" />
+
+    {/* Prominent "7" on Right Side */}
+    <path d="M 100 36 L 165 52" stroke="#00D2FF" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M 165 52 L 100 190" stroke="#00D2FF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+
+    {/* 3D Wireframe S-Curve on Left Side */}
+    <path d="M 100 36 L 56 50 L 42 82" stroke="#00D2FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 42 82 L 96 102" stroke="#00D2FF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 96 102 L 86 142 L 44 154" stroke="#00D2FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+    {/* Facet Wireframe Geometry Lines */}
+    <path d="M 100 8 L 56 50" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.7" />
+    <path d="M 56 50 L 22 42" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.7" />
+    <path d="M 42 82 L 12 108" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.6" />
+    <path d="M 96 102 L 165 52" stroke="#00D2FF" stroke-width="1.5" stroke-opacity="0.5" />
+    <path d="M 86 142 L 12 108" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.5" />
+    <path d="M 44 154 L 100 190" stroke="#00D2FF" stroke-width="2" stroke-opacity="0.7" />
+
+    {/* Right Facet Mesh Lines */}
+    <path d="M 165 52 L 178 42" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.7" />
+    <path d="M 165 52 L 188 108" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.6" />
+    <path d="M 132 120 L 188 108" stroke="#0284C7" stroke-width="1.5" stroke-opacity="0.5" />
+  </g>
+
+  {/* Typography - Light Theme Responsive Colors */}
+  <text x="215" y="105" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="34" fill="#0F172A" letter-spacing="-0.5">SECTOR SEVEN</text>
+  <text x="217" y="145" font-family="'JetBrains Mono', monospace" font-weight="800" font-size="20" fill="#0284C7" letter-spacing="8">CYBER LLC</text>
+</svg>
