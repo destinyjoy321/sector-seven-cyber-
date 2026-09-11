@@ -38,17 +38,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const teamEmail = process.env.VITE_INTERNAL_NOTIFICATION_EMAIL || process.env.INTERNAL_NOTIFICATION_EMAIL || 'contact@sectorsevencyber.com';
     const gmailUser = process.env.GMAIL_USER || '';
     const gmailPass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
-    const siteUrl = process.env.VITE_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const hostHeader = (req.headers['x-forwarded-host'] as string) || req.headers.host || '';
+    const protoHeader = (req.headers['x-forwarded-proto'] as string) || 'https';
+    let envSiteUrl = process.env.VITE_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || '';
+    if (envSiteUrl && !envSiteUrl.startsWith('http')) {
+      envSiteUrl = `https://${envSiteUrl}`;
+    }
+
+    let siteUrl = 'https://sectorsevencyber.vercel.app';
+    if (envSiteUrl && !envSiteUrl.includes('localhost')) {
+      siteUrl = envSiteUrl;
+    } else if (hostHeader && !hostHeader.includes('localhost')) {
+      siteUrl = `${protoHeader}://${hostHeader}`;
+    }
 
     const rawPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
     const payload = {
       id: sanitizeStr(rawPayload.id),
       contact_name: sanitizeStr(rawPayload.contact_name),
+      contact_title: sanitizeStr(rawPayload.contact_title || ''),
       company_name: sanitizeStr(rawPayload.company_name),
       email: sanitizeStr(rawPayload.email),
       phone: sanitizeStr(rawPayload.phone),
       industry: sanitizeStr(rawPayload.industry),
+      industry_other: sanitizeStr(rawPayload.industry_other || ''),
+      referred_by_broker: sanitizeStr(rawPayload.referred_by_broker || 'No'),
+      broker_name: sanitizeStr(rawPayload.broker_name || ''),
       employee_count: sanitizeStr(rawPayload.employee_count),
       insurance_provider: sanitizeStr(rawPayload.insurance_provider),
       insurance_status: sanitizeStr(rawPayload.insurance_status),
@@ -89,10 +105,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #1e293b;">
           <tr><td style="padding: 10px 0; font-weight: bold; width: 150px; color: #475569;">Company:</td><td style="font-weight: bold; color: #0f172a;">${payload.company_name}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Contact:</td><td>${payload.contact_name}</td></tr>
+          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Contact:</td><td>${payload.contact_name} ${payload.contact_title ? `(${payload.contact_title})` : ''}</td></tr>
           <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Email:</td><td><a href="mailto:${payload.email}" style="color: #2563eb; font-weight: bold;">${payload.email}</a></td></tr>
           <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Phone:</td><td>${payload.phone}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Industry:</td><td>${payload.industry} (${payload.employee_count} employees)</td></tr>
+          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Industry:</td><td>${payload.industry} ${payload.industry_other ? `[Other: ${payload.industry_other}]` : ''} (${payload.employee_count} endpoints)</td></tr>
+          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Broker Referral:</td><td>${payload.referred_by_broker} ${payload.broker_name ? `(${payload.broker_name})` : ''}</td></tr>
           <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Insurance Status:</td><td>${payload.insurance_status} (${payload.insurance_provider})</td></tr>
           <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Questionnaire:</td><td>📄 ${payload.file_name} ${attachments.length > 0 ? '(Attached)' : ''}</td></tr>
           <tr>

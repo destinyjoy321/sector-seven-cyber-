@@ -3,10 +3,14 @@
 export interface EmailNotificationPayload {
   id: string;
   contact_name: string;
+  contact_title?: string;
   company_name: string;
   email: string;
   phone: string;
   industry: string;
+  industry_other?: string;
+  referred_by_broker?: string;
+  broker_name?: string;
   employee_count: string;
   insurance_provider: string;
   insurance_status: string;
@@ -45,7 +49,11 @@ export async function sendApplicationEmailAlert(app: EmailNotificationPayload): 
 
   // 2. Direct Resend API fallback
   try {
-    const siteUrl = import.meta.env.VITE_SITE_URL || 'http://localhost:3000';
+    let envSiteUrl = import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    if (!envSiteUrl || envSiteUrl.includes('localhost')) {
+      envSiteUrl = 'https://sectorsevencyber.vercel.app';
+    }
+    const siteUrl = envSiteUrl;
     const viewQuestionnaireUrl = `${siteUrl}/api/view-questionnaire?path=${encodeURIComponent(app.file_path || '')}`;
 
     const res = await fetch('https://api.resend.com/emails', {

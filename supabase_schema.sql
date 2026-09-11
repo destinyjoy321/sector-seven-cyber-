@@ -6,10 +6,14 @@ CREATE TABLE IF NOT EXISTS public.applications (
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   contact_name TEXT NOT NULL,
+  contact_title TEXT,
   company_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT NOT NULL,
   industry TEXT NOT NULL,
+  industry_other TEXT,
+  referred_by_broker TEXT,
+  broker_name TEXT,
   employee_count TEXT NOT NULL,
   insurance_status TEXT NOT NULL,
   insurance_provider TEXT NOT NULL,
@@ -24,6 +28,12 @@ CREATE TABLE IF NOT EXISTS public.applications (
   terms_version TEXT,
   notes TEXT
 );
+
+-- Migration Statements for Existing Database Instances
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS contact_title TEXT;
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS industry_other TEXT;
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS referred_by_broker TEXT;
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS broker_name TEXT;
 
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;

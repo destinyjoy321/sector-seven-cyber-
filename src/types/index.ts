@@ -13,10 +13,14 @@ export interface ProspectApplication {
   created_at: string;
   updated_at: string;
   contact_name: string;
+  contact_title?: string;
   company_name: string;
   email: string;
   phone: string;
   industry: string;
+  industry_other?: string;
+  referred_by_broker?: string;
+  broker_name?: string;
   employee_count: string;
   insurance_status: string;
   insurance_provider: string;

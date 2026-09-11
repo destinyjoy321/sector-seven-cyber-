@@ -16,14 +16,18 @@ type VaultStage = 'idle' | 'encrypting' | 'validating' | 'securing' | 'success';
 export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onNavigate }) => {
   const [formData, setFormData] = useState<Partial<ApplicationFormData>>({
     contact_name: '',
+    contact_title: '',
     company_name: '',
     email: '',
     phone: '',
-    industry: 'Law Firm',
+    industry: 'Law Firms & Legal Practices',
+    industry_other: '',
+    referred_by_broker: 'No',
+    broker_name: '',
     employee_count: '',
     insurance_status: 'Active coverage (Facing upcoming audit/renewal)',
     insurance_provider: 'Standard Antivirus software only (Unmonitored)',
-    message: 'Instantly satisfy carrier requirements to secure preferred insurance rates.',
+    message: 'Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework',
     terms_accepted: false,
   });
 
@@ -113,14 +117,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
         created_at: timestamp,
         updated_at: timestamp,
         contact_name: validationResult.data.contact_name,
+        contact_title: validationResult.data.contact_title,
         company_name: validationResult.data.company_name,
         email: validationResult.data.email,
         phone: validationResult.data.phone,
         industry: validationResult.data.industry,
+        industry_other: validationResult.data.industry_other,
+        referred_by_broker: validationResult.data.referred_by_broker,
+        broker_name: validationResult.data.broker_name,
         employee_count: validationResult.data.employee_count,
         insurance_status: validationResult.data.insurance_status,
         insurance_provider: validationResult.data.insurance_provider,
-        message: validationResult.data.message,
+        message: 'Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework',
         file_name: fileNamesCombined,
         file_size: totalSize,
         file_type: selectedFiles[0].type || 'application/pdf',
@@ -245,29 +253,57 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
           )}
         </motion.div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-6 text-left" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-6 text-left font-sans" noValidate>
         
         {/* SECTION 01: ENTITY & CONTACT DETAILS */}
         <div className="space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
             <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
-            <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7]">
+            <span className="font-extrabold text-xs uppercase tracking-widest text-[#0284C7]">
               01 / Entity & Contact Details
             </span>
           </div>
 
+          {/* 1. Executive Title & Full Name (Executive Title First) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[42px] flex items-end mb-2">
-                <label htmlFor="input-contact-name" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
-                  Contact Name & Title <span className="text-red-500 font-bold inline-block">*</span>
+                <label htmlFor="input-contact-title" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Executive Title <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-contact-title"
+                type="text"
+                name="contact_title"
+                placeholder="e.g. Managing Partner, CEO, CRO"
+                value={formData.contact_title || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.contact_title)}
+                aria-describedby={errors.contact_title ? 'contact_title-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.contact_title ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.contact_title && (
+                <p id="contact_title-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.contact_title}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="input-contact-name" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Full Name <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
               <input
                 id="input-contact-name"
                 type="text"
                 name="contact_name"
-                placeholder="e.g. Marcus Vance, Esq."
+                placeholder="e.g. Marcus Vance"
                 value={formData.contact_name || ''}
                 onChange={handleTextChange}
                 aria-invalid={Boolean(errors.contact_name)}
@@ -283,18 +319,21 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                 </p>
               )}
             </div>
+          </div>
 
+          {/* 2. Legal Entity Name & Focus Dropdown Menu */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[42px] flex items-end mb-2">
-                <label htmlFor="input-company-name" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
-                  Legal Entity Name & Focus <span className="text-red-500 font-bold inline-block">*</span>
+                <label htmlFor="input-company-name" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Legal Entity Name <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
               <input
                 id="input-company-name"
                 type="text"
                 name="company_name"
-                placeholder="e.g. Whitfield & Associates, Family Medicine"
+                placeholder="e.g. Vance & Montgomery Partners LLC"
                 value={formData.company_name || ''}
                 onChange={handleTextChange}
                 aria-invalid={Boolean(errors.company_name)}
@@ -310,12 +349,67 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                 </p>
               )}
             </div>
+
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="select-industry" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Business Focus & Industry Sector <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <select
+                id="select-industry"
+                name="industry"
+                value={formData.industry || 'Law Firms & Legal Practices'}
+                onChange={handleTextChange}
+                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none truncate"
+              >
+                <option value="Law Firms & Legal Practices">Law Firms & Legal Practices</option>
+                <option value="Healthcare Clinics & Medical Practices">Healthcare Clinics & Medical Practices</option>
+                <option value="CPA Practices & Accounting Firms">CPA Practices & Accounting Firms</option>
+                <option value="Commercial Insurance Brokerages">Commercial Insurance Brokerages</option>
+                <option value="Other / Independent Business">Other / Independent Business</option>
+              </select>
+            </div>
           </div>
 
+          {/* Conditional Focus Text Box */}
+          {formData.industry === 'Other / Independent Business' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex flex-col space-y-2 pt-1"
+            >
+              <label htmlFor="input-industry-other" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                Please specify your business focus: <span className="text-red-500 font-bold inline-block">*</span>
+              </label>
+              <input
+                id="input-industry-other"
+                type="text"
+                name="industry_other"
+                placeholder="e.g. Commercial Real Estate, Defense Contractor"
+                value={formData.industry_other || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.industry_other)}
+                aria-describedby={errors.industry_other ? 'industry_other-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.industry_other ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.industry_other && (
+                <p id="industry_other-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.industry_other}
+                </p>
+              )}
+            </motion.div>
+          )}
+
+          {/* Contact Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[42px] flex items-end mb-2">
-                <label htmlFor="input-email" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                <label htmlFor="input-email" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Business Email <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
@@ -342,7 +436,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
 
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[42px] flex items-end mb-2">
-                <label htmlFor="input-phone" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                <label htmlFor="input-phone" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Direct Phone Number <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
@@ -367,13 +461,65 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
               )}
             </div>
           </div>
+
+          {/* 3. Independent Broker Referral Question */}
+          <div className="pt-2 border-t border-slate-100 space-y-4">
+            <div className="flex flex-col justify-between h-full">
+              <label htmlFor="select-referred-by-broker" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug mb-2">
+                Were you referred to us by an independent commercial insurance broker? <span className="text-red-500 font-bold inline-block">*</span>
+              </label>
+              <select
+                id="select-referred-by-broker"
+                name="referred_by_broker"
+                value={formData.referred_by_broker || 'No'}
+                onChange={handleTextChange}
+                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+
+            {/* Conditional Broker Name Box */}
+            {formData.referred_by_broker === 'Yes' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-col space-y-2 pt-1"
+              >
+                <label htmlFor="input-broker-name" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Please enter the name of your referring independent insurance brokerage or agent: <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+                <input
+                  id="input-broker-name"
+                  type="text"
+                  name="broker_name"
+                  placeholder="e.g., Sync Insurance, Snellings Walters"
+                  value={formData.broker_name || ''}
+                  onChange={handleTextChange}
+                  aria-invalid={Boolean(errors.broker_name)}
+                  aria-describedby={errors.broker_name ? 'broker_name-error' : undefined}
+                  className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                    errors.broker_name ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                  }`}
+                />
+                {errors.broker_name && (
+                  <p id="broker_name-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                    {errors.broker_name}
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </div>
         </div>
 
         {/* SECTION 02: UNDERWRITING & DEFENSE PROFILE */}
         <div className="space-y-6 pt-4">
           <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
             <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
-            <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7]">
+            <span className="font-extrabold text-xs uppercase tracking-widest text-[#0284C7]">
               02 / Underwriting & Defense Profile
             </span>
           </div>
@@ -382,7 +528,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[48px] flex items-end mb-2">
-                <label htmlFor="select-insurance-status" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                <label htmlFor="select-insurance-status" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Cyber Liability Coverage Status <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
@@ -401,7 +547,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
 
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[48px] flex items-end mb-2">
-                <label htmlFor="input-employee-count" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                <label htmlFor="input-employee-count" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Active Endpoint Count (Network Footprint) <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
@@ -427,11 +573,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
             </div>
           </div>
 
-          {/* Row 2: Defense Infrastructure & Primary Operational Goal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+          {/* Row 2: Defense Infrastructure */}
+          <div className="grid grid-cols-1 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
               <div className="min-h-[48px] flex items-end mb-2">
-                <label htmlFor="select-insurance-provider" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                <label htmlFor="select-insurance-provider" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Active Defense Infrastructure <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
               </div>
@@ -447,26 +593,57 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                 <option value="No centralized endpoint logging structure">No centralized endpoint logging structure</option>
               </select>
             </div>
+          </div>
 
-            <div className="flex flex-col justify-between h-full">
-              <div className="min-h-[48px] flex items-end mb-2">
-                <label htmlFor="select-message-goal" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
-                  Primary Operational Goal <span className="text-red-500 font-bold inline-block">*</span>
-                </label>
-              </div>
-              <select
-                id="select-message-goal"
-                name="message"
-                value={formData.message || 'Instantly satisfy carrier requirements to secure preferred insurance rates.'}
-                onChange={handleTextChange}
-                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none truncate"
-              >
-                <option value="Instantly satisfy carrier requirements to secure preferred insurance rates.">Instantly satisfy carrier requirements to secure preferred insurance rates.</option>
-                <option value="Deploy 24/7 human-led active threat hunting to isolate internal network risks.">Deploy 24/7 human-led active threat hunting to isolate internal network risks.</option>
-                <option value="Protect high-value client records from catastrophic data leaks and regulatory penalties.">Protect high-value client records from catastrophic data leaks and regulatory penalties.</option>
-              </select>
+          {/* 4. Primary Operational Goal Overhaul & Locked Input */}
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
+            <div>
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+                Primary Operational Goal & Unified Service Framework
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Our institutional B2B security architecture operates as a unified service layer across three core pillars:
+              </p>
+            </div>
+
+            {/* Turn Text Into Static Bullets */}
+            <ul className="space-y-2 text-xs sm:text-sm text-slate-700 font-medium">
+              <li className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
+                <span>Instantly satisfy carrier requirements to secure preferred insurance rates.</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
+                <span>Deploy 24/7 human-led active threat hunting to isolate internal network risks.</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
+                <span>Protect high-value client records from catastrophic data leaks and regulatory penalties.</span>
+              </li>
+            </ul>
+
+            {/* The Pre-Selected Locked Box */}
+            <div className="pt-2">
+              <label className="flex items-start gap-3 p-3.5 rounded-xl border border-sky-200 bg-sky-50/70 text-slate-900 cursor-not-allowed select-none">
+                <input
+                  type="checkbox"
+                  checked={true}
+                  disabled={true}
+                  readOnly={true}
+                  className="mt-0.5 w-4 h-4 text-[#0284C7] border-sky-400 rounded accent-[#0284C7] cursor-not-allowed"
+                />
+                <div className="space-y-0.5">
+                  <span className="font-bold text-xs sm:text-sm text-slate-900 block leading-tight">
+                    Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework
+                  </span>
+                  <span className="inline-block text-[10px] font-extrabold text-[#0284C7] bg-sky-100 px-2 py-0.5 rounded border border-sky-200 uppercase tracking-wider">
+                    [PRE-SELECTED / MANDATORY]
+                  </span>
+                </div>
+              </label>
             </div>
           </div>
+
         </div>
 
         {/* File Upload Component */}
@@ -524,7 +701,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
           <div className="p-4 rounded-xl border border-red-300 bg-red-50 text-red-800 text-sm flex items-start gap-3 shadow-sm" role="alert">
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
             <div>
-              <h4 className="font-bold text-xs uppercase tracking-wider text-red-800 font-mono">Submission Error</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-red-800 font-sans">Submission Error</h4>
               <p className="text-xs text-red-700 mt-0.5">{submitError}</p>
             </div>
           </div>
@@ -548,7 +725,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
               </div>
             ) : (
               <>
-                <span className="font-mono font-extrabold">CONFIRM MY SECURITY FIT CALL →</span>
+                <span className="font-sans font-extrabold">CONFIRM MY SECURITY FIT CALL →</span>
                 <ArrowRight className="w-4 h-4 text-white" aria-hidden="true" />
               </>
             )}

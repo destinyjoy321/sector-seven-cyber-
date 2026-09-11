@@ -11,32 +11,16 @@ export const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
 
   const faqs = [
     {
-      q: '“We already have antivirus. Why isn\'t that enough?”',
-      a: 'Because having antivirus installed isn\'t necessarily the same thing as maintaining continuously monitored endpoint protection. Modern underwriting increasingly focuses on the security controls an organization has in place, and whether those controls are being actively maintained and monitored.',
+      q: 'Is the Sector Seven framework classified as an automated software suite or a Cyber Liability Insurance instrument?',
+      a: 'Neither. Sector Seven Cyber LLC operates exclusively as an institutional B2B cybersecurity compliance and active defense firm. We are not an insurance carrier, nor do we deploy passive software that routes unmonitored alerts to empty inboxes. Instead, we anchor our client defenses with a live, human-led, 24/7/365 Security Operations Center (SOC) that monitors your network infrastructure in real time.',
     },
     {
-      q: '“We\'ve never had a cyberattack. Why should we worry?”',
-      a: 'Because underwriting is concerned with your risk exposure, not simply your incident history. A clean breach history doesn\'t automatically mean your current security posture satisfies your carrier\'s requirements.',
+      q: 'What is the operational protocol if a critical vulnerability or threat vector is identified outside of standard business hours?',
+      a: 'While automated monitoring programs merely log indicators of compromise, Sector Seven’s dedicated human threat hunters intervene immediately. In the event of a high-severity security anomaly detected at midnight, our global SOC team steps in within minutes to terminate the malicious process, isolate the affected device from the host network, and neutralize the threat vector before data can be stolen.',
     },
     {
-      q: '“Can Sector Seven guarantee that our insurer will renew us?”',
-      a: 'Sector Seven Cyber\'s role is to help you address the security requirements your insurer is looking for before those requirements become a renewal problem. We identify gaps, help remediate them, continuously monitor your security environment, and maintain evidence of the controls you\'re operating. Your carrier makes the final underwriting decision. Our job is to make sure your security posture isn\'t the reason you get flagged.',
-    },
-    {
-      q: '“What if our renewal isn\'t for several months?”',
-      a: 'That\'s actually ideal. The earlier you identify gaps, the more time you have to address them without being forced into a last-minute scramble.',
-    },
-    {
-      q: '“Do we need to understand cybersecurity to work with you?”',
-      a: 'No. That\'s part of the point. You run the law firm or medical practice. We handle the security side.',
-    },
-    {
-      q: '“What should I upload?”',
-      a: 'Upload the official documentation provided by your broker or carrier, such as your Cyber Security Risk Questionnaire, Policy Renewal Notice, or Underwriter Deficiency Letter. If you received multiple relevant documents, upload them all.',
-    },
-    {
-      q: '“Is my questionnaire confidential?”',
-      a: 'Yes. Your questionnaire and business information are kept confidential and handled securely by Sector Seven Cyber.',
+      q: 'How does Sector Seven assist with our independent insurance underwriting and state compliance?',
+      a: 'We actively engineer your technical endpoints to comply with demanding cyber insurance underwriting requirements and state notification frameworks (such as O.C.G.A. § 10-1-912). By delivering active human oversight instead of passive tools, we provide the definitive proof of protection that carriers require to qualify your firm for coverage.',
     },
   ];
 
