@@ -20,14 +20,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
     email: '',
     phone: '',
     industry: 'Law Firm',
-    employee_count: '25-50',
-    insurance_status: 'Existing Policy / Renewal',
-    insurance_provider: '',
-    message: '',
+    employee_count: '',
+    insurance_status: 'Active coverage (Facing upcoming audit/renewal)',
+    insurance_provider: 'Standard Antivirus software only (Unmonitored)',
+    message: 'Instantly satisfy carrier requirements to secure preferred insurance rates.',
     terms_accepted: false,
   });
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [fileError, setFileError] = useState<string>('');
   const [submitError, setSubmitError] = useState<string>('');
@@ -76,8 +76,8 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
     setSubmitError('');
 
     // Step 1: Validate file presence
-    if (!selectedFile) {
-      setFileError('Your document could not be uploaded. Please try again.');
+    if (selectedFiles.length === 0) {
+      setFileError('Please select at least one document to upload before submitting.');
       return;
     }
 
@@ -102,7 +102,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       const appId = `SS-2026-${randomNum}`;
 
-      const sanitizedFilename = `questionnaire-${Math.random().toString(36).substring(2, 10)}.${selectedFile.name.split('.').pop()}`;
+      const primaryExt = selectedFiles[0].name.split('.').pop() || 'pdf';
+      const sanitizedFilename = `questionnaire-${Math.random().toString(36).substring(2, 10)}.${primaryExt}`;
+
+      const totalSize = selectedFiles.reduce((acc, f) => acc + f.size, 0);
+      const fileNamesCombined = selectedFiles.map(f => f.name).join(', ');
 
       const newApp: ProspectApplication = {
         id: appId,
@@ -117,9 +121,9 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
         insurance_status: validationResult.data.insurance_status,
         insurance_provider: validationResult.data.insurance_provider,
         message: validationResult.data.message,
-        file_name: selectedFile.name,
-        file_size: selectedFile.size,
-        file_type: selectedFile.type || 'application/pdf',
+        file_name: fileNamesCombined,
+        file_size: totalSize,
+        file_type: selectedFiles[0].type || 'application/pdf',
         file_path: `${appId}/${sanitizedFilename}`,
         status: 'NEW',
         notification_status: 'PENDING',
@@ -131,7 +135,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
       // Multi-step Vault Sequence Timing
       const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
       
-      const savePromise = saveApplication(newApp, selectedFile);
+      const savePromise = saveApplication(newApp, selectedFiles);
       
       await delay(600);
       setVaultStage('validating');
@@ -243,217 +247,234 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
       )}
       <form onSubmit={handleSubmit} className="space-y-6 text-left" noValidate>
         
-        {/* Contact Name & Firm Name */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="input-contact-name" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Contact Name & Title *
-            </label>
-            <input
-              id="input-contact-name"
-              type="text"
-              name="contact_name"
-              placeholder="e.g. Marcus Vance, Esq."
-              value={formData.contact_name || ''}
-              onChange={handleTextChange}
-              aria-invalid={Boolean(errors.contact_name)}
-              aria-describedby={errors.contact_name ? 'contact_name-error' : undefined}
-              className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                errors.contact_name ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-              }`}
-            />
-            {errors.contact_name && (
-              <p id="contact_name-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                {errors.contact_name}
-              </p>
-            )}
+        {/* SECTION 01: ENTITY & CONTACT DETAILS */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+            <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
+            <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7]">
+              01 / Entity & Contact Details
+            </span>
           </div>
 
-          <div>
-            <label htmlFor="input-company-name" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Company / Practice Name *
-            </label>
-            <input
-              id="input-company-name"
-              type="text"
-              name="company_name"
-              placeholder="e.g. Vance & Montgomery Law Partners"
-              value={formData.company_name || ''}
-              onChange={handleTextChange}
-              aria-invalid={Boolean(errors.company_name)}
-              aria-describedby={errors.company_name ? 'company_name-error' : undefined}
-              className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                errors.company_name ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-              }`}
-            />
-            {errors.company_name && (
-              <p id="company_name-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                {errors.company_name}
-              </p>
-            )}
-          </div>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="input-contact-name" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Contact Name & Title <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-contact-name"
+                type="text"
+                name="contact_name"
+                placeholder="e.g. Marcus Vance, Esq."
+                value={formData.contact_name || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.contact_name)}
+                aria-describedby={errors.contact_name ? 'contact_name-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.contact_name ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.contact_name && (
+                <p id="contact_name-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.contact_name}
+                </p>
+              )}
+            </div>
 
-        {/* Business Email & Phone */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="input-email" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Business Email *
-            </label>
-            <input
-              id="input-email"
-              type="email"
-              name="email"
-              placeholder="m.vance@vancelawga.com"
-              value={formData.email || ''}
-              onChange={handleTextChange}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                errors.email ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-              }`}
-            />
-            {errors.email && (
-              <p id="email-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="input-phone" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Direct Phone Number *
-            </label>
-            <input
-              id="input-phone"
-              type="tel"
-              name="phone"
-              placeholder="+1 (404) 892-3400"
-              value={formData.phone || ''}
-              onChange={handleTextChange}
-              aria-invalid={Boolean(errors.phone)}
-              aria-describedby={errors.phone ? 'phone-error' : undefined}
-              className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                errors.phone ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-              }`}
-            />
-            {errors.phone && (
-              <p id="phone-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                {errors.phone}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Industry Sector & Employee Count */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="select-industry" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Industry Sector *
-            </label>
-            <select
-              id="select-industry"
-              name="industry"
-              value={formData.industry || 'Law Firm'}
-              onChange={handleTextChange}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
-            >
-              <option value="Law Firm">Law Firm / Legal Practice</option>
-              <option value="Medical Clinic">Medical Clinic / Healthcare Facility</option>
-            </select>
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="input-company-name" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Legal Entity Name & Focus <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-company-name"
+                type="text"
+                name="company_name"
+                placeholder="e.g. Whitfield & Associates, Family Medicine"
+                value={formData.company_name || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.company_name)}
+                aria-describedby={errors.company_name ? 'company_name-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.company_name ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.company_name && (
+                <p id="company_name-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.company_name}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="select-employee-count" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Employee Count *
-            </label>
-            <select
-              id="select-employee-count"
-              name="employee_count"
-              value={formData.employee_count || '25-50'}
-              onChange={handleTextChange}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
-            >
-              <option value="1-10">1 - 10 Employees</option>
-              <option value="10-25">10 - 25 Employees</option>
-              <option value="25-50">25 - 50 Employees</option>
-              <option value="50-100">50 - 100 Employees</option>
-              <option value="100+">100+ Enterprise Staff</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="input-email" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Business Email <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-email"
+                type="email"
+                name="email"
+                placeholder="m.vance@vancelawga.com"
+                value={formData.email || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.email ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.email && (
+                <p id="email-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
+                <label htmlFor="input-phone" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Direct Phone Number <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-phone"
+                type="tel"
+                name="phone"
+                placeholder="+1 (460) 363-9083"
+                value={formData.phone || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.phone)}
+                aria-describedby={errors.phone ? 'phone-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.phone ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.phone && (
+                <p id="phone-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.phone}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Insurance Status & Carrier Provider Name */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="select-insurance-status" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Current Insurance Status *
-            </label>
-            <select
-              id="select-insurance-status"
-              name="insurance_status"
-              value={formData.insurance_status || 'Existing Policy / Renewal'}
-              onChange={handleTextChange}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
-            >
-              <option value="Existing Policy / Renewal">Existing Policy Renewal</option>
-              <option value="New Policy Application">New Policy Application</option>
-              <option value="Carrier Compliance Audit">Carrier Compliance Audit / Warning Notice</option>
-            </select>
+        {/* SECTION 02: UNDERWRITING & DEFENSE PROFILE */}
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
+            <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
+            <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7]">
+              02 / Underwriting & Defense Profile
+            </span>
           </div>
 
-          <div>
-            <label htmlFor="input-insurance-provider" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Insurance Carrier Name *
-            </label>
-            <input
-              id="input-insurance-provider"
-              type="text"
-              name="insurance_provider"
-              placeholder="e.g. Travelers, Chubb, Coalition, CNA"
-              value={formData.insurance_provider || ''}
-              onChange={handleTextChange}
-              aria-invalid={Boolean(errors.insurance_provider)}
-              aria-describedby={errors.insurance_provider ? 'insurance_provider-error' : undefined}
-              className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                errors.insurance_provider ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-              }`}
-            />
-            {errors.insurance_provider && (
-              <p id="insurance_provider-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                {errors.insurance_provider}
-              </p>
-            )}
-          </div>
-        </div>
+          {/* Row 1: Coverage Status & Active Endpoint Count */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[48px] flex items-end mb-2">
+                <label htmlFor="select-insurance-status" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Cyber Liability Coverage Status <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <select
+                id="select-insurance-status"
+                name="insurance_status"
+                value={formData.insurance_status || 'Active coverage (Facing upcoming audit/renewal)'}
+                onChange={handleTextChange}
+                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none truncate"
+              >
+                <option value="Active coverage (Facing upcoming audit/renewal)">Active coverage (Facing upcoming audit/renewal)</option>
+                <option value="Policy currently flagged / Conditional status">Policy currently flagged / Conditional status</option>
+                <option value="No active policy (Seeking immediate compliance baseline)">No active policy (Seeking immediate compliance baseline)</option>
+              </select>
+            </div>
 
-        {/* Additional Notes / Details */}
-        <div>
-          <label htmlFor="textarea-message" className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-wider mb-2">
-            Specific Carrier Requirements / Notes (Optional)
-          </label>
-          <textarea
-            id="textarea-message"
-            name="message"
-            rows={3}
-            placeholder="e.g., We received a 30-day notice from Chubb requiring proof of hardware MFA and air-gapped backups."
-            value={formData.message || ''}
-            onChange={handleTextChange}
-            className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 text-sm focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none resize-none"
-          ></textarea>
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[48px] flex items-end mb-2">
+                <label htmlFor="input-employee-count" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Active Endpoint Count (Network Footprint) <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <input
+                id="input-employee-count"
+                type="text"
+                name="employee_count"
+                placeholder="e.g., 25 Workstations, 2 Servers"
+                value={formData.employee_count || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.employee_count)}
+                aria-describedby={errors.employee_count ? 'employee_count-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.employee_count ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              />
+              {errors.employee_count && (
+                <p id="employee_count-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.employee_count}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Defense Infrastructure & Primary Operational Goal */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[48px] flex items-end mb-2">
+                <label htmlFor="select-insurance-provider" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Active Defense Infrastructure <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <select
+                id="select-insurance-provider"
+                name="insurance_provider"
+                value={formData.insurance_provider || 'Standard Antivirus software only (Unmonitored)'}
+                onChange={handleTextChange}
+                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none truncate"
+              >
+                <option value="Standard Antivirus software only (Unmonitored)">Standard Antivirus software only (Unmonitored)</option>
+                <option value="Internal IT team managing baseline configurations">Internal IT team managing baseline configurations</option>
+                <option value="No centralized endpoint logging structure">No centralized endpoint logging structure</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[48px] flex items-end mb-2">
+                <label htmlFor="select-message-goal" className="block text-xs sm:text-sm font-mono font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                  Primary Operational Goal <span className="text-red-500 font-bold inline-block">*</span>
+                </label>
+              </div>
+              <select
+                id="select-message-goal"
+                name="message"
+                value={formData.message || 'Instantly satisfy carrier requirements to secure preferred insurance rates.'}
+                onChange={handleTextChange}
+                className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-slate-50/50 text-slate-900 text-sm sm:text-base focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none truncate"
+              >
+                <option value="Instantly satisfy carrier requirements to secure preferred insurance rates.">Instantly satisfy carrier requirements to secure preferred insurance rates.</option>
+                <option value="Deploy 24/7 human-led active threat hunting to isolate internal network risks.">Deploy 24/7 human-led active threat hunting to isolate internal network risks.</option>
+                <option value="Protect high-value client records from catastrophic data leaks and regulatory penalties.">Protect high-value client records from catastrophic data leaks and regulatory penalties.</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* File Upload Component */}
         <FileUpload
-          selectedFile={selectedFile}
-          onFileSelect={(file) => {
-            setSelectedFile(file);
-            if (file) setFileError('');
+          selectedFiles={selectedFiles}
+          onFileSelect={(files) => {
+            setSelectedFiles(files);
+            if (files.length > 0) setFileError('');
           }}
           error={fileError}
         />

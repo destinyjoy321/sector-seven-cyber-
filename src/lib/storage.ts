@@ -90,44 +90,52 @@ export async function fetchLiveApplications(): Promise<ProspectApplication[]> {
   return localApps;
 }
 
-export async function saveApplication(app: ProspectApplication, file?: File): Promise<void> {
+export async function saveApplication(app: ProspectApplication, fileInput?: File[] | File): Promise<void> {
   // Initial notification status set to PENDING
   app.notification_status = 'PENDING';
+  const filesList: File[] = Array.isArray(fileInput) ? fileInput : fileInput ? [fileInput] : [];
 
-  // 1. Upload file to live Supabase private bucket 'insurance-questionnaires'
-  if (file) {
-    let uploadSuccess = false;
-    try {
-      const storagePath = app.file_path;
-      // Try anon client first
-      let { data: storageData, error: storageErr } = await supabase.storage
-        .from('insurance-questionnaires')
-        .upload(storagePath, file, { upsert: true });
+  // 1. Upload files to live Supabase private bucket 'insurance-questionnaires'
+  if (filesList.length > 0) {
+    let uploadSuccess = true;
+    for (let i = 0; i < filesList.length; i++) {
+      const file = filesList[i];
+      const ext = file.name.split('.').pop() || 'pdf';
+      const dirPath = app.file_path.includes('/') ? app.file_path.substring(0, app.file_path.lastIndexOf('/')) : app.file_path;
+      const storagePath = filesList.length === 1 ? app.file_path : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
-      // Fallback to admin service role client if anon is blocked by RLS
-      if (storageErr) {
-        console.log('Anon upload info:', storageErr.message, '-> Retrying with admin client...');
-        const res = await supabaseAdmin.storage
+      try {
+        // Try anon client first
+        let { data: storageData, error: storageErr } = await supabase.storage
           .from('insurance-questionnaires')
           .upload(storagePath, file, { upsert: true });
-        storageErr = res.error;
-        storageData = res.data;
-      }
 
-      if (!storageErr && storageData) {
-        uploadSuccess = true;
-        console.log('Uploaded file to live Supabase Storage:', storageData?.path);
-      } else {
-        console.warn('Supabase storage upload error:', storageErr?.message);
+        // Fallback to admin service role client if anon is blocked by RLS
+        if (storageErr) {
+          console.log('Anon upload info:', storageErr.message, '-> Retrying with admin client...');
+          const res = await supabaseAdmin.storage
+            .from('insurance-questionnaires')
+            .upload(storagePath, file, { upsert: true });
+          storageErr = res.error;
+          storageData = res.data;
+        }
+
+        if (!storageErr && storageData) {
+          console.log(`Uploaded file [${i + 1}/${filesList.length}] to live Supabase Storage:`, storageData?.path);
+        } else {
+          uploadSuccess = false;
+          console.warn('Supabase storage upload error:', storageErr?.message);
+        }
+      } catch (err) {
+        uploadSuccess = false;
+        console.warn('Supabase file upload fallback exception:', err);
       }
-    } catch (err) {
-      console.warn('Supabase file upload fallback exception:', err);
     }
 
     // Spec Requirement 29: Upload failure must trigger exact error message
     // If Supabase URL is set or environment active and upload failed, fail explicitly
     if (!uploadSuccess && import.meta.env.VITE_SUPABASE_URL) {
-      throw new Error('Your document could not be uploaded. Please try again.');
+      throw new Error('One or more documents could not be uploaded. Please try again.');
     }
   }
 

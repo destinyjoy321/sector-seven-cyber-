@@ -105,7 +105,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
-                <a href="tel:+14048923400" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">+1 (404) 892-3400</a>
+                <a href="tel:+14603639083" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">+1 (460) 363-9083</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />

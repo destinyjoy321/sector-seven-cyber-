@@ -55,7 +55,7 @@ export async function sendApplicationEmailAlert(app: EmailNotificationPayload): 
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        from: 'Sector Seven Intake <onboarding@resend.dev>',
+        from: import.meta.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>',
         to: [recipientEmail],
         subject: `NEW CYBER INSURANCE ASSESSMENT: ${app.company_name} [${app.id}]`,
 

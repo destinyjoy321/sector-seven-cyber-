@@ -16,9 +16,9 @@ export interface ProspectApplication {
   company_name: string;
   email: string;
   phone: string;
-  industry: 'Law Firm' | 'Medical Clinic';
+  industry: string;
   employee_count: string;
-  insurance_status: 'Existing Policy / Renewal' | 'New Policy Application' | 'Carrier Compliance Audit';
+  insurance_status: string;
   insurance_provider: string;
   message?: string;
   file_name: string;

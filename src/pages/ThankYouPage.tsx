@@ -1,5 +1,5 @@
-import React from 'react';
-import { CheckCircle2, ShieldCheck, ArrowRight, Lock, Clock, Mail } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { CheckCircle2, Lock, Calendar, Mail, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ThankYouPageProps {
@@ -8,92 +8,122 @@ interface ThankYouPageProps {
 }
 
 export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicationId = 'SS-2026-0084' }) => {
-  return (
-    <div className="pt-32 pb-24 bg-[#F8FAFC] text-slate-900 min-h-screen flex items-center justify-center relative overflow-hidden">
-      
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-sky-100/50 rounded-full blur-[160px] pointer-events-none" />
+  const CALENDAR_LINK = "https://calendar.app.google/MWTKBzrinmAgwedF6";
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 relative z-10">
+  useEffect(() => {
+    // Scroll to top on mount
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Attempt automatic popup/window redirect to Google Calendar if supported
+    const timer = setTimeout(() => {
+      try {
+        window.open(CALENDAR_LINK, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        // Fallback handled by embedded iframe
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="pt-28 pb-24 bg-[#F8FAFC] text-slate-900 min-h-screen flex items-center justify-center relative overflow-hidden">
+      
+      {/* Background Ambient Soft Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[600px] bg-sky-100/50 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 relative z-10 w-full">
         
         {/* Main Success Container */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
-          className="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-slate-200 space-y-6"
+          className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200 space-y-6 text-left"
         >
           
-          {/* Animated Success Badge */}
-          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-            <CheckCircle2 className="w-10 h-10" />
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
+              <CheckCircle2 className="w-9 h-9" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs font-mono font-extrabold text-[#0284C7] uppercase tracking-widest">// Submission Sealed & Vaulted</span>
+              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
+                Application Received. Secure Your Consultation Window.
+              </h1>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <span className="text-xs font-mono font-extrabold text-[#0284C7] uppercase tracking-widest">// Submission Verified</span>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              Assessment Request Received
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
-              Thank you for contacting Sector Seven Cyber LLC. We have securely received your practice details and uploaded cyber-insurance questionnaire.
+          {/* Master Description Copy */}
+          <div className="text-slate-700 text-sm sm:text-base leading-relaxed space-y-3 font-normal">
+            <p>
+              Your compliance metrics and insurance documents have been securely routed to our engineering vault. A Senior Compliance Architect is currently conducting your technical gap analysis.
+            </p>
+            <p className="font-semibold text-slate-900">
+              To deliver your comprehensive assessment and map out your immediate remediation blueprint within our 24-hour window, please select an executive briefing slot on our active calendar below that works best for your managing partners.
             </p>
           </div>
 
           {/* Application Reference ID HUD Card */}
-          <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 space-y-3 text-left shadow-md">
+          <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 space-y-3 shadow-md">
             <div className="flex items-center justify-between text-xs font-mono border-b border-slate-800 pb-2">
               <span className="text-slate-400">APPLICATION REFERENCE ID</span>
-              <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">NEW</span>
+              <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20">CONFIRMED</span>
             </div>
             
             <div className="flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white tracking-tight">{applicationId}</span>
+              <span className="text-xl sm:text-2xl font-extrabold font-mono text-white tracking-tight">{applicationId}</span>
               <span className="text-xs text-slate-400 font-mono">{new Date().toLocaleDateString()}</span>
             </div>
 
             <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
               <div className="flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-sky-400" />
-                <span>Private Bucket Stored</span>
+                <span>AES-256 Vaulted</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-sky-400" />
-                <span>Confirmation Sent</span>
+                <span>Broker Packet Ready</span>
               </div>
             </div>
           </div>
 
-          {/* Next Steps Timeline */}
-          <div className="text-left space-y-3 pt-2">
-            <h4 className="text-xs font-mono font-bold text-slate-800 uppercase tracking-wider">What Happens Next:</h4>
-            
-            <div className="space-y-2 text-xs text-slate-600">
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <Clock className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-slate-900">1. Georgia Security Architect Review</span>
-                  <p className="text-[11px] text-slate-500">Our technical team will audit your uploaded questionnaire against your carrier's specific underwriter requirements.</p>
-                </div>
+          {/* EMBEDDED GOOGLE CALENDAR (No blue button - embedded directly in block) */}
+          <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-inner bg-slate-50 space-y-0">
+            <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between font-mono text-xs font-bold border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#00D2FF]" />
+                <span>BOOK A SECURITY FIT CALL</span>
               </div>
+              <a
+                href={CALENDAR_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-mono text-sky-400 hover:text-white flex items-center gap-1 underline"
+              >
+                <span>Full Window</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
 
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <ShieldCheck className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-slate-900">2. Consultation & Remediation Blueprint</span>
-                  <p className="text-[11px] text-slate-500">A Senior Architect will reach out via email/phone within 24 hours with your custom gap assessment and fix options.</p>
-                </div>
-              </div>
+            <div className="w-full h-[650px] sm:h-[700px] relative bg-white">
+              <iframe
+                src={CALENDAR_LINK}
+                className="w-full h-full border-0 bg-white"
+                title="Sector Seven Executive Briefing Calendar"
+                loading="lazy"
+              />
             </div>
           </div>
 
-          {/* Action Button */}
-          <div className="pt-4">
+          {/* Return Home Link */}
+          <div className="pt-2 text-center">
             <button
               onClick={() => onNavigate('/')}
-              className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-extrabold text-xs tracking-wider py-4 px-8 rounded-full flex items-center justify-center gap-2 shadow-md transition-all duration-200"
+              className="text-xs font-mono font-bold text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1"
             >
-              <span>RETURN TO SECTOR SEVEN CYBER HOMEPAGE</span>
-              <ArrowRight className="w-4 h-4 text-white" />
+              ← Return to Sector Seven Cyber Homepage
             </button>
           </div>
 
@@ -103,3 +133,5 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
     </div>
   );
 };
+
+

@@ -24,7 +24,7 @@ function apiMiddlewarePlugin(): Plugin {
         const supabaseUrl = env.VITE_SUPABASE_URL || 'https://lmexwjocppravvmtwvzc.supabase.co';
         const serviceKey = env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
         const resendApiKey = env.VITE_RESEND_API_KEY || '';
-        const fromEmail = env.FROM_EMAIL || env.VITE_FROM_EMAIL || 'Sector Seven Cyber <onboarding@resend.dev>';
+        const fromEmail = env.FROM_EMAIL || env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>';
         const teamEmail = env.VITE_INTERNAL_NOTIFICATION_EMAIL || 'ikehemmanuel70@gmail.com';
         const gmailUser = env.GMAIL_USER || '';
         const gmailPass = (env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
@@ -218,20 +218,129 @@ function apiMiddlewarePlugin(): Plugin {
                 </div>
               `;
 
-              // 1. Try Gmail SMTP if credentials present (Direct 2-way email without domain limits)
+              // 1. Try Resend API First (Primary Production Provider)
+              if (resendApiKey) {
+                try {
+                  let activeFrom = fromEmail;
+                  let teamRes = await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${resendApiKey}`,
+                    },
+                    body: JSON.stringify({
+                      from: activeFrom,
+                      to: [teamEmail],
+                      subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
+                      html: teamEmailHtml,
+                      attachments: attachments.length > 0 ? attachments : undefined,
+                    }),
+                  });
+                  let teamData = await teamRes.json();
+
+                  // Fallback to onboarding@resend.dev if custom domain validation is pending in Resend
+                  if (!teamRes.ok && teamData?.name === 'validation_error') {
+                    console.log('Custom domain pending in Resend, using onboarding@resend.dev fallback for dev testing...');
+                    activeFrom = 'Sector Seven Cyber <onboarding@resend.dev>';
+                    teamRes = await fetch('https://api.resend.com/emails', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${resendApiKey}`,
+                      },
+                      body: JSON.stringify({
+                        from: activeFrom,
+                        to: [teamEmail],
+                        subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
+                        html: teamEmailHtml,
+                        attachments: attachments.length > 0 ? attachments : undefined,
+                      }),
+                    });
+                    teamData = await teamRes.json();
+                  }
+
+                  if (teamRes.ok) {
+                    let clientData = null;
+                    if (payload.email) {
+                      const clientEmailHtml = `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
+                          <div style="background-color: #0f172a; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h2 style="margin: 0; font-size: 16px; font-family: monospace;">SECTOR SEVEN CYBER LLC</h2>
+                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Cyber Insurance Readiness & Technical Remediation</p>
+                          </div>
+
+                          <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Thank you for contacting Sector Seven Cyber.</p>
+                          <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">We have received your information and insurance questionnaire.</p>
+                          <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Our team will review the submitted information and contact you regarding the next steps.</p>
+
+                          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 13px; font-family: monospace; color: #2563eb; text-transform: uppercase;">Submission Reference</h4>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155; line-height: 1.8;">
+                              <li><strong>Application ID:</strong> ${payload.id}</li>
+                              <li><strong>Company:</strong> ${payload.company_name}</li>
+                              <li><strong>Questionnaire:</strong> ${payload.file_name}</li>
+                            </ul>
+                          </div>
+
+                          <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-family: monospace;">
+                            Sector Seven Cyber LLC • Direct Phone: +1 (404) 892-3400
+                          </p>
+                        </div>
+                      `;
+
+                      let clientRes = await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${resendApiKey}`,
+                        },
+                        body: JSON.stringify({
+                          from: activeFrom,
+                          to: [payload.email],
+                          subject: 'Your Cyber Insurance Assessment Request Has Been Received',
+                          html: clientEmailHtml,
+                        }),
+                      });
+                      clientData = await clientRes.json();
+
+                      if (!clientRes.ok) {
+                        const copyRes = await fetch('https://api.resend.com/emails', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${resendApiKey}`,
+                          },
+                          body: JSON.stringify({
+                            from: activeFrom,
+                            to: [teamEmail],
+                            subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
+                            html: clientEmailHtml,
+                          }),
+                        });
+                        clientData = await copyRes.json();
+                      }
+                    }
+
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ success: true, provider: 'resend_api', senderUsed: activeFrom, teamResend: teamData, clientResend: clientData }));
+                    return;
+                  }
+                } catch (resendErr) {
+                  console.warn('Resend API middleware error, falling back to Gmail SMTP:', resendErr);
+                }
+              }
+
+              // 2. Fallback: Gmail SMTP
               if (gmailUser && gmailPass) {
                 try {
                   const transporter = nodemailer.createTransport({
                     service: 'gmail',
-                    auth: {
-                      user: gmailUser,
-                      pass: gmailPass,
-                    },
+                    auth: { user: gmailUser, pass: gmailPass },
                   });
 
-                  // Internal Team Alert
                   const teamInfo = await transporter.sendMail({
-                    from: `"Sector Seven Intake" <${gmailUser}>`,
+                    from: `"Sector Seven Cyber Intake" <${gmailUser}>`,
                     to: teamEmail,
                     subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
                     html: teamEmailHtml,
@@ -240,9 +349,7 @@ function apiMiddlewarePlugin(): Plugin {
                       content: Buffer.from(a.content, 'base64'),
                     })),
                   });
-                  console.log('Gmail SMTP Team Notification Sent:', teamInfo.messageId);
 
-                  // Prospect Confirmation Email (Direct to applicant)
                   let clientInfo = null;
                   if (payload.email) {
                     const clientEmailHtml = `
@@ -253,14 +360,8 @@ function apiMiddlewarePlugin(): Plugin {
                         </div>
 
                         <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Thank you for contacting Sector Seven Cyber.</p>
-
-                        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">
-                          We have received your information and insurance questionnaire.
-                        </p>
-
-                        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">
-                          Our team will review the submitted information and contact you regarding the next steps.
-                        </p>
+                        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">We have received your information and insurance questionnaire.</p>
+                        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Our team will review the submitted information and contact you regarding the next steps.</p>
 
                         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 20px 0;">
                           <h4 style="margin: 0 0 10px 0; font-size: 13px; font-family: monospace; color: #2563eb; text-transform: uppercase;">Submission Reference</h4>
@@ -284,7 +385,6 @@ function apiMiddlewarePlugin(): Plugin {
                       subject: 'Your Cyber Insurance Assessment Request Has Been Received',
                       html: clientEmailHtml,
                     });
-                    console.log(`Gmail SMTP Prospect Confirmation sent directly to ${payload.email}:`, clientInfo.messageId);
                   }
 
                   res.statusCode = 200;
@@ -296,103 +396,10 @@ function apiMiddlewarePlugin(): Plugin {
                     clientMessageId: clientInfo?.messageId,
                   }));
                   return;
-                } catch (gmailErr: any) {
-                  console.warn('Gmail SMTP error, falling back to Resend API:', gmailErr?.message || gmailErr);
+                } catch (gmailErr) {
+                  console.warn('Gmail SMTP fallback error:', gmailErr);
                 }
               }
-
-              // 2. Fallback: Send via Resend API
-              const teamRes = await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${resendApiKey}`,
-                },
-                body: JSON.stringify({
-                  from: fromEmail,
-                  to: [teamEmail],
-                  subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
-                  html: teamEmailHtml,
-                  attachments: attachments.length > 0 ? attachments : undefined,
-                }),
-              });
-              const teamData = await teamRes.json();
-
-              let clientData = null;
-              if (payload.email) {
-                const clientEmailHtml = `
-                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
-                    <div style="background-color: #0f172a; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
-                      <h2 style="margin: 0; font-size: 16px; font-family: monospace;">SECTOR SEVEN CYBER LLC</h2>
-                      <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Cyber Insurance Readiness & Technical Remediation</p>
-                    </div>
-
-                    <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Thank you for contacting Sector Seven Cyber.</p>
-
-                    <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">
-                      We have received your information and insurance questionnaire.
-                    </p>
-
-                    <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">
-                      Our team will review the submitted information and contact you regarding the next steps.
-                    </p>
-
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 20px 0;">
-                      <h4 style="margin: 0 0 10px 0; font-size: 13px; font-family: monospace; color: #2563eb; text-transform: uppercase;">Submission Reference</h4>
-                      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155; line-height: 1.8;">
-                        <li><strong>Application ID:</strong> ${payload.id}</li>
-                        <li><strong>Company:</strong> ${payload.company_name}</li>
-                        <li><strong>Questionnaire:</strong> ${payload.file_name}</li>
-                      </ul>
-                    </div>
-
-                    <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-family: monospace;">
-                      Sector Seven Cyber LLC • Direct Phone: +1 (404) 892-3400
-                    </p>
-                  </div>
-                `;
-
-                try {
-                  let clientRes = await fetch('https://api.resend.com/emails', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${resendApiKey}`,
-                    },
-                    body: JSON.stringify({
-                      from: fromEmail,
-                      to: [payload.email],
-                      subject: 'Your Cyber Insurance Assessment Request Has Been Received',
-                      html: clientEmailHtml,
-                    }),
-                  });
-                  clientData = await clientRes.json();
-
-                  if (!clientRes.ok) {
-                    console.error(`Resend API returned status ${clientRes.status} for ${payload.email}:`, clientData);
-                    console.log(`Sending prospect confirmation copy to testing inbox (${teamEmail}) so email content is not lost in test mode.`);
-                    const copyRes = await fetch('https://api.resend.com/emails', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${resendApiKey}`,
-                      },
-                      body: JSON.stringify({
-                        from: fromEmail,
-                        to: [teamEmail],
-                        subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
-                        html: clientEmailHtml,
-                      }),
-                    });
-                    clientData = await copyRes.json();
-                  }
-                } catch (cErr) {
-                  console.warn('Client email send attempt notice:', cErr);
-                }
-              }
-
-              res.statusCode = 200;
-              res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ success: true, teamResend: teamData, clientResend: clientData }));
             } catch (err: any) {
               res.statusCode = 500;

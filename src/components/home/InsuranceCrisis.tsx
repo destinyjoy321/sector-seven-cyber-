@@ -52,13 +52,13 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
 
                 <TextMaskLine delay={0.1}>
                   <h2 className="text-[clamp(1.75rem,3.8vw,3.25rem)] font-extrabold text-slate-900 tracking-tighter leading-tight">
-                    Your Insurance Company Doesn't Care That You've Never Been Hacked
+                    Your Insurance Carrier Demands Proof of Protection. We Provide It.
                   </h2>
                 </TextMaskLine>
 
                 <TextMaskLine delay={0.2}>
                   <h3 className="text-lg sm:text-xl font-bold text-[#0284C7]">
-                    They care whether they can prove you're protected.
+                    Meeting modern cyber liability requirements shouldn't hold your business back.
                   </h3>
                 </TextMaskLine>
               </div>
@@ -66,55 +66,19 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
               <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
                 <TextMaskLine delay={0.1}>
                   <p>
-                    Marcus Whitfield had run his law practice for eleven years. Three attorneys. One paralegal. A client list built almost entirely on referrals and reputation.
+                    When Marcus Whitfield received his law practice’s cyber insurance renewal, his commercial broker highlighted a major industry shift. To maintain his coverage and protect his preferred premium rate, Marcus had to provide verified evidence of continuous, 24/7 monitored endpoint protection.
                   </p>
                 </TextMaskLine>
 
                 <TextMaskLine delay={0.15}>
                   <p>
-                    Then his cyber insurance renewal arrived.
+                    Like many firm owners, Marcus assumed his standard antivirus software was enough. But modern compliance requires active, human-led threat hunting to keep pace with modern risks. Carriers aren't being difficult—they are simply setting the standard required to securely insure high-value practices.
                   </p>
                 </TextMaskLine>
 
                 <TextMaskLine delay={0.2}>
                   <p>
-                    There was no breach. No ransomware. No stolen client files.
-                  </p>
-                </TextMaskLine>
-
-                <TextMaskLine delay={0.25}>
-                  <p>
-                    Instead, there was a letter attached to his renewal: conditional approval.
-                  </p>
-                </TextMaskLine>
-
-                <TextMaskLine delay={0.3}>
-                  <p>
-                    His carrier had flagged the application because Marcus couldn't provide evidence of continuous, 24/7 monitored endpoint protection. He had antivirus software, installed years ago, and nobody had been actively monitoring it.
-                  </p>
-                </TextMaskLine>
-
-                <TextMaskLine delay={0.35}>
-                  <p>
-                    The carrier gave him 30 days to fix the gap. Otherwise, his premium would triple. Some carriers wouldn't renew him at all.
-                  </p>
-                </TextMaskLine>
-                
-                <TextMaskLine delay={0.4}>
-                  <div className="p-5 rounded-2xl bg-sky-50/60 border border-sky-200 italic text-slate-900 font-medium my-4">
-                    “Marcus called his broker. The answer was blunt: ‘This isn't optional anymore. Underwriters aren't taking your word for it. They want proof.’”
-                  </div>
-                </TextMaskLine>
-
-                <TextMaskLine delay={0.45}>
-                  <p>
-                    Marcus didn't need another antivirus product. He needed someone who could understand the requirement, identify the gap, put the appropriate protection in place, continuously monitor it, and maintain the evidence.
-                  </p>
-                </TextMaskLine>
-
-                <TextMaskLine delay={0.5}>
-                  <p className="font-bold text-[#0284C7] text-lg pt-2">
-                    That's the problem Sector Seven Cyber was built to solve.
+                    Marcus had 30 days to close the gap. Instead of scrambling or facing steep premium increases, he partnered with Sector Seven. We deployed enterprise-grade compliance monitoring across his entire firm in under 48 hours. Marcus’s broker seamlessly finalized a secure renewal, keeping the firm fully compliant, fully covered, and perfectly protected.
                   </p>
                 </TextMaskLine>
               </div>

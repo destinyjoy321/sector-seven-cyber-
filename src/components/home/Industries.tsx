@@ -138,13 +138,15 @@ export const Industries: React.FC<IndustriesProps> = ({ onNavigate }) => {
           </p>
 
           <div className="pt-2">
-            <button
-              onClick={() => onNavigate('/apply')}
-              className="btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-extrabold text-xs sm:text-sm tracking-wider px-8 py-4 rounded-full flex items-center justify-center gap-2 shadow-md transition-all"
+            <a
+              href="https://sentra.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary inline-flex bg-[#0284C7] hover:bg-[#0369A1] text-white font-extrabold text-xs sm:text-sm tracking-wider px-8 py-4 rounded-full items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"
             >
               <span>REVIEW THE O.C.G.A. § 10-1-912 FRAMEWORK</span>
               <ArrowRight className="w-4 h-4 text-white" />
-            </button>
+            </a>
           </div>
         </motion.div>
 

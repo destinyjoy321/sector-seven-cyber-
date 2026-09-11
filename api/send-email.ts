@@ -34,8 +34,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://lmexwjocppravvmtwvzc.supabase.co';
     const serviceKey = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
     const resendApiKey = process.env.VITE_RESEND_API_KEY || process.env.RESEND_API_KEY || '';
-    const fromEmail = process.env.FROM_EMAIL || process.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <onboarding@resend.dev>';
-    const teamEmail = process.env.VITE_INTERNAL_NOTIFICATION_EMAIL || process.env.INTERNAL_NOTIFICATION_EMAIL || 'ikehemmanuel70@gmail.com';
+    const fromEmail = process.env.FROM_EMAIL || process.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>';
+    const teamEmail = process.env.VITE_INTERNAL_NOTIFICATION_EMAIL || process.env.INTERNAL_NOTIFICATION_EMAIL || 'contact@sectorsevencyber.com';
     const gmailUser = process.env.GMAIL_USER || '';
     const gmailPass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
     const siteUrl = process.env.VITE_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -136,12 +136,98 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         </div>
 
         <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-family: monospace;">
-          Sector Seven Cyber LLC • Direct Phone: +1 (404) 892-3400
+          Sector Seven Cyber LLC • Direct Phone: +1 (460) 363-9083
         </p>
       </div>
     `;
 
-    // 1. Try Gmail SMTP if credentials present
+    // 1. Try Resend API First (Primary Production Provider)
+    if (resendApiKey) {
+      try {
+        let activeFrom = fromEmail;
+        let teamRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            from: activeFrom,
+            to: [teamEmail],
+            subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
+            html: teamEmailHtml,
+            attachments: attachments.length > 0 ? attachments : undefined,
+          }),
+        });
+
+        let teamData = await teamRes.json();
+
+        // If custom domain is not yet verified in Resend (status 403), fallback to onboarding@resend.dev during DNS propagation
+        if (!teamRes.ok && teamData?.name === 'validation_error') {
+          activeFrom = 'Sector Seven Cyber <onboarding@resend.dev>';
+          teamRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${resendApiKey}`,
+            },
+            body: JSON.stringify({
+              from: activeFrom,
+              to: [teamEmail],
+              subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
+              html: teamEmailHtml,
+              attachments: attachments.length > 0 ? attachments : undefined,
+            }),
+          });
+          teamData = await teamRes.json();
+        }
+
+        if (teamRes.ok) {
+          let clientData = null;
+          if (payload.email) {
+            let clientRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${resendApiKey}`,
+              },
+              body: JSON.stringify({
+                from: activeFrom,
+                to: [payload.email],
+                subject: 'Your Cyber Insurance Assessment Request Has Been Received',
+                html: clientEmailHtml,
+              }),
+            });
+            clientData = await clientRes.json();
+
+            if (!clientRes.ok) {
+              const copyRes = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${resendApiKey}`,
+                },
+                body: JSON.stringify({
+                  from: activeFrom,
+                  to: [teamEmail],
+                  subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
+                  html: clientEmailHtml,
+                }),
+              });
+              clientData = await copyRes.json();
+            }
+          }
+
+          return res.status(200).json({ success: true, provider: 'resend_api', senderUsed: activeFrom, teamResend: teamData, clientResend: clientData });
+        } else {
+          console.warn('Resend API returned non-OK status, falling back to Gmail SMTP:', teamData);
+        }
+      } catch (resendErr: any) {
+        console.warn('Resend API error, falling back to Gmail SMTP:', resendErr);
+      }
+    }
+
+    // 2. Gmail SMTP Fallback
     if (gmailUser && gmailPass) {
       try {
         const transporter = nodemailer.createTransport({
@@ -150,7 +236,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         const teamInfo = await transporter.sendMail({
-          from: `"Sector Seven Intake" <${gmailUser}>`,
+          from: `"Sector Seven Cyber Intake" <${gmailUser}>`,
           to: teamEmail,
           subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
           html: teamEmailHtml,
@@ -178,67 +264,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           clientMessageId: clientInfo?.messageId,
         });
       } catch (gmailErr: any) {
-        console.warn('Gmail SMTP error, falling back to Resend API:', gmailErr?.message || gmailErr);
-      }
-    }
-
-    // 2. Resend API Fallback
-    if (resendApiKey) {
-      try {
-        const teamRes = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${resendApiKey}`,
-          },
-          body: JSON.stringify({
-            from: fromEmail,
-            to: [teamEmail],
-            subject: `NEW CYBER INSURANCE ASSESSMENT: ${payload.company_name} [${payload.id}]`,
-            html: teamEmailHtml,
-            attachments: attachments.length > 0 ? attachments : undefined,
-          }),
-        });
-        const teamData = await teamRes.json();
-
-        let clientData = null;
-        if (payload.email) {
-          let clientRes = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${resendApiKey}`,
-            },
-            body: JSON.stringify({
-              from: fromEmail,
-              to: [payload.email],
-              subject: 'Your Cyber Insurance Assessment Request Has Been Received',
-              html: clientEmailHtml,
-            }),
-          });
-          clientData = await clientRes.json();
-
-          if (!clientRes.ok) {
-            const copyRes = await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${resendApiKey}`,
-              },
-              body: JSON.stringify({
-                from: fromEmail,
-                to: [teamEmail],
-                subject: `[PROSPECT CONFIRMATION COPY for ${payload.email}] Your Cyber Insurance Assessment Request Has Been Received`,
-                html: clientEmailHtml,
-              }),
-            });
-            clientData = await copyRes.json();
-          }
-        }
-
-        return res.status(200).json({ success: true, provider: 'resend_api', teamResend: teamData, clientResend: clientData });
-      } catch (resendErr: any) {
-        console.warn('Resend API error:', resendErr);
+        console.warn('Gmail SMTP error:', gmailErr?.message || gmailErr);
       }
     }
 
