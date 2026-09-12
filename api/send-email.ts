@@ -11,6 +11,15 @@ function sanitizeStr(str: any): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS & Options Preflight Security
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -28,6 +37,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (rateData.count > 10) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+
+  // Server-Side Schema Validation
+  if (!req.body) {
+    return res.status(400).json({ error: 'Missing request body.' });
+  }
+
+  const rawPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!rawPayload.contact_name || typeof rawPayload.contact_name !== 'string' || !rawPayload.contact_name.trim()) {
+    return res.status(400).json({ error: 'Invalid or missing contact name.' });
+  }
+  if (!rawPayload.email || typeof rawPayload.email !== 'string' || !emailRegex.test(rawPayload.email.trim())) {
+    return res.status(400).json({ error: 'Invalid or missing email address.' });
+  }
+  if (!rawPayload.company_name || typeof rawPayload.company_name !== 'string' || !rawPayload.company_name.trim()) {
+    return res.status(400).json({ error: 'Invalid or missing company name.' });
   }
 
   try {
@@ -51,8 +78,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else if (hostHeader && !hostHeader.includes('localhost')) {
       siteUrl = `${protoHeader}://${hostHeader}`;
     }
-
-    const rawPayload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
     const payload = {
       id: sanitizeStr(rawPayload.id),

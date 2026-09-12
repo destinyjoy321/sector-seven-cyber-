@@ -74,10 +74,23 @@ CREATE POLICY "Staff erasure request access"
   ON public.erasure_requests FOR ALL 
   USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
 
--- 4. Storage Objects Policies for insurance-questionnaires bucket
+-- 4. Storage Objects Policies for insurance-questionnaires bucket (Strict Extension Validation)
 DROP POLICY IF EXISTS "Public upload to insurance-questionnaires" ON storage.objects;
 
 CREATE POLICY "Public upload to insurance-questionnaires"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'insurance-questionnaires');
+  WITH CHECK (
+    bucket_id = 'insurance-questionnaires' 
+    AND (
+      name ILIKE '%.pdf' OR 
+      name ILIKE '%.png' OR 
+      name ILIKE '%.jpg' OR 
+      name ILIKE '%.jpeg' OR 
+      name ILIKE '%.doc' OR 
+      name ILIKE '%.docx' OR 
+      name ILIKE '%.xls' OR 
+      name ILIKE '%.xlsx'
+    )
+  );
+
 
