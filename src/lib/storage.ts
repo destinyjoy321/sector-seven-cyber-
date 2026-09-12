@@ -105,30 +105,20 @@ export async function saveApplication(app: ProspectApplication, fileInput?: File
       const storagePath = filesList.length === 1 ? app.file_path : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
       try {
-        // Try anon client first
-        let { data: storageData, error: storageErr } = await supabase.storage
+        // Anon client with RLS policy — service role key must not be used in the browser.
+        const { data: storageData, error: storageErr } = await supabase.storage
           .from('insurance-questionnaires')
           .upload(storagePath, file, { upsert: true });
 
-        // Fallback to admin service role client if anon is blocked by RLS
-        if (storageErr) {
-          console.log('Anon upload info:', storageErr.message, '-> Retrying with admin client...');
-          const res = await supabaseAdmin.storage
-            .from('insurance-questionnaires')
-            .upload(storagePath, file, { upsert: true });
-          storageErr = res.error;
-          storageData = res.data;
-        }
-
         if (!storageErr && storageData) {
-          console.log(`Uploaded file [${i + 1}/${filesList.length}] to live Supabase Storage:`, storageData?.path);
+          console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage.`);
         } else {
           uploadSuccess = false;
-          console.warn('Supabase storage upload error:', storageErr?.message);
+          console.warn('Supabase storage upload notice — check RLS policy for anon inserts.');
         }
       } catch (err) {
         uploadSuccess = false;
-        console.warn('Supabase file upload fallback exception:', err);
+        console.warn('Supabase file upload exception — check bucket RLS policy.');
       }
     }
 
@@ -144,24 +134,19 @@ export async function saveApplication(app: ProspectApplication, fileInput?: File
   const updated = [app, ...current];
   localStorage.setItem(DB_KEY, JSON.stringify(updated));
 
-  // 3. Insert record into live Supabase PostgreSQL database (Requirement 29: Do not report false success)
+  // 3. Insert record into live Supabase PostgreSQL database
   let dbSuccess = false;
   try {
-    let { error: dbErr } = await supabase.from('applications').insert([app]);
-    if (dbErr) {
-      // Retry with admin client if anon client has RLS restriction
-      const res = await supabaseAdmin.from('applications').insert([app]);
-      dbErr = res.error;
-    }
+    const { error: dbErr } = await supabase.from('applications').insert([app]);
 
     if (!dbErr) {
       dbSuccess = true;
       console.log('Inserted record into live Supabase Postgres database:', app.id);
     } else {
-      console.warn('Supabase DB Insert notice:', dbErr.message);
+      console.warn('Supabase DB Insert notice — check RLS insert policy for anon role.');
     }
   } catch (err) {
-    console.warn('Supabase DB connection notice:', err);
+    console.warn('Supabase DB connection notice.');
   }
 
   // If Supabase is configured but DB insert failed and local storage also failed, do not report false success
@@ -228,28 +213,19 @@ export function updateApplicationStatus(id: string, status: ApplicationStatus, n
   supabaseAdmin.from('applications').update({ status, notes, updated_at: new Date().toISOString() }).eq('id', id).then();
 }
 
-// Generate short-lived signed URL (Section 10 of PDF - 15 minute token)
+// Generate short-lived signed URL via the secure serverless proxy.
+// The anon client cannot create signed URLs for private buckets — that requires the service role key,
+// which lives only in the /api/view-questionnaire serverless route (uses process.env, never bundled).
 export async function generateSignedUrlAsync(filePath: string): Promise<string> {
-  try {
-    const { data, error } = await supabaseAdmin.storage
-      .from('insurance-questionnaires')
-      .createSignedUrl(filePath, 900); // 15 minutes (900 seconds)
-
-    if (data?.signedUrl && !error) {
-      return data.signedUrl;
-    }
-  } catch (e) {
-    // fallback
-  }
-
-  const expiresAt = Math.floor(Date.now() / 1000) + 900;
-  return `https://lmexwjocppravvmtwvzc.supabase.co/storage/v1/object/sign/insurance-questionnaires/${filePath}?token=sb_signed_${Date.now()}&expires=${expiresAt}`;
+  // Delegate to the serverless route which has the service role key server-side.
+  const encodedPath = encodeURIComponent(filePath);
+  return `/api/view-questionnaire?path=${encodedPath}`;
 }
 
-
 export function generateSignedUrl(filePath: string): string {
-  const expiresAt = Math.floor(Date.now() / 1000) + 900;
-  return `https://lmexwjocppravvmtwvzc.supabase.co/storage/v1/object/sign/insurance-questionnaires/${filePath}?token=sb_signed_${Date.now()}&expires=${expiresAt}`;
+  // Delegate to the serverless route — never fabricate a token.
+  const encodedPath = encodeURIComponent(filePath);
+  return `/api/view-questionnaire?path=${encodedPath}`;
 }
 
 // Data Erasure Request (Section 42.6 Data Subject Erasure Requests)

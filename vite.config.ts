@@ -21,7 +21,7 @@ function apiMiddlewarePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const env = loadEnv(server.config.mode, process.cwd(), '');
-        const supabaseUrl = env.VITE_SUPABASE_URL || 'https://lmexwjocppravvmtwvzc.supabase.co';
+        const supabaseUrl = env.VITE_SUPABASE_URL || '';
         const serviceKey = env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
         const resendApiKey = env.VITE_RESEND_API_KEY || '';
         const fromEmail = env.FROM_EMAIL || env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>';
@@ -113,7 +113,7 @@ function apiMiddlewarePlugin(): Plugin {
           } catch (err: any) {
             res.statusCode = 500;
             res.setHeader('Content-Type', 'text/html');
-            res.end(`<h3>Document Access Notice: ${err?.message || 'Failed to retrieve file'}</h3>`);
+            res.end('<h3>Document access failed. Please try again later.</h3>');
             return;
           }
         }
@@ -400,11 +400,15 @@ function apiMiddlewarePlugin(): Plugin {
                   console.warn('Gmail SMTP fallback error:', gmailErr);
                 }
               }
-              res.end(JSON.stringify({ success: true, teamResend: teamData, clientResend: clientData }));
+              // If both Resend and Gmail SMTP failed, return a failure response
+              res.statusCode = 503;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Email service unavailable. Please try again.' }));
+              return;
             } catch (err: any) {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: err?.message || 'Send email server error' }));
+              res.end(JSON.stringify({ error: 'An internal error occurred. Please try again.' }));
             }
           });
           return;

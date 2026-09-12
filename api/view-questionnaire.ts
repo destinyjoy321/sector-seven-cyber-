@@ -82,6 +82,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       </div>
     `);
   } catch (err: any) {
-    return res.status(500).send(`<h3>Document Access Notice: ${err?.message || 'Failed to retrieve file'}</h3>`);
+    return res.status(500).send('<h3>Document access failed. Please try again later.</h3>');
   }
 }

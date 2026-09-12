@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.48.1",
     "@types/nodemailer": "^8.0.1",
     "clsx": "^2.1.1",

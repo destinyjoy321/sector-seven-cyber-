@@ -11,8 +11,12 @@ function sanitizeStr(str: any): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS & Options Preflight Security
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS — locked to the production domain only.
+  // The email endpoint is state-changing; wildcard CORS would allow any site
+  // on the internet to cross-origin POST to it from a visitor's browser.
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://sectorsevencyber.com';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -319,6 +323,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Server error' });
+    return res.status(500).json({ error: 'An internal error occurred. Please try again.' });
   }
 }
