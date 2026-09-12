@@ -104,21 +104,58 @@ export async function saveApplication(app: ProspectApplication, fileInput?: File
       const dirPath = app.file_path.includes('/') ? app.file_path.substring(0, app.file_path.lastIndexOf('/')) : app.file_path;
       const storagePath = filesList.length === 1 ? app.file_path : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
-      try {
-        // Anon client with RLS policy — service role key must not be used in the browser.
-        const { data: storageData, error: storageErr } = await supabase.storage
-          .from('insurance-questionnaires')
-          .upload(storagePath, file, { upsert: true });
+      let singleUploadSuccess = false;
 
-        if (!storageErr && storageData) {
-          console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage.`);
-        } else {
-          uploadSuccess = false;
-          console.warn('Supabase storage upload notice — check RLS policy for anon inserts.');
+      // A. Primary Enterprise Method: Signed Upload URL via serverless backend delegation
+      try {
+        const signRes = await fetch('/api/upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath: storagePath, fileName: file.name, fileType: file.type }),
+        });
+
+        if (signRes.ok) {
+          const signData = await signRes.json();
+          if (signData.path && signData.token) {
+            const { data: signedUploadData, error: signedUploadErr } = await supabase.storage
+              .from('insurance-questionnaires')
+              .uploadToSignedUrl(signData.path, signData.token, file, {
+                contentType: file.type || 'application/octet-stream',
+                upsert: true,
+              });
+
+            if (!signedUploadErr && signedUploadData) {
+              singleUploadSuccess = true;
+              console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage via signed URL.`);
+            } else if (signedUploadErr) {
+              console.warn('Signed upload execution notice:', signedUploadErr.message);
+            }
+          }
         }
-      } catch (err) {
+      } catch (signErr) {
+        console.warn('Signed upload URL service unavailable, trying direct upload fallback:', signErr);
+      }
+
+      // B. Secondary Fallback: Direct upload with anon client (if storage RLS policy is configured)
+      if (!singleUploadSuccess) {
+        try {
+          const { data: storageData, error: storageErr } = await supabase.storage
+            .from('insurance-questionnaires')
+            .upload(storagePath, file, { upsert: true });
+
+          if (!storageErr && storageData) {
+            singleUploadSuccess = true;
+            console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage.`);
+          } else {
+            console.warn('Direct upload notice:', storageErr?.message);
+          }
+        } catch (directErr) {
+          console.warn('Direct upload exception:', directErr);
+        }
+      }
+
+      if (!singleUploadSuccess) {
         uploadSuccess = false;
-        console.warn('Supabase file upload exception — check bucket RLS policy.');
       }
     }
 

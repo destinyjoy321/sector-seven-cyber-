@@ -49,6 +49,69 @@ function apiMiddlewarePlugin(): Plugin {
           }
         }
 
+        // Handle Secure Signed Upload URL Generation (Choice A Architecture)
+        if (url.pathname === '/api/upload-url' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', async () => {
+            try {
+              const payload = JSON.parse(body);
+              const filePath = payload.filePath;
+              if (!filePath || typeof filePath !== 'string') {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Missing or invalid filePath' }));
+                return;
+              }
+
+              // Prevent directory traversal
+              if (filePath.includes('..') || filePath.startsWith('/') || filePath.startsWith('\\')) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Invalid path format' }));
+                return;
+              }
+
+              // Enforce strictly PDF, DOCX, DOC, XLSX, XLS
+              const ext = filePath.split('.').pop()?.toLowerCase() || '';
+              const allowedExts = ['pdf', 'docx', 'doc', 'xlsx', 'xls'];
+              if (!allowedExts.includes(ext)) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Invalid file extension. Only PDF, DOCX, and Excel files are accepted.' }));
+                return;
+              }
+
+              const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+              const { data, error } = await supabaseAdmin.storage
+                .from('insurance-questionnaires')
+                .createSignedUploadUrl(filePath);
+
+              if (error || !data) {
+                console.error('Local dev: createSignedUploadUrl error:', error?.message);
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Failed to generate secure upload credentials' }));
+                return;
+              }
+
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: true,
+                signedUrl: data.signedUrl,
+                path: data.path,
+                token: data.token,
+              }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Internal server error' }));
+            }
+          });
+          return;
+        }
+
         // Handle Questionnaire Access (Stream file directly or fallback to signed URL)
         if (url.pathname === '/api/view-questionnaire' && req.method === 'GET') {
           const filePath = url.searchParams.get('path');
