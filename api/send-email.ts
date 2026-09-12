@@ -10,12 +10,29 @@ function sanitizeStr(str: any): string {
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
+function isOriginAllowed(origin: string | undefined): boolean {
+  if (!origin) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return (
+      host === 'sectorsevencyber.com' ||
+      host.endsWith('.sectorsevencyber.com') ||
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host.endsWith('.vercel.app')
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS — locked to the production domain only.
-  // The email endpoint is state-changing; wildcard CORS would allow any site
-  // on the internet to cross-origin POST to it from a visitor's browser.
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://sectorsevencyber.com';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  const origin = req.headers.origin as string | undefined;
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
