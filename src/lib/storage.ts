@@ -76,7 +76,7 @@ export async function fetchLiveApplications(): Promise<ProspectApplication[]> {
     const { data: dbApps, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false });
     if (dbApps && !error && dbApps.length > 0) {
       // Merge dbApps and localApps by id, prioritizing dbApps
-      const dbMap = new Map(dbApps.map((a: any) => [a.id, a as ProspectApplication]));
+      const dbMap = new Map<string, ProspectApplication>(dbApps.map((a: any) => [a.id, a as ProspectApplication]));
       localApps.forEach(app => {
         if (!dbMap.has(app.id)) {
           dbMap.set(app.id, app);

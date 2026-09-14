@@ -4,6 +4,7 @@ import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { SmoothScroll } from './components/layout/SmoothScroll';
 import { Preloader } from './components/layout/Preloader';
+import { ErrorBoundary } from './components/layout/ErrorBoundary';
 
 const ApplyPage = lazy(() => import('./pages/ApplyPage').then(m => ({ default: m.ApplyPage })));
 const ThankYouPage = lazy(() => import('./pages/ThankYouPage').then(m => ({ default: m.ThankYouPage })));
@@ -30,9 +31,10 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Extract base pathname and search query dynamically
+  // Extract base pathname and search query dynamically with case/slash normalization
   const [rawPathname, rawSearch] = currentPath.split('?');
-  const cleanPathname = rawPathname === '/' ? '/' : rawPathname.replace(/\/+$/, '');
+  const pathWithoutHash = (rawPathname.split('#')[0] || '/').trim();
+  const cleanPathname = pathWithoutHash === '/' ? '/' : pathWithoutHash.replace(/\/+$/, '').toLowerCase();
   const searchParams = new URLSearchParams(rawSearch !== undefined ? rawSearch : window.location.search);
   const appIdParam = searchParams.get('id') || undefined;
 
@@ -79,8 +81,10 @@ export function App() {
         {/* Floating Navbar */}
         <Navbar currentPath={currentPath} onNavigate={navigate} />
 
-        {/* Main Page Body */}
-        {renderPage()}
+        {/* Main Page Body protected by Error Boundary */}
+        <ErrorBoundary>
+          {renderPage()}
+        </ErrorBoundary>
 
         {/* Universal Footer */}
         <Footer onNavigate={navigate} />

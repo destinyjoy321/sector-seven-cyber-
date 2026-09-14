@@ -56,7 +56,7 @@ export async function executeAutomatedRetentionCleanup(daysThreshold: number = 3
       }
 
       // Delete application records
-      const expiredIds = expiredRecords.map(r => r.id);
+      const expiredIds = expiredRecords.map((r: any) => r.id);
       await supabaseAdmin.from('applications').delete().in('id', expiredIds);
     }
   } catch (err) {
