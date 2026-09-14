@@ -51,7 +51,7 @@ export async function sendApplicationEmailAlert(app: EmailNotificationPayload): 
   try {
     let envSiteUrl = import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     if (!envSiteUrl || envSiteUrl.includes('localhost')) {
-      envSiteUrl = 'https://sectorsevencyber.vercel.app';
+      envSiteUrl = 'https://sectorsevencyber.com';
     }
     const siteUrl = envSiteUrl;
     const viewQuestionnaireUrl = `${siteUrl}/api/view-questionnaire?path=${encodeURIComponent(app.file_path || '')}`;

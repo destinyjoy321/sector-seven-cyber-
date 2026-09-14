@@ -139,7 +139,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onNavigate }) => {
 
           <div className="pt-2">
             <a
-              href="https://justia.com"
+              href="https://law.justia.com/codes/georgia/title-10/chapter-1/article-34/section-10-1-912/"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary inline-flex bg-[#0284C7] hover:bg-[#0369A1] text-white font-extrabold text-xs sm:text-sm tracking-wider px-8 py-4 rounded-full items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"

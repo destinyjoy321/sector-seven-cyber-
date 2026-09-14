@@ -10,16 +10,23 @@ function sanitizeStr(str: any): string {
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 }
 
-function isOriginAllowed(origin: string | undefined): boolean {
+function isOriginAllowed(origin: string | undefined, hostHeader?: string): boolean {
   if (!origin) return true;
   try {
-    const host = new URL(origin).hostname;
+    const originHost = new URL(origin).hostname.toLowerCase();
+    const cleanHost = (hostHeader || '').split(':')[0].trim().toLowerCase();
+
+    // Automatically allow same-host requests from whatever domain the app is deployed on
+    if (cleanHost && (originHost === cleanHost || originHost.endsWith('.' + cleanHost) || cleanHost.endsWith('.' + originHost))) {
+      return true;
+    }
+
     return (
-      host === 'sectorsevencyber.com' ||
-      host.endsWith('.sectorsevencyber.com') ||
-      host === 'localhost' ||
-      host === '127.0.0.1' ||
-      host.endsWith('.vercel.app')
+      originHost === 'sectorsevencyber.com' ||
+      originHost.endsWith('.sectorsevencyber.com') ||
+      originHost === 'localhost' ||
+      originHost === '127.0.0.1' ||
+      originHost.endsWith('.vercel.app')
     );
   } catch {
     return false;
@@ -27,8 +34,9 @@ function isOriginAllowed(origin: string | undefined): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const hostHeader = (req.headers['x-forwarded-host'] as string) || (req.headers.host as string) || '';
   const origin = req.headers.origin as string | undefined;
-  if (origin && isOriginAllowed(origin)) {
+  if (origin && isOriginAllowed(origin, hostHeader)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   } else if (!origin) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -93,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       envSiteUrl = `https://${envSiteUrl}`;
     }
 
-    let siteUrl = 'https://sectorsevencyber.vercel.app';
+    let siteUrl = 'https://sectorsevencyber.com';
     if (envSiteUrl && !envSiteUrl.includes('localhost')) {
       siteUrl = envSiteUrl;
     } else if (hostHeader && !hostHeader.includes('localhost')) {
