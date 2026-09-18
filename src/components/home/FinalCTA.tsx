@@ -46,7 +46,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-8 py-4 rounded-full shadow-md hover:shadow-lg inline-flex items-center gap-2 transition-all duration-200 hover:scale-[1.03]"
             >
-              <span>BOOK A SECURITY FIT CALL →</span>
+              <span>START YOUR SECURITY ASSESSMENT →</span>
               <ArrowRight className="w-5 h-5 text-white" />
             </button>
 

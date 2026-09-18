@@ -34,6 +34,11 @@ ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS contact_title TEXT;
 ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS industry_other TEXT;
 ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS referred_by_broker TEXT;
 ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS broker_name TEXT;
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS cloud_user_count TEXT;
+ALTER TABLE public.applications ALTER COLUMN file_name DROP NOT NULL;
+ALTER TABLE public.applications ALTER COLUMN file_size DROP NOT NULL;
+ALTER TABLE public.applications ALTER COLUMN file_type DROP NOT NULL;
+ALTER TABLE public.applications ALTER COLUMN file_path DROP NOT NULL;
 
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;

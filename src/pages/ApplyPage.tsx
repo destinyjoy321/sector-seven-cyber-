@@ -41,10 +41,10 @@ export const ApplyPage: React.FC<ApplyPageProps> = ({ onNavigate }) => {
             <span>CONFIDENTIAL CLIENT INTAKE PORTAL</span>
           </div>
           <h1 className="text-[clamp(2.1rem,4.5vw,4rem)] font-extrabold text-slate-900 tracking-tighter">
-            Cyber Insurance Assessment Application
+            Cybersecurity Assessment Application
           </h1>
           <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-            Upload your carrier questionnaire (PDF, DOCX, XLSX) and submit practice details. Our Georgia security architecture team will audit your technical gaps and issue a certified readiness report within 24 hours.
+            Tell us about your current security environment and upload any relevant cybersecurity or cyber-insurance questionnaire. Our team will review your information and contact you regarding the next steps.
           </p>
         </motion.div>
 

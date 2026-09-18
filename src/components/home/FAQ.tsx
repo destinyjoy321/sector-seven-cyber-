@@ -101,7 +101,7 @@ export const FAQ: React.FC<FAQProps> = ({ onNavigate }) => {
             onClick={() => onNavigate('/apply')}
             className="btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono text-xs font-extrabold tracking-wider px-6 py-4 rounded-full flex items-center gap-2 shrink-0 transition-all shadow-md hover:scale-[1.03]"
           >
-            <span>BOOK A SECURITY FIT CALL →</span>
+            <span>START YOUR SECURITY ASSESSMENT →</span>
             <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </motion.div>

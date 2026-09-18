@@ -13,17 +13,6 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
   useEffect(() => {
     // Scroll to top on mount
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Attempt automatic popup/window redirect to Google Calendar if supported
-    const timer = setTimeout(() => {
-      try {
-        window.open(CALENDAR_LINK, '_blank', 'noopener,noreferrer');
-      } catch (e) {
-        // Fallback handled by embedded iframe
-      }
-    }, 1500);
-
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -48,20 +37,20 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
               <CheckCircle2 className="w-9 h-9" />
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-mono font-extrabold text-[#0284C7] uppercase tracking-widest">// Submission Sealed & Vaulted</span>
+              <span className="text-xs font-mono font-extrabold text-[#0284C7] uppercase tracking-widest">// Assessment Received & Vaulted</span>
               <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Application Received. Secure Your Consultation Window.
+                Assessment Received.
               </h1>
             </div>
           </div>
 
           {/* Master Description Copy */}
           <div className="text-slate-700 text-sm sm:text-base leading-relaxed space-y-3 font-normal">
-            <p>
-              Your compliance metrics and insurance documents have been securely routed to our engineering vault. A Senior Compliance Architect is currently conducting your technical gap analysis.
+            <p className="text-base sm:text-lg font-semibold text-slate-900">
+              Assessment received. Sector Seven Cyber will review your submission and contact you regarding the next steps.
             </p>
-            <p className="font-semibold text-slate-900">
-              To deliver your comprehensive assessment and map out your immediate remediation blueprint within our 24-hour window, please select an executive briefing slot on our active calendar below that works best for your managing partners.
+            <p className="text-slate-600">
+              Our engineering team is reviewing your organization's security environment details to prepare your initial review. You will receive a confirmation email shortly at the address provided.
             </p>
           </div>
 
@@ -84,17 +73,17 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
               </div>
               <div className="flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-sky-400" />
-                <span>Broker Packet Ready</span>
+                <span>Environment Logged</span>
               </div>
             </div>
           </div>
 
-          {/* EMBEDDED GOOGLE CALENDAR (No blue button - embedded directly in block) */}
+          {/* OPTIONAL EMBEDDED CALENDAR */}
           <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-inner bg-slate-50 space-y-0">
             <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between font-mono text-xs font-bold border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#00D2FF]" />
-                <span>BOOK A SECURITY FIT CALL</span>
+                <span>OPTIONAL: INTRODUCTORY BRIEFING (15 MIN)</span>
               </div>
               <a
                 href={CALENDAR_LINK}

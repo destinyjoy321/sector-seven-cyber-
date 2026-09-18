@@ -192,7 +192,7 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
               onClick={() => onNavigate('/apply')}
               className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-[1.02]"
             >
-              <span>BOOK A SECURITY FIT CALL</span>
+              <span>START YOUR SECURITY ASSESSMENT</span>
             </button>
           </motion.div>
 

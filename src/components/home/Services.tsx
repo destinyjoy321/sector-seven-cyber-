@@ -108,7 +108,7 @@ export const Services: React.FC<ServicesProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('/apply')}
                 className="btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-6 py-4 rounded-full inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-[1.03]"
               >
-                <span>BOOK A SECURITY FIT CALL →</span>
+                <span>START YOUR SECURITY ASSESSMENT →</span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </button>
             </div>
@@ -212,7 +212,7 @@ export const Services: React.FC<ServicesProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="btn-primary shrink-0 bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs sm:text-sm tracking-wider px-7 py-4 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-[1.03]"
             >
-              <span>BOOK A SECURITY FIT CALL →</span>
+              <span>START YOUR SECURITY ASSESSMENT →</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </div>

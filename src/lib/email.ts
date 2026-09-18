@@ -12,9 +12,10 @@ export interface EmailNotificationPayload {
   referred_by_broker?: string;
   broker_name?: string;
   employee_count: string;
+  cloud_user_count?: string;
   insurance_provider: string;
   insurance_status: string;
-  file_name: string;
+  file_name?: string;
   file_path?: string;
   message?: string;
 }
@@ -65,32 +66,34 @@ export async function sendApplicationEmailAlert(app: EmailNotificationPayload): 
       body: JSON.stringify({
         from: import.meta.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>',
         to: [recipientEmail],
-        subject: `NEW CYBER INSURANCE ASSESSMENT: ${app.company_name} [${app.id}]`,
+        subject: `NEW CYBERSECURITY ASSESSMENT: ${app.company_name} [${app.id}]`,
 
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
             <div style="background-color: #0f172a; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="margin: 0; font-size: 16px; font-family: monospace; letter-spacing: 1px;">NEW CYBER INSURANCE ASSESSMENT</h2>
+              <h2 style="margin: 0; font-size: 16px; font-family: monospace; letter-spacing: 1px;">NEW CYBERSECURITY ASSESSMENT</h2>
             </div>
             
             <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #1e293b;">
-              <tr><td style="padding: 10px 0; font-weight: bold; width: 150px; color: #475569;">Company:</td><td style="font-weight: bold; color: #0f172a;">${app.company_name}</td></tr>
-              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Contact:</td><td>${app.contact_name}</td></tr>
+              <tr><td style="padding: 10px 0; font-weight: bold; width: 160px; color: #475569;">Company:</td><td style="font-weight: bold; color: #0f172a;">${app.company_name}</td></tr>
+              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Contact:</td><td>${app.contact_name} ${app.contact_title ? `(${app.contact_title})` : ''}</td></tr>
               <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Email:</td><td><a href="mailto:${app.email}" style="color: #2563eb; font-weight: bold;">${app.email}</a></td></tr>
               <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Phone:</td><td>${app.phone}</td></tr>
-              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Industry:</td><td>${app.industry} (${app.employee_count} employees)</td></tr>
+              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Industry:</td><td>${app.industry}</td></tr>
+              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Environment:</td><td>${app.employee_count} devices • ${app.cloud_user_count || 'Not specified'} cloud users</td></tr>
               <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Insurance Status:</td><td>${app.insurance_status} (${app.insurance_provider})</td></tr>
-              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Questionnaire:</td><td>📄 ${app.file_name}</td></tr>
+              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Questionnaire:</td><td>${app.file_name && app.file_name !== 'None' ? `📄 ${app.file_name}` : 'No document uploaded (Optional)'}</td></tr>
+              ${app.file_path && app.file_path !== 'NONE' ? `
               <tr>
                 <td style="padding: 16px 0;" colspan="2">
-                  <a href="${viewQuestionnaireUrl}" target="_blank" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-family: monospace; font-weight: bold; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 8px;">[VIEW QUESTIONNAIRE]</a>
+                  <a href="${viewQuestionnaireUrl}" target="_blank" style="display: inline-block; background-color: #0284C7; color: #ffffff; font-family: monospace; font-weight: bold; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 8px;">[VIEW QUESTIONNAIRE]</a>
                 </td>
-              </tr>
-              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Application ID:</td><td style="font-family: monospace; font-weight: bold; color: #2563eb;">${app.id}</td></tr>
+              </tr>` : ''}
+              <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Application ID:</td><td style="font-family: monospace; font-weight: bold; color: #0284C7;">${app.id}</td></tr>
             </table>
             
             <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; font-family: monospace;">
-              Sector Seven Cyber LLC • Georgia Cyber Readiness Intake System
+              Sector Seven Cyber LLC • Georgia Managed Cybersecurity Intake System
             </div>
           </div>
         `,

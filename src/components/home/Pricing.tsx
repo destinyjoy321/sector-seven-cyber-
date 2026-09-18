@@ -49,7 +49,7 @@ export const Pricing: React.FC<PricingProps> = ({ onNavigate }) => {
         'Everything in Readiness Suite',
         '24/7 Managed SOC Telemetry & Hunting',
         'Continuous Insurance Policy Compliance',
-        '$1M Ransomware Financial Guarantee',
+        '$1M Ransomware Incident Protection Framework',
         'Annual Breach Simulation & Penetration Testing',
         'Dedicated Georgia Security Architect',
       ],
@@ -139,7 +139,7 @@ export const Pricing: React.FC<PricingProps> = ({ onNavigate }) => {
                       : 'bg-slate-900 hover:bg-[#0284C7] text-white shadow-sm'
                   }`}
                 >
-                  <span>BOOK A SECURITY FIT CALL →</span>
+                  <span>START YOUR SECURITY ASSESSMENT →</span>
                 </button>
               </div>
 

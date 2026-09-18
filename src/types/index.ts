@@ -21,14 +21,15 @@ export interface ProspectApplication {
   industry_other?: string;
   referred_by_broker?: string;
   broker_name?: string;
-  employee_count: string;
+  employee_count: string; // Number of Business Devices (1-10, 11-25, etc.)
+  cloud_user_count?: string; // Number of Cloud Users (1-10, 11-25, etc.)
   insurance_status: string;
   insurance_provider: string;
   message?: string;
-  file_name: string;
-  file_size: number;
-  file_type: string;
-  file_path: string;
+  file_name?: string;
+  file_size?: number;
+  file_type?: string;
+  file_path?: string;
   status: ApplicationStatus;
   notification_status?: 'SENT' | 'FAILED' | 'PENDING';
   terms_accepted: boolean;

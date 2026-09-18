@@ -101,12 +101,17 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, selectedFi
   return (
     <div className="space-y-3 text-left">
       <div className="flex items-center justify-between">
-        <label 
-          htmlFor="file-upload-input" 
-          className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-widest"
-        >
-          Upload Your Cyber Insurance Questionnaire (PDF, DOCX, XLSX) *
-        </label>
+        <div className="flex items-center gap-2">
+          <label 
+            htmlFor="file-upload-input" 
+            className="block text-xs font-mono font-bold text-slate-800 uppercase tracking-widest"
+          >
+            UPLOAD A CYBERSECURITY OR CYBER-INSURANCE QUESTIONNAIRE
+          </label>
+          <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase">
+            OPTIONAL
+          </span>
+        </div>
         {selectedFiles.length > 0 && (
           <span className="text-[11px] font-mono font-bold text-[#0284C7]">
             {selectedFiles.length} of {MAX_FILE_COUNT} Files ({ (currentTotalBytes / (1024 * 1024)).toFixed(1) } / {MAX_TOTAL_MB} MB)
@@ -203,9 +208,17 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, selectedFi
         </div>
       )}
 
+      {/* Credential Security Warning */}
+      <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
+        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+        <p className="leading-relaxed font-medium">
+          <strong>Security Notice:</strong> Please do not upload passwords, authentication credentials, private keys, API keys, or other system access credentials.
+        </p>
+      </div>
+
       {/* Helper Text Notice */}
       <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed font-normal">
-        Please upload either your new insurance application form or your current policy review document. Our compliance engineering team will perform an instant gap analysis to ensure your technical architecture fully satisfies underwriting requirements. This questionnaire is typically a PDF or Excel document emailed to you by your independent commercial insurance broker during your annual coverage renewal cycle. Search your business inbox for "Cyber Questionnaire," "Cyber Liability Supplement," or contact your commercial insurance broker directly to request a digital copy.
+        Upload any relevant cybersecurity questionnaire, insurance renewal supplement, or security evaluation document (PDF, DOC, DOCX, XLS, XLSX). If you do not currently have a questionnaire, you may leave this upload blank and proceed directly.
       </div>
 
       {error && (

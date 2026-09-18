@@ -10,10 +10,11 @@ export const applicationFormSchema = z.object({
   industry_other: z.string().optional(),
   referred_by_broker: z.string().min(1, 'Please select whether you were referred by an independent broker'),
   broker_name: z.string().optional(),
-  employee_count: z.string().min(1, 'Please specify active endpoint count'),
+  employee_count: z.string().min(1, 'Please select approximate number of business devices'),
+  cloud_user_count: z.string().min(1, 'Please select approximate number of cloud users'),
   insurance_status: z.string().min(1, 'Please select current cyber liability coverage status'),
   insurance_provider: z.string().min(1, 'Please select active defense infrastructure'),
-  message: z.string().optional().default('Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework'),
+  message: z.string().optional().default('24/7 Managed Detection & Response (MDR)'),
   terms_accepted: z.boolean().refine((val) => val === true, {
     message: 'You must agree to the Terms of Service and Privacy Policy to submit an assessment request.',
   }),

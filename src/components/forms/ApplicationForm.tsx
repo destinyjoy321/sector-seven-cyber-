@@ -25,9 +25,10 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
     referred_by_broker: 'No',
     broker_name: '',
     employee_count: '',
+    cloud_user_count: '',
     insurance_status: 'Active coverage (Facing upcoming audit/renewal)',
     insurance_provider: 'Standard Antivirus software only (Unmonitored)',
-    message: 'Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework',
+    message: '24/7 Managed Detection & Response (MDR)',
     terms_accepted: false,
   });
 
@@ -79,13 +80,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
     setFileError('');
     setSubmitError('');
 
-    // Step 1: Validate file presence
-    if (selectedFiles.length === 0) {
-      setFileError('Please select at least one document to upload before submitting.');
-      return;
-    }
-
-    // Step 2: Zod Schema Validation
+    // Zod Schema Validation
     const validationResult = applicationFormSchema.safeParse(formData);
     if (!validationResult.success) {
       const fieldErrors: Record<string, string> = {};
@@ -106,11 +101,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       const appId = `SS-2026-${randomNum}`;
 
-      const primaryExt = selectedFiles[0].name.split('.').pop() || 'pdf';
-      const sanitizedFilename = `questionnaire-${Math.random().toString(36).substring(2, 10)}.${primaryExt}`;
-
-      const totalSize = selectedFiles.reduce((acc, f) => acc + f.size, 0);
-      const fileNamesCombined = selectedFiles.map(f => f.name).join(', ');
+      const hasFiles = selectedFiles.length > 0;
+      const primaryExt = hasFiles ? (selectedFiles[0].name.split('.').pop() || 'pdf') : 'none';
+      const sanitizedFilename = hasFiles ? `questionnaire-${Math.random().toString(36).substring(2, 10)}.${primaryExt}` : 'None';
+      const totalSize = hasFiles ? selectedFiles.reduce((acc, f) => acc + f.size, 0) : 0;
+      const fileNamesCombined = hasFiles ? selectedFiles.map(f => f.name).join(', ') : 'None';
+      const storageFilePath = hasFiles ? `${appId}/${sanitizedFilename}` : 'NONE';
+      const fileType = hasFiles ? (selectedFiles[0].type || 'application/pdf') : 'none';
 
       const newApp: ProspectApplication = {
         id: appId,
@@ -126,13 +123,14 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
         referred_by_broker: validationResult.data.referred_by_broker,
         broker_name: validationResult.data.broker_name,
         employee_count: validationResult.data.employee_count,
+        cloud_user_count: validationResult.data.cloud_user_count,
         insurance_status: validationResult.data.insurance_status,
         insurance_provider: validationResult.data.insurance_provider,
-        message: 'Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework',
+        message: '24/7 Managed Detection & Response (MDR)',
         file_name: fileNamesCombined,
         file_size: totalSize,
-        file_type: selectedFiles[0].type || 'application/pdf',
-        file_path: `${appId}/${sanitizedFilename}`,
+        file_type: fileType,
+        file_path: storageFilePath,
         status: 'NEW',
         notification_status: 'PENDING',
         terms_accepted: true,
@@ -162,9 +160,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
     } catch (err: any) {
       setIsSubmitting(false);
       setVaultStage('idle');
-      const errorMsg = 'Your document could not be uploaded. Please try again.';
+      const errorMsg = 'Your assessment could not be submitted. Please check your network connection and try again.';
       setSubmitError(errorMsg);
-      setFileError(errorMsg);
+      if (selectedFiles.length > 0) {
+        setFileError('File upload failed. Please try re-selecting your document or submit without attachment.');
+      }
     }
   };
 
@@ -515,19 +515,96 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
           </div>
         </div>
 
-        {/* SECTION 02: UNDERWRITING & DEFENSE PROFILE */}
+        {/* SECTION 02: SECURITY ENVIRONMENT */}
         <div className="space-y-6 pt-4">
           <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
             <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
             <span className="font-extrabold text-xs uppercase tracking-widest text-[#0284C7]">
-              02 / Underwriting & Defense Profile
+              02 / Security Environment
             </span>
           </div>
 
-          {/* Row 1: Coverage Status & Active Endpoint Count */}
+          {/* Row 1: Number of Business Devices & Number of Cloud Users */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col justify-between h-full">
-              <div className="min-h-[48px] flex items-end mb-2">
+              <div className="min-h-[52px] flex items-end mb-2">
+                <div>
+                  <label htmlFor="select-employee-count" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                    Number of Business Devices <span className="text-red-500 font-bold inline-block">*</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500 font-normal mt-0.5 leading-tight">
+                    Approximately how many computers, laptops, servers, and other company-managed devices does your organization use? Please select your best estimate.
+                  </p>
+                </div>
+              </div>
+              <select
+                id="select-employee-count"
+                name="employee_count"
+                value={formData.employee_count || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.employee_count)}
+                aria-describedby={errors.employee_count ? 'employee_count-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.employee_count ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              >
+                <option value="" disabled>Select device count estimate...</option>
+                <option value="1–10">1–10</option>
+                <option value="11–25">11–25</option>
+                <option value="26–50">26–50</option>
+                <option value="51–100">51–100</option>
+                <option value="101+">101+</option>
+              </select>
+              {errors.employee_count && (
+                <p id="employee_count-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.employee_count}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[52px] flex items-end mb-2">
+                <div>
+                  <label htmlFor="select-cloud-users" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
+                    Number of Cloud Users <span className="text-red-500 font-bold inline-block">*</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500 font-normal mt-0.5 leading-tight">
+                    Approximately how many employees or users have Microsoft 365 or Google Workspace accounts? Please select your best estimate.
+                  </p>
+                </div>
+              </div>
+              <select
+                id="select-cloud-users"
+                name="cloud_user_count"
+                value={formData.cloud_user_count || ''}
+                onChange={handleTextChange}
+                aria-invalid={Boolean(errors.cloud_user_count)}
+                aria-describedby={errors.cloud_user_count ? 'cloud_user_count-error' : undefined}
+                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
+                  errors.cloud_user_count ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
+                }`}
+              >
+                <option value="" disabled>Select cloud users estimate...</option>
+                <option value="1–10">1–10</option>
+                <option value="11–25">11–25</option>
+                <option value="26–50">26–50</option>
+                <option value="51–100">51–100</option>
+                <option value="101+">101+</option>
+              </select>
+              {errors.cloud_user_count && (
+                <p id="cloud_user_count-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  {errors.cloud_user_count}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Coverage Status & Defense Infrastructure */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div className="flex flex-col justify-between h-full">
+              <div className="min-h-[42px] flex items-end mb-2">
                 <label htmlFor="select-insurance-status" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Cyber Liability Coverage Status <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
@@ -546,37 +623,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
             </div>
 
             <div className="flex flex-col justify-between h-full">
-              <div className="min-h-[48px] flex items-end mb-2">
-                <label htmlFor="input-employee-count" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
-                  Active Endpoint Count (Network Footprint) <span className="text-red-500 font-bold inline-block">*</span>
-                </label>
-              </div>
-              <input
-                id="input-employee-count"
-                type="text"
-                name="employee_count"
-                placeholder="e.g., 25 Workstations, 2 Servers"
-                value={formData.employee_count || ''}
-                onChange={handleTextChange}
-                aria-invalid={Boolean(errors.employee_count)}
-                aria-describedby={errors.employee_count ? 'employee_count-error' : undefined}
-                className={`w-full h-12 px-4 rounded-xl border text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none transition-all ${
-                  errors.employee_count ? 'border-red-400 bg-red-50/50' : 'border-slate-300 bg-slate-50/50 focus:bg-white focus:border-[#0284C7]'
-                }`}
-              />
-              {errors.employee_count && (
-                <p id="employee_count-error" role="alert" aria-live="polite" className="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                  {errors.employee_count}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Row 2: Defense Infrastructure */}
-          <div className="grid grid-cols-1 gap-6 items-start">
-            <div className="flex flex-col justify-between h-full">
-              <div className="min-h-[48px] flex items-end mb-2">
+              <div className="min-h-[42px] flex items-end mb-2">
                 <label htmlFor="select-insurance-provider" className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider leading-snug">
                   Active Defense Infrastructure <span className="text-red-500 font-bold inline-block">*</span>
                 </label>
@@ -595,34 +642,34 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
             </div>
           </div>
 
-          {/* 4. Primary Operational Goal Overhaul & Locked Input */}
+          {/* 4. Your Managed Security Framework & 24/7 MDR Box */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
             <div>
               <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
-                Primary Operational Goal & Unified Service Framework
+                YOUR MANAGED SECURITY FRAMEWORK
               </h4>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Our institutional B2B security architecture operates as a unified service layer across three core pillars:
+              <p className="text-xs text-slate-600 mt-0.5">
+                Sector Seven Cyber helps strengthen your organization's security through three core areas:
               </p>
             </div>
 
-            {/* Turn Text Into Static Bullets */}
+            {/* Static Bullets */}
             <ul className="space-y-2 text-xs sm:text-sm text-slate-700 font-medium">
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
-                <span>Instantly satisfy carrier requirements to secure preferred insurance rates.</span>
+                <span>Strengthen cybersecurity controls commonly evaluated during cyber-insurance underwriting.</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
-                <span>Deploy 24/7 human-led active threat hunting to isolate internal network risks.</span>
+                <span>Provide 24/7 human-led managed detection and response to identify and respond to cyber threats.</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] mt-2 shrink-0" />
-                <span>Protect high-value client records from catastrophic data leaks and regulatory penalties.</span>
+                <span>Strengthen safeguards around sensitive business and client information.</span>
               </li>
             </ul>
 
-            {/* The Pre-Selected Locked Box */}
+            {/* The Core Managed Service Box */}
             <div className="pt-2">
               <label className="flex items-start gap-3 p-3.5 rounded-xl border border-sky-200 bg-sky-50/70 text-slate-900 cursor-not-allowed select-none">
                 <input
@@ -632,12 +679,15 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                   readOnly={true}
                   className="mt-0.5 w-4 h-4 text-[#0284C7] border-sky-400 rounded accent-[#0284C7] cursor-not-allowed"
                 />
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   <span className="font-bold text-xs sm:text-sm text-slate-900 block leading-tight">
-                    Deploy 24/7 Continuous Threat Hunting & Regulatory Compliance Framework
+                    24/7 MANAGED DETECTION & RESPONSE (MDR)
                   </span>
-                  <span className="inline-block text-[10px] font-extrabold text-[#0284C7] bg-sky-100 px-2 py-0.5 rounded border border-sky-200 uppercase tracking-wider">
-                    [PRE-SELECTED / MANDATORY]
+                  <p className="text-xs text-slate-600 font-normal leading-normal">
+                    Continuous monitoring, threat detection, investigation, and response across supported environments.
+                  </p>
+                  <span className="inline-block text-[10px] font-extrabold text-[#0284C7] bg-sky-100 px-2 py-0.5 rounded border border-sky-200 uppercase tracking-wider mt-1">
+                    [CORE MANAGED SERVICE]
                   </span>
                 </div>
               </label>
@@ -725,7 +775,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
               </div>
             ) : (
               <>
-                <span className="font-sans font-extrabold">CONFIRM MY SECURITY FIT CALL →</span>
+                <span className="font-sans font-extrabold">START YOUR SECURITY ASSESSMENT →</span>
                 <ArrowRight className="w-4 h-4 text-white" aria-hidden="true" />
               </>
             )}

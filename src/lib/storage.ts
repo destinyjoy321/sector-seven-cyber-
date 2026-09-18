@@ -101,8 +101,9 @@ export async function saveApplication(app: ProspectApplication, fileInput?: File
     for (let i = 0; i < filesList.length; i++) {
       const file = filesList[i];
       const ext = file.name.split('.').pop() || 'pdf';
-      const dirPath = app.file_path.includes('/') ? app.file_path.substring(0, app.file_path.lastIndexOf('/')) : app.file_path;
-      const storagePath = filesList.length === 1 ? app.file_path : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const targetFilePath = app.file_path || `${app.id}/document.${ext}`;
+      const dirPath = targetFilePath.includes('/') ? targetFilePath.substring(0, targetFilePath.lastIndexOf('/')) : targetFilePath;
+      const storagePath = filesList.length === 1 ? targetFilePath : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
       let singleUploadSuccess = false;
 
@@ -204,6 +205,7 @@ export async function saveApplication(app: ProspectApplication, fileInput?: File
     referred_by_broker: app.referred_by_broker,
     broker_name: app.broker_name,
     employee_count: app.employee_count,
+    cloud_user_count: app.cloud_user_count,
     insurance_provider: app.insurance_provider,
     insurance_status: app.insurance_status,
     file_name: app.file_name,

@@ -32,9 +32,9 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
     },
     {
       step: '03',
-      title: 'You Have a Security Fit Call.',
-      desc: 'During your 15-minute call, we clarify the requirements, discuss your environment and determine whether Sector Seven is the appropriate security partner for your organization.',
-      icon: PhoneCall,
+      title: 'We Conduct an Environment Review.',
+      desc: 'Our security architecture team evaluates your device count, cloud footprint, and questionnaire details to verify your environment scope.',
+      icon: ShieldCheck,
     },
     {
       step: '04',
@@ -136,7 +136,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
             onClick={() => onNavigate('/apply')}
             className="btn-primary shrink-0 bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-6 py-4 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-[1.03]"
           >
-            <span>BOOK A SECURITY FIT CALL →</span>
+            <span>START YOUR SECURITY ASSESSMENT →</span>
             <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </motion.div>

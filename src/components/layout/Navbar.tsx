@@ -97,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="btn-primary relative overflow-hidden bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-mono font-bold tracking-wider px-5 py-2.5 rounded-full flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.03]"
             >
-              <span>BOOK A SECURITY FIT CALL</span>
+              <span>START YOUR SECURITY ASSESSMENT</span>
             </button>
           </div>
 
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="bg-[#0284C7] text-white text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-1 shadow-sm"
             >
-              <span>Apply</span>
+              <span>Assess</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-white" />
             </button>
             <button
@@ -144,7 +144,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                 onClick={() => { onNavigate('/apply'); setMobileMenuOpen(false); }}
                 className="w-full bg-[#0284C7] text-white text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 shadow-sm"
               >
-                <span>Upload Questionnaire & Apply</span>
+                <span>Start Your Security Assessment</span>
                 <ArrowUpRight className="w-4 h-4 text-white" />
               </button>
             </div>

@@ -95,7 +95,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
             onClick={() => onNavigate('/apply')}
             className="btn-primary w-full sm:w-auto bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-9 py-4 rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all duration-200 group border border-sky-400/30 hover:scale-[1.03]"
           >
-            <span>BOOK A SECURITY FIT CALL</span>
+            <span>START YOUR SECURITY ASSESSMENT</span>
           </button>
         </motion.div>
 

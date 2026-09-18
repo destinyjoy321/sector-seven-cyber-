@@ -62,7 +62,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]"
             >
-              <span>BOOK A SECURITY FIT CALL →</span>
+              <span>START YOUR SECURITY ASSESSMENT →</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </motion.div>
@@ -100,7 +100,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('/apply')}
               className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]"
             >
-              <span>BOOK A SECURITY FIT CALL →</span>
+              <span>START YOUR SECURITY ASSESSMENT →</span>
               <ArrowRight className="w-4 h-4 text-white" />
             </button>
           </motion.div>
