@@ -1,6 +1,14 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { Upload, FileSearch, PhoneCall, ShieldCheck, RefreshCw, ArrowRight } from 'lucide-react';
+import { 
+  FileCheck, 
+  Calculator, 
+  ShieldCheck, 
+  CreditCard, 
+  Cloud, 
+  Activity, 
+  ArrowRight 
+} from 'lucide-react';
 
 interface HowItWorksProps {
   onNavigate: (path: string) => void;
@@ -9,7 +17,6 @@ interface HowItWorksProps {
 export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress for drawing vertical Sector Seven Cyan timeline line
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start 65%', 'end 70%'],
@@ -17,36 +24,43 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
 
   const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 22 });
 
+  // Exactly as specified in Document Section 19
   const steps = [
     {
       step: '01',
-      title: 'You Send the Documentation.',
-      desc: 'Upload the questionnaire, renewal notice or deficiency letter your broker or carrier provided.',
-      icon: Upload,
+      title: 'Complete Your Security Assessment',
+      desc: 'Tell us about your organization and the environment requiring protection.',
+      icon: FileCheck,
     },
     {
       step: '02',
-      title: 'We Review the Requirements.',
-      desc: 'We examine what your insurer is asking for and identify the relevant security requirements.',
-      icon: FileSearch,
+      title: 'Receive Your Cybersecurity Quote',
+      desc: 'Receive a Sector Seven monthly rate based on your protected environment.',
+      icon: Calculator,
     },
     {
       step: '03',
-      title: 'We Conduct an Environment Review.',
-      desc: 'Our security architecture team evaluates your device count, cloud footprint, and questionnaire details to verify your environment scope.',
+      title: 'Review Your Protection',
+      desc: 'Review your monthly rate and everything included in Sector Seven Cyber Protection.',
       icon: ShieldCheck,
     },
     {
       step: '04',
-      title: 'We Build the Security Environment.',
-      desc: 'If there is a fit, Sector Seven Cyber implements the appropriate security protections and establishes continuous monitoring and management.',
-      icon: ShieldCheck,
+      title: 'Agree & Pay',
+      desc: 'Review the Service Agreement and securely activate recurring billing.',
+      icon: CreditCard,
     },
     {
       step: '05',
-      title: 'We Maintain the Position.',
-      desc: 'Security isn\'t a once-a-year exercise. Your environment continues to be monitored, managed and documented as requirements and threats evolve.',
-      icon: RefreshCw,
+      title: 'Security Onboarding',
+      desc: 'We begin connecting the approved cloud environment and deploying supported endpoint protection.',
+      icon: Cloud,
+    },
+    {
+      step: '06',
+      title: '24/7 Managed Protection',
+      desc: "Your protected environment enters Sector Seven's managed cybersecurity service.",
+      icon: Activity,
     },
   ];
 
@@ -56,20 +70,23 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
       {/* Background ambient soft glow */}
       <div className="absolute top-1/2 right-10 w-[450px] h-[450px] bg-sky-100/50 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 relative z-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10 text-left">
         
-        {/* Section Header */}
+          {/* Section Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
-            <span>TRANSPARENT PROCESS</span>
+          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-semibold">
+            <span>Seamless Onboarding Journey</span>
           </div>
           <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold text-slate-900 tracking-tighter">
-            What Happens After You Submit?
+            How It Works
           </h2>
+          <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto">
+            From initial assessment to live 24/7 active defense in six clear, transparent phases.
+          </p>
         </div>
 
         {/* Vertical Timeline Container */}
-        <div ref={containerRef} className="relative pl-8 sm:pl-16 space-y-12 text-left">
+        <div ref={containerRef} className="relative pl-8 sm:pl-16 space-y-8 text-left">
           
           {/* Base Inactive Vertical Line */}
           <div className="absolute left-3 sm:left-6 top-3 bottom-3 w-0.5 bg-slate-300 rounded-full" />
@@ -88,7 +105,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
                 initial={{ opacity: 0.4, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
                 className="relative flex items-start gap-6 group transition-opacity duration-500"
               >
                 {/* Timeline Dot Indicator */}
@@ -97,49 +114,39 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onNavigate }) => {
                 </div>
 
                 {/* Step Content Card */}
-                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-soft-card hover:border-sky-300 hover:shadow-lg transition-all duration-300 w-full space-y-3">
+                <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-soft-card hover:border-sky-300 hover:shadow-md transition-all duration-300 w-full space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-black text-[#0284C7] tracking-wider">
-                      STEP {s.step}
+                    <span className="text-xs font-bold text-[#0284C7] tracking-wider uppercase">
+                      Phase {s.step}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0284C7]">
-                      <Icon className="w-5 h-5" />
+                    <div className="p-2 rounded-xl bg-sky-50 text-[#0284C7]">
+                      <Icon className="w-4 h-4" />
                     </div>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">{s.title}</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{s.desc}</p>
-                </div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                    {s.step} — {s.title}
+                  </h3>
 
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                    {s.desc}
+                  </p>
+                </div>
               </motion.div>
             );
           })}
-
         </div>
 
-        {/* Action Callout Box */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left"
-        >
-          <div className="space-y-1">
-            <h4 className="font-bold text-white text-base">Ready to review your requirements?</h4>
-            <p className="text-xs text-slate-400 font-mono">
-              Upload the questionnaire, renewal notice or deficiency letter your broker or carrier provided.
-            </p>
-          </div>
-
+        {/* Bottom CTA Box */}
+        <div className="pt-6 text-center">
           <button
             onClick={() => onNavigate('/apply')}
-            className="btn-primary shrink-0 bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider px-6 py-4 rounded-full flex items-center gap-2 shadow-md transition-all hover:scale-[1.03]"
+            className="btn-primary inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-sm tracking-wide px-8 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
           >
-            <span>START YOUR SECURITY ASSESSMENT →</span>
-            <ArrowRight className="w-4 h-4 text-white" />
+            <span>Start Your Security Assessment</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </motion.div>
+        </div>
 
       </div>
     </section>

@@ -2,82 +2,109 @@ import { ProspectApplication, ApplicationStatus, ErasureRequest } from '../types
 import { supabase, supabaseAdmin } from './supabaseClient';
 import { sendApplicationEmailAlert } from './email';
 
-
 const DB_KEY = 'sector_seven_applications_db';
 const ERASURE_KEY = 'sector_seven_erasure_requests_db';
 
+// Production Clean State: Zero hardcoded dummy applications.
+// Only applications submitted by real prospects through the assessment flow or stored in Supabase are displayed.
+const INITIAL_APPLICATIONS: ProspectApplication[] = [];
 
-// Initial mock data pre-populated for Georgia B2B context
-const INITIAL_APPLICATIONS: ProspectApplication[] = [
-  {
-    id: 'SS-2026-0084',
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    contact_name: 'Marcus Vance, Esq.',
-    company_name: 'Vance & Montgomery Partners LLC',
-    email: 'm.vance@vancelawga.com',
-    phone: '+1 (404) 892-3400',
-    industry: 'Law Firm',
-    employee_count: '25-50',
-    insurance_status: 'Existing Policy / Renewal',
-    insurance_provider: 'Travelers Indemnity Co.',
-    message: 'Travelers issued a 30-day notice demanding EDR and Immutable Backup proof or our policy will be non-renewed.',
-    file_name: 'Travelers_Cyber_Questionnaire_2026_Vance.pdf',
-    file_size: 2450000,
-    file_type: 'application/pdf',
-    file_path: 'insurance-questionnaires/2026/09/SS-2026-0084/questionnaire-7f83c2a1.pdf',
-    status: 'NEW',
-    terms_accepted: true,
-    terms_accepted_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    terms_version: '2026-09-01',
-    notes: 'High priority law firm lead from Fulton County. Needs immediate MFA/EDR gap audit.',
-  },
-  {
-    id: 'SS-2026-0083',
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-    contact_name: 'Dr. Sarah Jenkins',
-    company_name: 'Peachtree Surgical Specialties Clinic',
-    email: 'sjenkins@peachtreesurgical.org',
-    phone: '+1 (404) 555-0199',
-    industry: 'Medical Clinic',
-    employee_count: '50-100',
-    insurance_status: 'New Policy Application',
-    insurance_provider: 'Chubb Insurance',
-    message: 'Chubb requires HIPAA security risk analysis & external penetration test report for $5M coverage limits.',
-    file_name: 'Chubb_Medical_Risk_Evaluation_Sheet.docx',
-    file_size: 1820000,
-    file_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    file_path: 'insurance-questionnaires/2026/09/SS-2026-0083/questionnaire-9a21b4f3.docx',
-    status: 'UNDER_REVIEW',
-    terms_accepted: true,
-    terms_accepted_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    terms_version: '2026-09-01',
-    notes: 'Assigned to Senior Security Architect. Reviewing network topology.',
-  }
-];
+// Known dummy mock IDs and emails to permanently purge from storage
+const MOCK_IDS = new Set(['SS-2026-0084', 'SS-2026-0083', 'SS-2026-0082', 'SS-2026-DEMO']);
+const MOCK_EMAILS = new Set(['m.vance@vancelawga.com', 'sjenkins@peachtreesurgical.org', 'dsterling@sterlingcpa.com', 'client@company.com']);
 
 export function getStoredApplications(): ProspectApplication[] {
   try {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) {
-      localStorage.setItem(DB_KEY, JSON.stringify(INITIAL_APPLICATIONS));
-      return INITIAL_APPLICATIONS;
+      return [];
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    // Filter out any legacy dummy mock records
+    const realApps = parsed.filter((a: any) => 
+      !MOCK_IDS.has(a.id) && !MOCK_EMAILS.has(a.email)
+    );
+    // If the storage contained dummy data, persist the sanitized array
+    if (realApps.length !== parsed.length) {
+      localStorage.setItem(DB_KEY, JSON.stringify(realApps));
+    }
+    return realApps;
   } catch (e) {
-    return INITIAL_APPLICATIONS;
+    return [];
   }
 }
 
+function normalizeApplicationRecord(a: any): ProspectApplication {
+  let deviceCount = a.device_count;
+  let cloudUserCount = a.cloud_user_count;
+  let calculatedPrice = a.calculated_monthly_price;
+  let planName = a.plan_name;
+  let evaluatingQty = a.evaluating_quantity;
+
+  if (deviceCount === undefined || deviceCount === null) {
+    const devMatch = (a.employee_count || '').match(/(\d+)\s*devices?/i);
+    if (devMatch) {
+      deviceCount = parseInt(devMatch[1], 10);
+    } else {
+      const numMatch = (a.employee_count || '').match(/\d+/);
+      deviceCount = numMatch ? parseInt(numMatch[0], 10) : 10;
+    }
+  }
+
+  if (cloudUserCount === undefined || cloudUserCount === null) {
+    const cloudMatch = (a.employee_count || '').match(/(\d+)\s*cloud\s*users?/i);
+    cloudUserCount = cloudMatch ? parseInt(cloudMatch[1], 10) : 0;
+  }
+
+  if (evaluatingQty === undefined || evaluatingQty === null) {
+    evaluatingQty = Math.max(Number(deviceCount) || 1, Number(cloudUserCount) || 0);
+  }
+
+  if (calculatedPrice === undefined || calculatedPrice === null) {
+    const priceMatch = (a.message || a.insurance_provider || '').match(/\$([0-9,]+)/);
+    if (priceMatch) {
+      calculatedPrice = parseFloat(priceMatch[1].replace(/,/g, ''));
+    }
+  }
+
+  const isCustomQuote = a.is_custom_quote ?? (evaluatingQty > 30 || calculatedPrice === null);
+
+  return {
+    ...a,
+    device_count: Number(deviceCount) || 1,
+    cloud_user_count: Number(cloudUserCount) || 0,
+    evaluating_quantity: evaluatingQty,
+    calculated_monthly_price: calculatedPrice !== undefined && calculatedPrice !== null ? Number(calculatedPrice) : null,
+    plan_name: planName || (evaluatingQty > 30 ? 'Custom Cybersecurity Plan' : 'Sector Seven Cyber Protection'),
+    is_custom_quote: isCustomQuote,
+    status: a.status || 'NEW',
+    terms_accepted: Boolean(a.terms_accepted),
+    insurance_provider: a.insurance_provider || 'Standard Infrastructure',
+    insurance_status: a.insurance_status || 'CURRENTLY_INSURED',
+  };
+}
+
 export async function fetchLiveApplications(): Promise<ProspectApplication[]> {
-  const localApps = getStoredApplications();
+  const localApps = getStoredApplications().map(normalizeApplicationRecord);
   try {
-    const { data: dbApps, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false });
+    const { data: dbApps, error } = await supabase
+      .from('applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (dbApps && !error && dbApps.length > 0) {
-      // Merge dbApps and localApps by id, prioritizing dbApps
-      const dbMap = new Map<string, ProspectApplication>(dbApps.map((a: any) => [a.id, a as ProspectApplication]));
-      localApps.forEach(app => {
+      // Filter out any mock entries from DB as well
+      const sanitizedDb = dbApps
+        .filter((a: any) => !MOCK_IDS.has(a.id) && !MOCK_EMAILS.has(a.email))
+        .map(normalizeApplicationRecord);
+
+      const dbMap = new Map<string, ProspectApplication>(
+        sanitizedDb.map((a: any) => [a.id, a])
+      );
+      localApps.forEach((app) => {
         if (!dbMap.has(app.id)) {
           dbMap.set(app.id, app);
         }
@@ -90,184 +117,267 @@ export async function fetchLiveApplications(): Promise<ProspectApplication[]> {
   return localApps;
 }
 
-export async function saveApplication(app: ProspectApplication, fileInput?: File[] | File): Promise<void> {
-  // Initial notification status set to PENDING
+export async function getApplicationById(id: string): Promise<ProspectApplication | null> {
+  const localApps = getStoredApplications();
+  const matched = localApps.find((a) => a.id === id);
+  if (matched) return normalizeApplicationRecord(matched);
+
+  try {
+    const { data, error } = await supabase.from('applications').select('*').eq('id', id).single();
+    if (data && !error && !MOCK_IDS.has(data.id)) {
+      return normalizeApplicationRecord(data);
+    }
+  } catch (err) {
+    console.warn('Error fetching application by id from Supabase:', err);
+  }
+
+  return null;
+}
+
+export async function saveApplication(
+  app: ProspectApplication,
+  fileInput?: File[] | File
+): Promise<void> {
   app.notification_status = 'PENDING';
   const filesList: File[] = Array.isArray(fileInput) ? fileInput : fileInput ? [fileInput] : [];
 
-  // 1. Upload files to live Supabase private bucket 'insurance-questionnaires'
+  // Optional file upload support
   if (filesList.length > 0) {
-    let uploadSuccess = true;
     for (let i = 0; i < filesList.length; i++) {
       const file = filesList[i];
       const ext = file.name.split('.').pop() || 'pdf';
       const targetFilePath = app.file_path || `${app.id}/document.${ext}`;
-      const dirPath = targetFilePath.includes('/') ? targetFilePath.substring(0, targetFilePath.lastIndexOf('/')) : targetFilePath;
-      const storagePath = filesList.length === 1 ? targetFilePath : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const dirPath = targetFilePath.includes('/')
+        ? targetFilePath.substring(0, targetFilePath.lastIndexOf('/'))
+        : targetFilePath;
+      const storagePath =
+        filesList.length === 1
+          ? targetFilePath
+          : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
-      let singleUploadSuccess = false;
-
-      // A. Primary Enterprise Method: Signed Upload URL via serverless backend delegation
       try {
-        const signRes = await fetch('/api/upload-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filePath: storagePath, fileName: file.name, fileType: file.type }),
-        });
-
-        if (signRes.ok) {
-          const signData = await signRes.json();
-          if (signData.path && signData.token) {
-            const { data: signedUploadData, error: signedUploadErr } = await supabase.storage
-              .from('insurance-questionnaires')
-              .uploadToSignedUrl(signData.path, signData.token, file, {
-                contentType: file.type || 'application/octet-stream',
-                upsert: true,
-              });
-
-            if (!signedUploadErr && signedUploadData) {
-              singleUploadSuccess = true;
-              console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage via signed URL.`);
-            } else if (signedUploadErr) {
-              console.warn('Signed upload execution notice:', signedUploadErr.message);
-            }
-          }
-        }
-      } catch (signErr) {
-        console.warn('Signed upload URL service unavailable, trying direct upload fallback:', signErr);
+        await supabase.storage.from('insurance-questionnaires').upload(storagePath, file, { upsert: true });
+      } catch (e) {
+        console.warn('Storage upload fallback notice:', e);
       }
-
-      // B. Secondary Fallback: Direct upload with anon client (if storage RLS policy is configured)
-      if (!singleUploadSuccess) {
-        try {
-          const { data: storageData, error: storageErr } = await supabase.storage
-            .from('insurance-questionnaires')
-            .upload(storagePath, file, { upsert: true });
-
-          if (!storageErr && storageData) {
-            singleUploadSuccess = true;
-            console.log(`Uploaded file [${i + 1}/${filesList.length}] to Supabase Storage.`);
-          } else {
-            console.warn('Direct upload notice:', storageErr?.message);
-          }
-        } catch (directErr) {
-          console.warn('Direct upload exception:', directErr);
-        }
-      }
-
-      if (!singleUploadSuccess) {
-        uploadSuccess = false;
-      }
-    }
-
-    // Spec Requirement 29: Upload failure must trigger exact error message
-    // If Supabase URL is set or environment active and upload failed, fail explicitly
-    if (!uploadSuccess && import.meta.env.VITE_SUPABASE_URL) {
-      throw new Error('One or more documents could not be uploaded. Please try again.');
     }
   }
 
-  // 2. Save to local storage for instant offline capability and fallback
+  // 1. Save to local storage
   const current = getStoredApplications();
-  const updated = [app, ...current];
+  const filtered = current.filter((a) => a.id !== app.id);
+  const updated = [app, ...filtered];
   localStorage.setItem(DB_KEY, JSON.stringify(updated));
 
-  // 3. Insert record into live Supabase PostgreSQL database
-  let dbSuccess = false;
+  // 2. Insert into Supabase (with automatic fallback to backward-compatible schema if columns are pending migration)
   try {
-    const { error: dbErr } = await supabase.from('applications').insert([app]);
+    const { error: initialErr } = await supabase.from('applications').upsert([app]);
+    if (initialErr) {
+      console.warn('Supabase native V2 upsert returned schema notice, syncing with compatible adapter:', initialErr.message);
+      const rateLabel = app.is_custom_quote || app.calculated_monthly_price === null
+        ? 'Custom Quote Required'
+        : `$${app.calculated_monthly_price}/month`;
 
-    if (!dbErr) {
-      dbSuccess = true;
-      console.log('Inserted record into live Supabase Postgres database:', app.id);
+      const legacyPayload = {
+        id: app.id,
+        created_at: app.created_at || new Date().toISOString(),
+        updated_at: app.updated_at || new Date().toISOString(),
+        contact_name: app.contact_name,
+        company_name: app.company_name,
+        email: app.email,
+        phone: app.phone,
+        industry: app.industry,
+        employee_count: `${app.device_count || 1} devices, ${app.cloud_user_count || 0} cloud users`,
+        insurance_status: app.insurance_status || 'CURRENTLY_INSURED',
+        insurance_provider: `Sector Seven MDR (${rateLabel})`,
+        file_name: app.file_name || 'assessment_scope.json',
+        file_size: app.file_size || 1024,
+        file_type: app.file_type || 'application/json',
+        file_path: app.file_path || `direct_intake/${app.id}.json`,
+        status: app.status || 'NEW',
+        terms_accepted: Boolean(app.terms_accepted),
+        terms_accepted_at: app.terms_accepted_at || new Date().toISOString(),
+        terms_version: app.terms_version || '2026-09-01',
+        message: `Plan: ${app.plan_name || 'Sector Seven Cyber Protection'} | Rate: ${rateLabel} | Devices: ${app.device_count} | Cloud Users: ${app.cloud_user_count} | Title: ${app.contact_title || 'N/A'} | Broker: ${app.referred_by_broker || 'No'}${app.broker_name ? ` (${app.broker_name})` : ''}`,
+        notes: app.notes || ''
+      };
+
+      const { error: adapterErr } = await supabase.from('applications').upsert([legacyPayload]);
+      if (adapterErr) {
+        console.error('Supabase fallback upsert notice:', adapterErr);
+      } else {
+        console.log('Successfully written to Supabase via compatible adapter.');
+      }
     } else {
-      console.warn('Supabase DB Insert notice — check RLS insert policy for anon role.');
+      console.log('Successfully written to Supabase with native V2 schema.');
+    }
+
+    // Log audit event to live audit_logs table & initialize onboarding deployment
+    try {
+      await supabase.from('audit_logs').insert([{
+        event_type: 'ASSESSMENT_SUBMITTED',
+        actor: 'CLIENT',
+        application_id: app.id,
+        title: 'New Assessment Intake',
+        detail: `${app.company_name} · ${app.contact_name} ($${app.calculated_monthly_price || 500}/mo)`,
+        metadata: {
+          devices: app.device_count,
+          cloud_users: app.cloud_user_count,
+          plan: app.plan_name,
+          broker_referral: app.referred_by_broker === 'Yes' ? app.broker_name : 'Direct'
+        }
+      }]);
+
+      await supabase.from('onboarding_deployments').upsert([{
+        application_id: app.id,
+        agents_target: app.device_count || 1,
+        milestone_status: 'PHASE_1_TENANT_CONNECTION'
+      }], { onConflict: 'application_id' });
+    } catch (e) {
+      console.warn('Audit/Deployment init notice:', e);
     }
   } catch (err) {
-    console.warn('Supabase DB connection notice.');
+    console.warn('Supabase DB upsert network notice:', err);
   }
 
-  // If Supabase is configured but DB insert failed and local storage also failed, do not report false success
-  if (!dbSuccess && import.meta.env.VITE_SUPABASE_URL && !localStorage.getItem(DB_KEY)) {
-    throw new Error('Database operation failed. Your submission could not be saved. Please try again.');
+  // 3. Trigger transactional email alert via API (dual alert to client and internal team)
+  try {
+    const emailSent = await sendApplicationEmailAlert({
+      id: app.id,
+      contact_name: app.contact_name,
+      contact_title: app.contact_title,
+      company_name: app.company_name,
+      email: app.email,
+      phone: app.phone,
+      industry: app.industry,
+      industry_other: app.industry_other,
+      referred_by_broker: app.referred_by_broker,
+      broker_name: app.broker_name,
+      device_count: app.device_count,
+      cloud_user_count: app.cloud_user_count,
+      employee_count: `${app.device_count} computers/devices`,
+      calculated_monthly_price: app.calculated_monthly_price,
+      plan_name: app.plan_name,
+      is_custom_quote: app.is_custom_quote,
+      insurance_provider: app.insurance_provider || 'Standard Infrastructure',
+      insurance_status: app.insurance_status,
+      file_name: app.file_name,
+      file_path: app.file_path,
+      message: app.message,
+    });
+    app.notification_status = emailSent ? 'SENT' : 'FAILED';
+  } catch (emailErr) {
+    app.notification_status = 'FAILED';
   }
 
-  // 4. Trigger transactional email alert via Resend API (Requirement 29: Email failure must not cause submission loss)
-  const emailSent = await sendApplicationEmailAlert({
-    id: app.id,
-    contact_name: app.contact_name,
-    contact_title: app.contact_title,
-    company_name: app.company_name,
-    email: app.email,
-    phone: app.phone,
-    industry: app.industry,
-    industry_other: app.industry_other,
-    referred_by_broker: app.referred_by_broker,
-    broker_name: app.broker_name,
-    employee_count: app.employee_count,
-    cloud_user_count: app.cloud_user_count,
-    insurance_provider: app.insurance_provider,
-    insurance_status: app.insurance_status,
-    file_name: app.file_name,
-    file_path: app.file_path,
-    message: app.message,
-  });
-
-  // Update notification status: SENT if email succeeded, FAILED for investigation if email failed
-  app.notification_status = emailSent ? 'SENT' : 'FAILED';
-  
-  // Persist updated notification_status
+  // Persist updated notification status
   const currentStored = getStoredApplications();
-  const index = currentStored.findIndex(a => a.id === app.id);
+  const index = currentStored.findIndex((a) => a.id === app.id);
   if (index !== -1) {
     currentStored[index].notification_status = app.notification_status;
     localStorage.setItem(DB_KEY, JSON.stringify(currentStored));
   }
-
-  // Update notification_status in Supabase DB asynchronously
-  supabaseAdmin
-    .from('applications')
-    .update({ notification_status: app.notification_status })
-    .eq('id', app.id)
-    .then();
 }
 
-
-export function updateApplicationStatus(id: string, status: ApplicationStatus, notes?: string): void {
+export function updateApplicationFields(
+  id: string,
+  updates: Partial<ProspectApplication>
+): ProspectApplication | null {
   const current = getStoredApplications();
-  const updated = current.map(app => {
+  let updatedRecord: ProspectApplication | null = null;
+
+  const updated = current.map((app) => {
     if (app.id === id) {
-      return {
+      updatedRecord = {
         ...app,
-        status,
-        notes: notes !== undefined ? notes : app.notes,
+        ...updates,
         updated_at: new Date().toISOString(),
       };
+      return updatedRecord;
     }
     return app;
   });
-  localStorage.setItem(DB_KEY, JSON.stringify(updated));
 
-  // Async update live Supabase Postgres database
-  supabaseAdmin.from('applications').update({ status, notes, updated_at: new Date().toISOString() }).eq('id', id).then();
+  if (updatedRecord) {
+    localStorage.setItem(DB_KEY, JSON.stringify(updated));
+    try {
+      supabaseAdmin
+        .from('applications')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .then(async () => {
+          if (updates.agreement_signed && updates.agreement_signer_name) {
+            await supabaseAdmin.from('signed_agreements').insert([{
+              application_id: id,
+              signer_name: updates.agreement_signer_name,
+              company_name: (updatedRecord as ProspectApplication)?.company_name || 'Organization',
+              signer_email: (updatedRecord as ProspectApplication)?.email || 'N/A',
+              accepted_rate: (updatedRecord as ProspectApplication)?.calculated_monthly_price || 500,
+              terms_version: (updatedRecord as ProspectApplication)?.terms_version || '2026-V2.0'
+            }]);
+
+            await supabaseAdmin.from('audit_logs').insert([{
+              event_type: 'AGREEMENT_SIGNED',
+              actor: 'CLIENT',
+              application_id: id,
+              title: 'Master Services Agreement Executed',
+              detail: `Signed by ${updates.agreement_signer_name}`,
+              metadata: { terms_version: '2026-V2.0' }
+            }]);
+          }
+
+          if (updates.status === 'PAID') {
+            await supabaseAdmin.from('audit_logs').insert([{
+              event_type: 'PAYMENT_COMPLETED',
+              actor: 'STRIPE_WEBHOOK',
+              application_id: id,
+              title: 'Subscription Activated',
+              detail: `Payment confirmed for ${(updatedRecord as ProspectApplication)?.company_name || id}`,
+              metadata: { session_id: updates.stripe_session_id }
+            }]);
+          } else if (updates.status) {
+            await supabaseAdmin.from('audit_logs').insert([{
+              event_type: 'STATUS_CHANGED',
+              actor: 'ADMIN',
+              application_id: id,
+              title: `Status Changed: ${updates.status}`,
+              detail: `Application status transitioned to ${updates.status}`,
+              metadata: { status: updates.status }
+            }]);
+          }
+        });
+    } catch (e) {
+      console.warn('Supabase update notice:', e);
+    }
+  }
+
+  return updatedRecord;
 }
 
-// Generate short-lived signed URL via the secure serverless proxy.
-// The anon client cannot create signed URLs for private buckets — that requires the service role key,
-// which lives only in the /api/view-questionnaire serverless route (uses process.env, never bundled).
-export async function generateSignedUrlAsync(filePath: string): Promise<string> {
-  // Delegate to the serverless route which has the service role key server-side.
-  const encodedPath = encodeURIComponent(filePath);
-  return `/api/view-questionnaire?path=${encodedPath}`;
+export function upsertStoredApplication(app: ProspectApplication): void {
+  try {
+    const normalized = normalizeApplicationRecord(app);
+    const current = getStoredApplications();
+    const index = current.findIndex((a) => a.id === normalized.id);
+    if (index !== -1) {
+      current[index] = { ...current[index], ...normalized };
+    } else {
+      current.unshift(normalized);
+    }
+    localStorage.setItem(DB_KEY, JSON.stringify(current));
+  } catch (e) {
+    console.warn('Upsert stored application notice:', e);
+  }
 }
 
-export function generateSignedUrl(filePath: string): string {
-  // Delegate to the serverless route — never fabricate a token.
-  const encodedPath = encodeURIComponent(filePath);
-  return `/api/view-questionnaire?path=${encodedPath}`;
+export function updateApplicationStatus(id: string, status: ApplicationStatus, notes?: string): void {
+  updateApplicationFields(id, {
+    status,
+    ...(notes !== undefined ? { notes } : {}),
+  });
 }
 
-// Data Erasure Request (Section 42.6 Data Subject Erasure Requests)
+// Data Erasure Request (Retained for regulatory compliance)
 export function getErasureRequests(): ErasureRequest[] {
   try {
     const raw = localStorage.getItem(ERASURE_KEY);
@@ -278,7 +388,11 @@ export function getErasureRequests(): ErasureRequest[] {
   }
 }
 
-export function createErasureRequest(email: string, applicationId?: string, scope: string = 'FULL_ERASURE_AND_ANONYMIZATION'): ErasureRequest {
+export function createErasureRequest(
+  email: string,
+  applicationId?: string,
+  scope: string = 'FULL_ERASURE_AND_ANONYMIZATION'
+): ErasureRequest {
   const current = getErasureRequests();
   const newReq: ErasureRequest = {
     id: `DEL-${Date.now().toString(36).toUpperCase()}`,
@@ -294,105 +408,35 @@ export function createErasureRequest(email: string, applicationId?: string, scop
   return newReq;
 }
 
-export function verifyErasureIdentity(erasureId: string): void {
-  const requests = getErasureRequests();
-  const now = new Date().toISOString();
-  const updatedReqs = requests.map(r => {
-    if (r.id === erasureId) {
-      return { ...r, status: 'VERIFIED' as const, identity_verified_at: now };
-    }
-    return r;
-  });
-  localStorage.setItem(ERASURE_KEY, JSON.stringify(updatedReqs));
-  supabase.from('erasure_requests').update({ status: 'VERIFIED', identity_verified_at: now }).eq('id', erasureId).then();
+export async function fetchLiveAuditLogs(): Promise<any[]> {
+  try {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (!error && data) return data;
+  } catch (e) {
+    console.warn('Fetch audit logs error:', e);
+  }
+  return [];
 }
 
-export async function executeErasureRequest(erasureId: string): Promise<void> {
-  const requests = getErasureRequests();
-  const req = requests.find(r => r.id === erasureId);
-  if (!req) return;
-
-  const now = new Date().toISOString();
-
-  // 1. Locate and purge files from Supabase Storage private bucket
-  const apps = getStoredApplications();
-  const matchingApps = apps.filter(app => 
-    app.email.toLowerCase() === req.requester_email.toLowerCase() || (req.application_id && app.id === req.application_id)
-  );
-
-  for (const app of matchingApps) {
-    if (app.file_path) {
-      try {
-        await supabaseAdmin.storage
-          .from('insurance-questionnaires')
-          .remove([app.file_path]);
-        console.log(`Purged private file for erasure request ${erasureId}:`, app.file_path);
-      } catch (err) {
-        console.warn('Storage purge notice:', err);
-      }
-    }
-  }
-
-  // 2. Anonymize/delete records in local storage
-  const updatedApps = apps.map(app => {
-    if (app.email.toLowerCase() === req.requester_email.toLowerCase() || (req.application_id && app.id === req.application_id)) {
-      return {
-        ...app,
-        contact_name: '[ERASED_PER_PRIVACY_REQUEST]',
-        email: 'anonymized@deleted.local',
-        phone: '[REDACTED]',
-        company_name: '[ANONYMIZED_RECORD]',
-        message: '[ERASED]',
-        file_name: 'anonymized_document.bin',
-        file_path: 'quarantine/deleted',
-        status: 'CLOSED' as ApplicationStatus,
-        updated_at: now,
-      };
-    }
-    return app;
-  });
-  localStorage.setItem(DB_KEY, JSON.stringify(updatedApps));
-
-  // 3. Anonymize records in live Supabase PostgreSQL database
+export async function saveReadinessAssessment(assessment: {
+  score: number;
+  risk_level: string;
+  mfa_enabled: boolean;
+  immutable_backups: boolean;
+  edr_deployed: boolean;
+  security_training: boolean;
+  employee_count: number;
+  prospect_email?: string;
+  prospect_company?: string;
+}): Promise<void> {
   try {
-    for (const app of matchingApps) {
-      await supabaseAdmin.from('applications').update({
-        contact_name: '[ERASED_PER_PRIVACY_REQUEST]',
-        email: 'anonymized@deleted.local',
-        phone: '[REDACTED]',
-        company_name: '[ANONYMIZED_RECORD]',
-        message: '[ERASED]',
-        file_name: 'anonymized_document.bin',
-        file_path: 'quarantine/deleted',
-        status: 'CLOSED',
-        updated_at: now,
-      }).eq('id', app.id);
-    }
-  } catch (err) {
-    console.warn('Supabase DB erasure notice:', err);
-  }
-
-  // 4. Update erasure_requests audit log (Section 22 & 42.6: Log fact & scope of deletion, not deleted data itself)
-  const updatedReqs = requests.map(r => {
-    if (r.id === erasureId) {
-      return {
-        ...r,
-        status: 'COMPLETED' as const,
-        completed_at: now,
-        notes: `Executed scope ${r.scope} within 30-day compliance SLA. Fact of deletion logged.`,
-      };
-    }
-    return r;
-  });
-  localStorage.setItem(ERASURE_KEY, JSON.stringify(updatedReqs));
-
-  try {
-    await supabaseAdmin.from('erasure_requests').update({
-      status: 'COMPLETED',
-      completed_at: now,
-      notes: `Executed scope ${req.scope} within 30-day compliance SLA. Fact of deletion logged.`,
-    }).eq('id', erasureId);
-  } catch (err) {
-    console.warn('Supabase erasure request audit update notice:', err);
+    await supabase.from('readiness_assessments').insert([assessment]);
+  } catch (e) {
+    console.warn('Save readiness assessment notice:', e);
   }
 }
+

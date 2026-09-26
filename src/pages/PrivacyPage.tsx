@@ -25,10 +25,10 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
           {/* Header Section */}
           <div className="border-b border-slate-200/80 pb-8 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-[#0284C7] font-bold uppercase tracking-widest bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-                // LEGAL DOCUMENTATION
+              <span className="text-xs text-[#0284C7] font-semibold uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
+                Legal Documentation
               </span>
-              <span className="text-xs font-mono text-slate-400">Section 23 & 24 Compliant</span>
+              <span className="text-xs text-slate-400">Section 23 & 24 Compliant</span>
             </div>
             
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight pt-2">
@@ -118,8 +118,8 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
               </p>
               
               <div className="bg-slate-50 p-6 rounded-xl border border-slate-200/80 text-xs space-y-3 mt-4">
-                <h3 className="font-mono font-bold text-[#0284C7] uppercase tracking-wider text-xs">
-                  // Logged 7-Step Erasure Workflow (Target: &lt; 30 Days)
+                <h3 className="font-bold text-[#0284C7] uppercase tracking-wider text-xs">
+                  Logged 7-Step Erasure Workflow (Target: &lt; 30 Days)
                 </h3>
                 <ol className="list-decimal pl-5 space-y-2 text-slate-700 leading-relaxed font-sans text-xs">
                   <li><strong>Request Received:</strong> Intake via designated privacy channel.</li>

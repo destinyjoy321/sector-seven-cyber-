@@ -1,6 +1,6 @@
 import React from 'react';
 import { ApplicationForm } from '../components/forms/ApplicationForm';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ApplyPageProps {
@@ -9,47 +9,49 @@ interface ApplyPageProps {
 
 export const ApplyPage: React.FC<ApplyPageProps> = ({ onNavigate }) => {
   const handleSuccess = (applicationId: string) => {
-    onNavigate(`/thank-you?id=${applicationId}`);
+    // Direct routing to the dedicated V2.0 Quote Experience
+    onNavigate(`/quote?id=${applicationId}`);
   };
 
   return (
-    <div className="pt-32 pb-24 bg-[#F8FAFC] text-slate-900 min-h-screen relative overflow-hidden">
+    <div className="pt-28 pb-20 bg-slate-50/70 text-slate-900 min-h-screen relative overflow-hidden flex flex-col justify-center">
       
-      {/* Background Soft Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-sky-100/50 rounded-full blur-[160px] pointer-events-none" />
+      {/* Subtle Background Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-sky-100/40 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-left">
+      <div className="max-w-xl sm:max-w-2xl mx-auto px-4 sm:px-6 w-full relative z-10 text-left">
         
-        {/* Back Link */}
-        <button
-          onClick={() => onNavigate('/')}
-          className="inline-flex items-center gap-2 text-xs font-mono font-bold text-slate-600 hover:text-[#0284C7] mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Overview</span>
-        </button>
+        {/* Navigation / Return Link */}
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={() => onNavigate('/')}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0284C7] transition-colors cursor-pointer group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span>Back to Home</span>
+          </button>
 
-        {/* Page Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          <span className="text-[11px] font-mono font-medium text-slate-400 uppercase tracking-wider">
+            Sector Seven Cyber · Assessment
+          </span>
+        </div>
+
+        {/* Focused 2-Point Card Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="mb-8 space-y-3 border-b border-slate-200 pb-6"
+          transition={{ duration: 0.4 }}
         >
-          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
-            <ShieldCheck className="w-4 h-4" />
-            <span>CONFIDENTIAL CLIENT INTAKE PORTAL</span>
-          </div>
-          <h1 className="text-[clamp(2.1rem,4.5vw,4rem)] font-extrabold text-slate-900 tracking-tighter">
-            Cybersecurity Assessment Application
-          </h1>
-          <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-            Tell us about your current security environment and upload any relevant cybersecurity or cyber-insurance questionnaire. Our team will review your information and contact you regarding the next steps.
-          </p>
+          <ApplicationForm onSuccess={handleSuccess} onNavigate={onNavigate} />
         </motion.div>
 
-        {/* Form Container */}
-        <ApplicationForm onSuccess={handleSuccess} onNavigate={onNavigate} />
+        {/* Minimal Bottom Footnote */}
+        <div className="mt-6 text-center text-xs text-slate-400">
+          Need immediate support? Call our team directly at{' '}
+          <a href="tel:+14703639083" className="text-slate-600 font-semibold hover:text-[#0284C7] transition-colors">
+            (470) 363-9083
+          </a>
+        </div>
 
       </div>
     </div>

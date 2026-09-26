@@ -45,9 +45,9 @@ export const InteractiveCalculator: React.FC<CalculatorProps> = ({ onNavigate })
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-mono font-bold">
+          <div className="inline-flex items-center gap-2 bg-sky-50 text-[#0284C7] border border-sky-200 px-3.5 py-1 rounded-full text-xs font-semibold">
             <Calculator className="w-3.5 h-3.5 text-[#0284C7]" />
-            <span>INTERACTIVE COMPLIANCE AUDITOR</span>
+            <span>Interactive Compliance Auditor</span>
           </div>
           <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-extrabold text-slate-900 tracking-tighter">
             Cyber Insurance Readiness Calculator
@@ -182,16 +182,16 @@ export const InteractiveCalculator: React.FC<CalculatorProps> = ({ onNavigate })
             <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-2xl border border-slate-800 space-y-6 text-left relative overflow-hidden">
               
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <span className="font-mono text-xs text-sky-400 uppercase font-bold">Score Diagnosis</span>
-                <span className="text-[10px] font-mono text-slate-400">Carrier Audit Standard</span>
+                <span className="text-xs text-sky-400 uppercase font-bold tracking-wider">Score Diagnosis</span>
+                <span className="text-[11px] text-slate-400">Carrier Audit Standard</span>
               </div>
 
               {/* Gauge Meter */}
               <div className="text-center space-y-2 py-2">
-                <div className="text-5xl font-extrabold font-mono text-white tracking-tight">
+                <div className="text-5xl font-extrabold text-white tracking-tight">
                   {score}<span className="text-2xl text-slate-400">/100</span>
                 </div>
-                <p className="text-xs font-mono text-slate-400 uppercase tracking-widest">Calculated Readiness Score</p>
+                <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Calculated Readiness Score</p>
                 
                 {/* Score Bar */}
                 <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mt-3">
@@ -205,22 +205,23 @@ export const InteractiveCalculator: React.FC<CalculatorProps> = ({ onNavigate })
               {/* Status Box */}
               <div className={`p-4 rounded-2xl border ${status.bg} space-y-1 text-left`}>
                 <div className="flex items-center justify-between">
-                  <span className={`font-mono text-xs font-bold ${status.color}`}>{status.level}</span>
+                  <span className={`text-xs font-bold ${status.color}`}>{status.level}</span>
                   <AlertCircle className={`w-4 h-4 ${status.color}`} />
                 </div>
                 <p className="text-xs font-semibold text-slate-800">Estimated Carrier Impact:</p>
-                <p className="text-xs font-mono text-slate-600">{status.penalty}</p>
+                <p className="text-xs text-slate-600 font-medium">{status.penalty}</p>
               </div>
 
               {/* Action Button */}
               <button
                 onClick={() => onNavigate('/apply')}
-                className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"
+                className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-sm tracking-wide py-3.5 px-6 rounded-full flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"
               >
-                <span>START YOUR SECURITY ASSESSMENT →</span>
+                <span>Start Your Security Assessment</span>
+                <ArrowUpRight className="w-4 h-4" />
               </button>
 
-              <p className="text-[10px] text-slate-400 text-center font-mono">
+              <p className="text-[11px] text-slate-400 text-center">
                 Sector Seven Cyber provides technical gap remediation & broker alignment assistance.
               </p>
 

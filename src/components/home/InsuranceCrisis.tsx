@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { AlertCircle, ArrowRight, ShieldCheck, FileCheck, Layers } from 'lucide-react';
+import { AlertCircle, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface InsuranceCrisisProps {
   onNavigate: (path: string) => void;
@@ -25,7 +25,7 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
     target: marcusContainerRef,
     offset: ["start end", "end start"]
   });
-  const imageY = useTransform(scrollYProgress, [0, 1], [-30, 30]);
+  const imageY = useTransform(scrollYProgress, [0, 1], [-25, 25]);
 
   return (
     <section id="problem" className="py-24 md:py-32 bg-[#F8FAFC] text-slate-900 relative overflow-hidden border-b border-slate-200">
@@ -44,43 +44,56 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
               
               <div className="space-y-3 border-b border-slate-200 pb-6">
                 <TextMaskLine delay={0}>
-                  <span className="font-mono text-xs font-extrabold uppercase tracking-widest text-[#0284C7] bg-sky-50 px-3.5 py-1 rounded-full border border-sky-200 inline-flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#0284C7] bg-sky-50 px-3.5 py-1.5 rounded-full border border-sky-200 inline-flex items-center gap-2">
                     <AlertCircle className="w-3.5 h-3.5 text-[#0284C7]" />
-                    COMMUNICATING THE BUSINESS PROBLEM
+                    Cybersecurity for Insurance Requirements
                   </span>
                 </TextMaskLine>
 
+                {/* Explicit Heading from Document Section 2 */}
                 <TextMaskLine delay={0.1}>
-                  <h2 className="text-[clamp(1.75rem,3.8vw,3.25rem)] font-extrabold text-slate-900 tracking-tighter leading-tight">
-                    Your Insurance Carrier Demands Proof of Protection. We Provide It.
+                  <h2 className="text-[clamp(1.75rem,3.8vw,3.25rem)] font-extrabold text-slate-900 tracking-tight leading-tight">
+                    CYBER INSURANCE REQUIREMENTS ARE GETTING HARDER TO IGNORE
                   </h2>
                 </TextMaskLine>
 
+                {/* Explicit Supporting Copy from Document Section 2 */}
                 <TextMaskLine delay={0.2}>
-                  <h3 className="text-lg sm:text-xl font-bold text-[#0284C7]">
-                    Meeting modern cyber liability requirements shouldn't hold your business back.
-                  </h3>
+                  <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+                    Businesses may be asked about their cybersecurity controls when applying for or renewing cyber-insurance coverage. Sector Seven provides managed cloud and endpoint cybersecurity protection designed to strengthen the security environment businesses rely on every day.
+                  </p>
                 </TextMaskLine>
               </div>
 
               <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
                 <TextMaskLine delay={0.1}>
                   <p>
-                    When Marcus Whitfield received his law practice’s cyber insurance renewal, his commercial broker highlighted a major industry shift. To maintain his coverage and protect his preferred premium rate, Marcus had to provide verified evidence of continuous, 24/7 monitored endpoint protection.
+                    When Marcus Whitfield received his law practice’s cyber insurance renewal, his commercial broker highlighted a major industry shift: underwriters required verifiable evidence of continuous, 24/7 monitored endpoint protection and active cloud identity defenses.
                   </p>
                 </TextMaskLine>
 
                 <TextMaskLine delay={0.15}>
                   <p>
-                    Like many firm owners, Marcus assumed his standard antivirus software was enough. But modern compliance requires active, human-led threat hunting to keep pace with modern risks. Carriers aren't being difficult—they are simply setting the standard required to securely insure high-value practices.
+                    Marcus assumed standard antivirus software was sufficient. But carriers aren't looking for static software—they require human-led threat hunting to keep pace with modern risks. Sector Seven delivers active enterprise-grade cybersecurity, ensuring managing partners have the documented technical posture carriers audit.
                   </p>
                 </TextMaskLine>
 
                 <TextMaskLine delay={0.2}>
                   <p>
-                    Marcus had 30 days to close the gap. Instead of scrambling or facing steep premium increases, he partnered with Sector Seven. We deployed enterprise-grade compliance monitoring across his entire firm in under 48 hours. Marcus’s broker seamlessly finalized a secure renewal, keeping the firm fully compliant, fully covered, and perfectly protected.
+                    Instead of scrambling or facing non-renewal notices, Marcus partnered with Sector Seven. We deployed 24/7 managed detection and response across his firm, giving his broker the technical proof needed for renewal.
                   </p>
                 </TextMaskLine>
+              </div>
+
+              {/* Explicit CTA from Document Section 2 */}
+              <div className="pt-2">
+                <button
+                  onClick={() => onNavigate('/apply')}
+                  className="btn-primary inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs tracking-wide px-7 py-3.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                >
+                  <span>Start Your Security Assessment</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
 
             </div>
@@ -97,9 +110,9 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
                 </motion.div>
 
                 {/* Subtle Frosted Glass HUD Overlay Tag */}
-                <div className="absolute bottom-4 left-4 right-4 bg-white/85 backdrop-blur-md p-3.5 rounded-xl border border-slate-200/90 text-xs text-slate-800 flex items-center justify-between shadow-sm z-10">
-                  <span className="font-mono font-bold text-[#0284C7] uppercase tracking-wider text-[11px]">CASE #1042 · UNDERWRITING AUDIT</span>
-                  <span className="font-mono text-slate-500 text-[11px]">MARCUS WHITFIELD FIRM</span>
+                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-3.5 rounded-xl border border-slate-200/90 text-xs text-slate-800 flex items-center justify-between shadow-sm z-10">
+                  <span className="font-semibold text-[#0284C7] uppercase tracking-wider text-[11px]">Case #1042 · Underwriting Audit</span>
+                  <span className="text-slate-500 text-[11px]">Marcus Whitfield Firm</span>
                 </div>
               </div>
             </div>
@@ -107,95 +120,26 @@ export const InsuranceCrisis: React.FC<InsuranceCrisisProps> = ({ onNavigate }) 
           </div>
         </div>
 
-        {/* Section: The Rules Have Changed */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
-            className="lg:col-span-6 space-y-4"
+        {/* Active Defense Architecture Box */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 text-left">
+          <div className="space-y-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
+              Active Defense Architecture
+            </span>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+              Sector Seven Delivers Continuous Enterprise-Grade Cybersecurity
+            </h3>
+            <p className="text-sm text-slate-300 leading-relaxed max-w-2xl">
+              We provide the active technical defenses, endpoint monitoring, and 24/7 SOC response that allow businesses to protect their data, maintain operational resilience, and satisfy strict underwriting audits.
+            </p>
+          </div>
+
+          <button
+            onClick={() => onNavigate('/apply')}
+            className="shrink-0 btn-primary bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs tracking-wide px-6 py-3.5 rounded-full transition-all"
           >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              The Rules Have Changed
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Cyber insurance used to feel like another box on the business checklist: get a policy, install antivirus, answer the questionnaire, renew.
-            </p>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              That's not the environment you're operating in anymore. Underwriters are scrutinizing the controls behind cyber-risk applications more closely. They want evidence. They want monitoring. They want documented controls. And increasingly, they want security measures that aren't simply installed, but continuously managed and verifiable.
-            </p>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              At the same time, your practice has responsibilities beyond the insurance policy. Your clients expect you to protect confidential information. Your patients expect you to protect sensitive health information. Georgia law imposes obligations around the security and breach notification of certain computerized personal information.
-            </p>
-            <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 text-[#0284C7] font-bold text-sm">
-              Security is no longer just an IT concern. It's an operational, insurance and regulatory responsibility.
-            </div>
-          </motion.div>
-
-          {/* Section: Cybersecurity Is What We Do. Security Position Is What We Build. */}
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
-            className="lg:col-span-6 bg-white p-8 rounded-3xl border border-slate-200 space-y-6 shadow-soft-card"
-          >
-            <div>
-              <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                Cybersecurity Is What We Do. <br />
-                <span className="text-[#0284C7]">Security Position Is What We Build.</span>
-              </h3>
-              <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                Most cybersecurity companies sell cybersecurity. Sector Seven Cyber builds and continuously operates the security environment surrounding high-value professional practices.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
-                <ShieldCheck className="w-5 h-5 text-[#0284C7] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Security</h4>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                    Protect the systems, endpoints, networks and cloud environments your practice depends on.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
-                <FileCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Insurance</h4>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                    Align your security posture with the requirements identified by your broker and carrier.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 hover:border-sky-300 transition-colors">
-                <Layers className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Regulatory</h4>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                    Build stronger security practices around the obligations that apply to your organization.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs font-mono font-bold text-slate-800 border-t border-slate-200 pt-4">
-              The result isn't simply another security product installed on your computers. It's a security position you can demonstrate.
-            </p>
-
-            <button
-              onClick={() => onNavigate('/apply')}
-              className="btn-primary w-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-extrabold text-xs tracking-wider py-4 px-6 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-[1.02]"
-            >
-              <span>START YOUR SECURITY ASSESSMENT</span>
-            </button>
-          </motion.div>
-
+            Start Security Assessment
+          </button>
         </div>
 
       </div>

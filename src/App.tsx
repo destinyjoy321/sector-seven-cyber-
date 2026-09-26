@@ -7,17 +7,25 @@ import { Preloader } from './components/layout/Preloader';
 import { ErrorBoundary } from './components/layout/ErrorBoundary';
 
 const ApplyPage = lazy(() => import('./pages/ApplyPage').then(m => ({ default: m.ApplyPage })));
+const QuotePage = lazy(() => import('./pages/QuotePage').then(m => ({ default: m.QuotePage })));
+const ActivatePage = lazy(() => import('./pages/ActivatePage').then(m => ({ default: m.ActivatePage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const OnboardingPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const AdminPage = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
 const ThankYouPage = lazy(() => import('./pages/ThankYouPage').then(m => ({ default: m.ThankYouPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+import { fetchRemotePricingConfig } from './lib/pricing';
 
 export function App() {
   const [currentPath, setCurrentPath] = useState<string>(
     window.location.pathname + window.location.search
   );
 
-  // Sync client router with popstate
+  // Sync client router with popstate and pre-fetch live pricing config
   useEffect(() => {
+    fetchRemotePricingConfig().catch(err => console.warn('Pricing pre-fetch notice:', err));
+
     const handlePopState = () => {
       setCurrentPath(window.location.pathname + window.location.search);
     };
@@ -39,10 +47,38 @@ export function App() {
   const appIdParam = searchParams.get('id') || undefined;
 
   const renderPage = () => {
-    if (cleanPathname === '/apply') {
+    if (cleanPathname === '/apply' || cleanPathname === '/assessment') {
       return (
-        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Secure Intake Portal...</div>}>
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Security Assessment...</div>}>
           <ApplyPage onNavigate={navigate} />
+        </Suspense>
+      );
+    }
+    if (cleanPathname === '/quote') {
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Cybersecurity Quote...</div>}>
+          <QuotePage onNavigate={navigate} applicationId={appIdParam} />
+        </Suspense>
+      );
+    }
+    if (cleanPathname === '/activate') {
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Protection Activation...</div>}>
+          <ActivatePage onNavigate={navigate} applicationId={appIdParam} />
+        </Suspense>
+      );
+    }
+    if (cleanPathname === '/dashboard' || cleanPathname === '/onboarding') {
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Security Operations Dashboard...</div>}>
+          <DashboardPage onNavigate={navigate} applicationId={appIdParam} />
+        </Suspense>
+      );
+    }
+    if (cleanPathname === '/admin') {
+      return (
+        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-slate-500 font-mono text-xs">Loading Command Console...</div>}>
+          <AdminPage onNavigate={navigate} />
         </Suspense>
       );
     }
@@ -70,6 +106,8 @@ export function App() {
     return <HomePage onNavigate={navigate} />;
   };
 
+  const isAdminRoute = cleanPathname === '/admin';
+
   return (
     <SmoothScroll>
       <Preloader />
@@ -78,22 +116,18 @@ export function App() {
         {/* Global Fixed Film Grain Noise Overlay */}
         <div className="noise-overlay" aria-hidden="true" />
 
-        {/* Floating Navbar */}
-        <Navbar currentPath={currentPath} onNavigate={navigate} />
+        {/* Floating Navbar - Hidden on Admin Dashboard */}
+        {!isAdminRoute && <Navbar currentPath={currentPath} onNavigate={navigate} />}
 
         {/* Main Page Body protected by Error Boundary */}
         <ErrorBoundary>
           {renderPage()}
         </ErrorBoundary>
 
-        {/* Universal Footer */}
-        <Footer onNavigate={navigate} />
+        {/* Universal Footer - Hidden on Admin Dashboard */}
+        {!isAdminRoute && <Footer onNavigate={navigate} />}
 
       </div>
     </SmoothScroll>
   );
 }
-
-
-
-

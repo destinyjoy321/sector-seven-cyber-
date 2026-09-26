@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
 
 // Rate Limiting Map
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -92,8 +91,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const resendApiKey = process.env.VITE_RESEND_API_KEY || process.env.RESEND_API_KEY || '';
     const fromEmail = process.env.FROM_EMAIL || process.env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>';
     const teamEmail = process.env.VITE_INTERNAL_NOTIFICATION_EMAIL || process.env.INTERNAL_NOTIFICATION_EMAIL || 'contact@sectorsevencyber.com';
-    const gmailUser = process.env.GMAIL_USER || '';
-    const gmailPass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
     const hostHeader = (req.headers['x-forwarded-host'] as string) || req.headers.host || '';
     const protoHeader = (req.headers['x-forwarded-proto'] as string) || 'https';
     let envSiteUrl = process.env.VITE_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || '';
@@ -108,6 +105,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       siteUrl = `${protoHeader}://${hostHeader}`;
     }
 
+    const deviceCount = typeof rawPayload.device_count === 'number' ? rawPayload.device_count : parseInt(rawPayload.device_count || rawPayload.employee_count || '0', 10);
+    const cloudUserCount = typeof rawPayload.cloud_user_count === 'number' ? rawPayload.cloud_user_count : parseInt(rawPayload.cloud_user_count || '0', 10);
+    const monthlyRate = rawPayload.calculated_monthly_price;
+    const isCustom = rawPayload.is_custom_quote || monthlyRate === null;
+    const rateDisplay = isCustom ? 'Custom Cybersecurity Plan (Quote Required)' : `$${monthlyRate}/month`;
+
     const payload = {
       id: sanitizeStr(rawPayload.id),
       contact_name: sanitizeStr(rawPayload.contact_name),
@@ -119,10 +122,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       industry_other: sanitizeStr(rawPayload.industry_other || ''),
       referred_by_broker: sanitizeStr(rawPayload.referred_by_broker || 'No'),
       broker_name: sanitizeStr(rawPayload.broker_name || ''),
-      employee_count: sanitizeStr(rawPayload.employee_count),
-      cloud_user_count: sanitizeStr(rawPayload.cloud_user_count || ''),
-      insurance_provider: sanitizeStr(rawPayload.insurance_provider),
-      insurance_status: sanitizeStr(rawPayload.insurance_status),
+      device_count: deviceCount,
+      cloud_user_count: cloudUserCount,
+      employee_count: `${deviceCount} computers/devices`,
+      insurance_provider: sanitizeStr(rawPayload.insurance_provider || 'Standard'),
+      insurance_status: sanitizeStr(rawPayload.insurance_status || 'Underwriting Review'),
       file_name: sanitizeStr(rawPayload.file_name || 'None'),
       file_path: rawPayload.file_path || 'NONE',
       message: sanitizeStr(rawPayload.message || '24/7 Managed Detection & Response (MDR)'),
@@ -131,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const hasFile = payload.file_path && payload.file_path !== 'NONE';
     const viewQuestionnaireUrl = hasFile ? `${siteUrl}/api/view-questionnaire?path=${encodeURIComponent(payload.file_path)}` : '';
 
-    // Fetch file from Supabase Storage for Attachment
+    // Fetch file from Supabase Storage for Attachment (if present)
     let attachments: Array<{ filename: string; content: string }> = [];
     if (hasFile) {
       try {
@@ -154,65 +158,65 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const teamEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
-        <div style="background-color: #0f172a; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="margin: 0; font-size: 16px; font-family: monospace; letter-spacing: 1px;">NEW CYBERSECURITY ASSESSMENT</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
+        <div style="background-color: #0f172a; color: #ffffff; padding: 18px 24px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 16px; font-family: monospace; letter-spacing: 1px; color: #38bdf8;">NEW CYBERSECURITY ASSESSMENT INTAKE</h2>
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Cloud & Endpoint Managed Detection & Response (MDR)</p>
         </div>
         
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #1e293b;">
-          <tr><td style="padding: 10px 0; font-weight: bold; width: 160px; color: #475569;">Company:</td><td style="font-weight: bold; color: #0f172a;">${payload.company_name}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Contact:</td><td>${payload.contact_name} ${payload.contact_title ? `(${payload.contact_title})` : ''}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Email:</td><td><a href="mailto:${payload.email}" style="color: #0284C7; font-weight: bold;">${payload.email}</a></td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Phone:</td><td>${payload.phone}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Industry:</td><td>${payload.industry} ${payload.industry_other ? `[Other: ${payload.industry_other}]` : ''}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Environment:</td><td>${payload.employee_count} devices • ${payload.cloud_user_count || 'Not specified'} cloud users</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Broker Referral:</td><td>${payload.referred_by_broker} ${payload.broker_name ? `(${payload.broker_name})` : ''}</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Insurance Status:</td><td>${payload.insurance_status} (${payload.insurance_provider})</td></tr>
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Questionnaire:</td><td>${hasFile ? `📄 ${payload.file_name} ${attachments.length > 0 ? '(Attached)' : ''}` : 'No document uploaded (Optional)'}</td></tr>
-          ${hasFile ? `
-          <tr>
-            <td style="padding: 16px 0;" colspan="2">
-              <a href="${viewQuestionnaireUrl}" target="_blank" style="display: inline-block; background-color: #0284C7; color: #ffffff; font-family: monospace; font-weight: bold; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 8px;">[VIEW QUESTIONNAIRE]</a>
-            </td>
-          </tr>` : ''}
-          <tr><td style="padding: 10px 0; font-weight: bold; color: #475569;">Application ID:</td><td style="font-family: monospace; font-weight: bold; color: #0284C7;">${payload.id}</td></tr>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #1e293b;">
+          <tr><td style="padding: 9px 0; font-weight: bold; width: 170px; color: #475569;">Company:</td><td style="font-weight: bold; color: #0f172a; font-size: 14px;">${payload.company_name}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Executive Contact:</td><td>${payload.contact_name} ${payload.contact_title ? `(${payload.contact_title})` : ''}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Business Email:</td><td><a href="mailto:${payload.email}" style="color: #0284C7; font-weight: bold;">${payload.email}</a></td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Direct Phone:</td><td>${payload.phone}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Industry Sector:</td><td>${payload.industry} ${payload.industry_other ? `[Focus: ${payload.industry_other}]` : ''}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Protected Environment:</td><td style="font-weight: bold; color: #0284C7;">${payload.device_count} computers/devices • ${payload.cloud_user_count} cloud accounts</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Calculated Rate:</td><td style="font-weight: bold; color: #0f172a;">${rateDisplay}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Broker Referral:</td><td>${payload.referred_by_broker === 'Yes' ? `Referred by: ${payload.broker_name || 'Independent Broker'}` : 'Direct Lead (No Broker)'}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Cyber Liability Status:</td><td>${payload.insurance_status}</td></tr>
+          <tr><td style="padding: 9px 0; font-weight: bold; color: #475569;">Application ID:</td><td style="font-family: monospace; font-weight: bold; color: #0284C7;">${payload.id}</td></tr>
         </table>
         
         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; font-family: monospace;">
-          Sector Seven Cyber LLC • Georgia Managed Cybersecurity Intake System
+          Sector Seven Cyber LLC • Georgia Managed Cybersecurity SOC Telemetry
         </div>
       </div>
     `;
 
     const clientEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
-        <div style="background-color: #0f172a; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="margin: 0; font-size: 16px; font-family: monospace;">SECTOR SEVEN CYBER LLC</h2>
-          <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">24/7 Managed Detection & Response (MDR)</p>
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; border: 1px solid #cbd5e1; border-radius: 12px; background-color: #ffffff;">
+        <div style="background-color: #0f172a; color: #ffffff; padding: 18px 24px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 16px; font-family: monospace; color: #38bdf8;">SECTOR SEVEN CYBER LLC</h2>
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Cloud & Endpoint Managed Detection & Response (MDR)</p>
         </div>
 
-        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Thank you for contacting Sector Seven Cyber.</p>
+        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">Dear ${payload.contact_name},</p>
 
-        <p style="font-size: 14px; color: #1e293b; line-height: 1.6; font-weight: 600;">
+        <p style="font-size: 14px; color: #1e293b; line-height: 1.6; font-weight: bold;">
           Assessment received. Sector Seven Cyber will review your submission and contact you regarding the next steps.
         </p>
 
-        <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-          Our engineering team is evaluating your environment specifications to prepare your review and tailored security scope.
+        <p style="font-size: 13px; color: #334155; line-height: 1.6;">
+          Our engineering team is evaluating your environment specifications to prepare your technical onboarding and 24/7 Security Operations Center (SOC) scope.
         </p>
 
-        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 20px 0;">
-          <h4 style="margin: 0 0 10px 0; font-size: 13px; font-family: monospace; color: #0284C7; text-transform: uppercase;">Submission Reference</h4>
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 18px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="margin: 0 0 12px 0; font-size: 13px; font-family: monospace; color: #0284C7; text-transform: uppercase;">Assessment Summary</h4>
           <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155; line-height: 1.8;">
-            <li><strong>Assessment ID:</strong> ${payload.id}</li>
-            <li><strong>Company:</strong> ${payload.company_name}</li>
-            <li><strong>Environment:</strong> ${payload.employee_count} devices • ${payload.cloud_user_count || 'Not specified'} cloud users</li>
-            <li><strong>Questionnaire:</strong> ${hasFile ? payload.file_name : 'None provided (Optional)'}</li>
+            <li><strong>Application Reference ID:</strong> <span style="font-family: monospace; font-weight: bold;">${payload.id}</span></li>
+            <li><strong>Organization:</strong> ${payload.company_name}</li>
+            <li><strong>Protected Footprint:</strong> ${payload.device_count} computers/devices • ${payload.cloud_user_count} cloud accounts</li>
+            <li><strong>Calculated Rate:</strong> <strong>${rateDisplay}</strong></li>
+            <li><strong>Included Capabilities:</strong> 24/7 SOC Active Response, EDR Telemetry, Cloud Identity Defense (M365/Google Workspace), Security Posture Rating, and Asset Inventory.</li>
           </ul>
         </div>
 
-        <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-family: monospace;">
-          Sector Seven Cyber LLC • Direct Phone: +1 (460) 363-9083 • Atlanta, Georgia
+        <p style="font-size: 12px; color: #64748b; line-height: 1.6;">
+          Pricing is based on the information and quantities provided during your assessment. If the number of devices or cloud users requiring protection differs during onboarding or changes during the service period, your service plan and recurring monthly charge may be adjusted accordingly.
+        </p>
+
+        <p style="font-size: 11px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-family: monospace;">
+          Sector Seven Cyber LLC • Direct Phone: +1 (470) 363-9083 • contact@sectorsevencyber.com • Atlanta, Georgia
         </p>
       </div>
     `;
@@ -296,59 +300,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           return res.status(200).json({ success: true, provider: 'resend_api', senderUsed: activeFrom, teamResend: teamData, clientResend: clientData });
         } else {
-          console.warn('Resend API returned non-OK status, falling back to Gmail SMTP:', teamData);
+          console.error('Resend API returned non-OK status:', teamData);
+          return res.status(502).json({ error: 'Failed to deliver notification email via Resend API.', details: teamData });
         }
       } catch (resendErr: any) {
-        console.warn('Resend API error, falling back to Gmail SMTP:', resendErr);
-      }
-    }
-
-    // 2. Gmail SMTP Fallback
-    if (gmailUser && gmailPass) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: { user: gmailUser, pass: gmailPass },
-        });
-
-        const teamInfo = await transporter.sendMail({
-          from: `"Sector Seven Cyber Intake" <${gmailUser}>`,
-          to: teamEmail,
-          subject: `NEW CYBERSECURITY ASSESSMENT: ${payload.company_name} [${payload.id}]`,
-          html: teamEmailHtml,
-          attachments: attachments.map(a => ({
-            filename: a.filename,
-            content: Buffer.from(a.content, 'base64'),
-          })),
-        });
-
-        let clientInfo = null;
-        if (payload.email) {
-          clientInfo = await transporter.sendMail({
-            from: `"Sector Seven Cyber" <${gmailUser}>`,
-            replyTo: gmailUser,
-            to: payload.email,
-            subject: `Cybersecurity Assessment Received - Sector Seven Cyber [${payload.id}]`,
-            html: clientEmailHtml,
-          });
-        }
-
-        return res.status(200).json({
-          success: true,
-          provider: 'gmail_smtp',
-          teamMessageId: teamInfo.messageId,
-          clientMessageId: clientInfo?.messageId,
-        });
-      } catch (gmailErr: any) {
-        console.warn('Gmail SMTP error:', gmailErr?.message || gmailErr);
+        console.error('Resend API dispatch error:', resendErr);
+        return res.status(502).json({ error: 'Resend API network error.', details: resendErr?.message });
       }
     }
 
     return res.status(500).json({
-      error: 'No email service configured or delivery failed',
+      error: 'Enterprise email service not configured. Set VITE_RESEND_API_KEY in environment.',
       debug: {
-        hasGmailUser: !!gmailUser,
-        hasGmailPass: !!gmailPass,
         hasResendKey: !!resendApiKey,
       }
     });

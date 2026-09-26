@@ -7,8 +7,9 @@ interface ThankYouPageProps {
   applicationId?: string;
 }
 
-export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicationId = 'SS-2026-0084' }) => {
+export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicationId }) => {
   const CALENDAR_LINK = "https://calendar.app.google/MWTKBzrinmAgwedF6";
+  const resolvedId = applicationId || (typeof window !== 'undefined' ? sessionStorage.getItem('sector_seven_last_application_id') : null) || 'SS-CONFIRMED';
 
   useEffect(() => {
     // Scroll to top on mount
@@ -37,9 +38,9 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
               <CheckCircle2 className="w-9 h-9" />
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-mono font-extrabold text-[#0284C7] uppercase tracking-widest">// Assessment Received & Vaulted</span>
-              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
-                Assessment Received.
+              <span className="text-xs font-bold text-[#0284C7] uppercase tracking-wider bg-sky-50 px-2.5 py-1 rounded-md border border-sky-100 inline-block">Assessment Received & Confirmed</span>
+              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Assessment Received
               </h1>
             </div>
           </div>
@@ -62,7 +63,7 @@ export const ThankYouPage: React.FC<ThankYouPageProps> = ({ onNavigate, applicat
             </div>
             
             <div className="flex items-baseline justify-between">
-              <span className="text-xl sm:text-2xl font-extrabold font-mono text-white tracking-tight">{applicationId}</span>
+              <span className="text-xl sm:text-2xl font-extrabold font-mono text-white tracking-tight">{resolvedId}</span>
               <span className="text-xs text-slate-400 font-mono">{new Date().toLocaleDateString()}</span>
             </div>
 

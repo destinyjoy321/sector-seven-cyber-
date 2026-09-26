@@ -2,6 +2,7 @@ import React from 'react';
 import { Hero } from '../components/home/Hero';
 import { InsuranceCrisis } from '../components/home/InsuranceCrisis';
 import { Services } from '../components/home/Services';
+import { Pricing } from '../components/home/Pricing';
 import { Industries } from '../components/home/Industries';
 import { HowItWorks } from '../components/home/HowItWorks';
 import { FAQ } from '../components/home/FAQ';
@@ -16,10 +17,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <Hero onNavigate={onNavigate} />
       <InsuranceCrisis onNavigate={onNavigate} />
       <Services onNavigate={onNavigate} />
+      <Pricing onNavigate={onNavigate} />
       <Industries onNavigate={onNavigate} />
       <HowItWorks onNavigate={onNavigate} />
       <FAQ onNavigate={onNavigate} />
     </main>
   );
 };
-

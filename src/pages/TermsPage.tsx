@@ -25,10 +25,10 @@ export const TermsPage: React.FC<TermsPageProps> = ({ onNavigate }) => {
           {/* Header Section */}
           <div className="border-b border-slate-200/80 pb-8 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-[#0284C7] font-bold uppercase tracking-widest bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-                // LEGAL DOCUMENTATION
+              <span className="text-xs text-[#0284C7] font-semibold uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
+                Legal Documentation
               </span>
-              <span className="text-xs font-mono text-slate-400">Section 42.2 Compliant</span>
+              <span className="text-xs text-slate-400">Section 42.2 Compliant</span>
             </div>
             
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight pt-2">

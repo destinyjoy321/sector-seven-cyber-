@@ -1,0 +1,711 @@
+
+
+
+
+Hey Anthony,
+
+I’ve now finalized the direction for Sector Seven Cyber’s website and customer flow. Please treat this as an update to the previous master checklist. I like the current visual design, so this is not a full visual redesign. The major changes are to our positioning, assessment, pricing logic, approval process, agreement acceptance, Stripe payments, and onboarding.
+
+Hey Anthony,
+
+I’ve finalized the customer flow and pricing experience for Sector Seven Cyber. Please use this message as the master update for the next build. Some of my earlier instructions changed as I worked through the actual customer experience, so where this message conflicts with an earlier instruction, please follow this one.
+
+I like the current visual direction of the website. I am not asking for a complete visual redesign. The biggest changes are to our positioning, assessment form, automated quote experience, insurance-partner tracking, Stripe checkout, and onboarding flow.
+
+
+
+
+
+1. OVERALL COMPANY POSITIONING
+
+Sector Seven Cyber LLC is a B2B managed cybersecurity company.
+
+Our primary service is:
+
+Cloud & Endpoint Managed Detection & Response (MDR)
+
+The service provides managed protection across supported business devices and cloud identities/accounts and is backed by a 24/7 Security Operations Center (SOC) with Active Response.
+
+The website should NOT make Sector Seven look like:
+
+An insurance company
+
+An insurance carrier
+
+An insurance brokerage
+
+Cyber insurance is still an important part of our marketing because businesses may come to us after an insurance broker/carrier identifies cybersecurity requirements that need to be addressed.
+
+The broader message should be:
+
+Protect your business from cyber threats — whether you're strengthening your cybersecurity, addressing cyber-insurance requirements, or both.
+
+
+
+
+
+2. KEEP THE “INSURANCE PROBLEM” SECTION
+
+Please keep the cyber-insurance problem section on the website.
+
+However, it should be clear that Sector Seven provides cybersecurity, not insurance.
+
+Suggested heading:
+
+CYBER INSURANCE REQUIREMENTS ARE GETTING HARDER TO IGNORE
+
+Suggested supporting copy:
+
+Businesses may be asked about their cybersecurity controls when applying for or renewing cyber-insurance coverage. Sector Seven provides managed cloud and endpoint cybersecurity protection designed to strengthen the security environment businesses rely on every day.
+
+The CTA should lead into:
+
+START YOUR SECURITY ASSESSMENT
+
+
+
+
+
+3. CORE SERVICE LANGUAGE
+
+Replace the previous:
+
+“24/7 Continuous Threat Hunting & Regulatory Compliance Framework”
+
+with:
+
+
+CLOUD & ENDPOINT MANAGED DETECTION & RESPONSE (MDR)
+
+Supporting language:
+
+24/7 monitoring, threat detection, investigation, and active response across supported endpoint and cloud environments through a human-led Security Operations Center.
+
+This is presented to the customer as one managed cybersecurity service, not separate products that they have to select individually.
+
+
+
+
+
+4. SECURITY ASSESSMENT — BUSINESS INFORMATION
+
+Please keep the assessment but simplify it.
+
+Section 1 should collect:
+
+Full Name*
+
+Executive Title*
+
+Legal Entity Name*
+
+Business Email*
+
+Direct Phone Number*
+
+Business Focus & Industry Sector*
+
+Industry dropdown:
+
+Law Firms & Legal Practices
+
+Healthcare Clinics & Medical Practices
+
+CPA Practices & Accounting Firms
+
+Commercial Insurance Brokerages
+
+Other / Independent Business
+
+If the customer selects Other / Independent Business, dynamically display:
+
+Please specify your business focus:*
+
+
+
+
+
+5. INSURANCE-PARTNER TRACKING
+
+Keep:
+
+Were you referred to us by an independent commercial insurance broker?*
+
+Options:
+
+Yes / No
+
+If Yes, dynamically display:
+
+Please enter the name of your referring independent insurance brokerage or agent:*
+
+This is only for partnership attribution and lead tracking.
+
+IMPORTANT: There is NO referral commission, referral fee, affiliate payout, or automatic payment associated with this field.
+
+Please do not build any commission/payment functionality for insurance partners.
+
+
+
+
+
+6. KEEP CYBER LIABILITY COVERAGE STATUS
+
+Keep:
+
+Cyber Liability Coverage Status
+
+This helps us understand whether the company is seeking protection independently or because of an existing/upcoming cyber-insurance requirement.
+
+
+
+
+
+7. REMOVE THESE FROM THE ASSESSMENT
+
+Completely remove:
+
+Current Security / Active Defense Infrastructure
+
+and
+
+Optional Cybersecurity / Cyber-Insurance Questionnaire Upload
+
+We do not need either of these.
+
+
+
+
+
+8. DEVICE + CLOUD USER QUESTIONS
+
+Remove the current estimated-range dropdowns.
+
+Instead, use exact numerical fields.
+
+How many company computers/devices require protection?*
+
+Helper text:
+
+Enter the number of company desktops and laptops requiring protection.
+
+Whole numbers only.
+
+Then:
+
+How many employees have a company Microsoft 365 or Google Workspace account?*
+
+Helper text:
+
+For example, if 20 employees each have a company Microsoft 365 or Google Workspace account, enter 20.
+
+Whole numbers only.
+
+These two numbers will be used by the website's pricing/quote logic.
+
+
+
+
+
+9. SECTOR SEVEN PRICING
+
+The customer should NOT see our underlying vendor costs or how our margin is calculated.
+
+The customer should simply receive the applicable Sector Seven monthly rate based on the pricing rules programmed into the website.
+
+The starting pricing we have currently finalized is:
+
+1–10 protected environment → $500/month
+
+11–20 → $750/month
+
+21–30 → $1,000/month
+
+I will provide the larger environment rates separately once finalized.
+
+Please make the pricing table/configuration editable from the backend/admin side so we can change pricing later without rebuilding the website.
+
+If an environment is currently outside a finalized automatic pricing range, display:
+
+
+CUSTOM CYBERSECURITY PLAN
+
+Your environment requires a customized Sector Seven quote. Submit your information and our team will contact you regarding pricing.
+
+
+
+
+
+10. IMPORTANT — HOW TO DETERMINE THE PRICING BAND
+
+Because we collect both device count and cloud-user count, please use the higher of the two quantities to determine the customer's pricing band.
+
+Example:
+
+8 devices + 8 cloud users → 1–10 → $500/month
+
+18 devices + 15 cloud users → 11–20 → $750/month
+
+22 devices + 28 cloud users → 21–30 → $1,000/month
+
+30 devices + 25 cloud users → 21–30 → $1,000/month
+
+If either number exceeds the currently supported automatic pricing range, route the customer to the Custom Cybersecurity Plan flow until I provide the additional pricing bands.
+
+
+
+
+
+11. INTERNAL COST TRACKING
+
+Separately from the customer-facing price, the backend should be capable of tracking our underlying service cost using:
+
+Endpoint: $2.00 per protected device/month
+
+Cloud user: $2.50 per protected cloud user/month
+
+Internal calculation:
+
+(Device Count × $2.00) + (Cloud User Count × $2.50)
+
+Example:
+
+30 devices × $2.00 = $60
+
+25 cloud users × $2.50 = $62.50
+
+Internal cost = $122.50/month
+
+THIS INFORMATION MUST NEVER APPEAR ON THE CUSTOMER-FACING WEBSITE OR QUOTE.
+
+Do not show:
+
+$2.00
+
+$2.50
+
+Internal cost
+
+Vendor cost
+
+Margin
+
+Profit
+
+Markup
+
+If possible, make the $2.00 and $2.50 values editable backend variables so they can be changed later.
+
+
+
+
+
+12. AUTOMATIC QUOTE EXPERIENCE
+
+This is one of the most important changes.
+
+I sent you a screenshot of an insurance-company quote page. I want the Sector Seven quote experience to follow that general UX concept, while keeping Sector Seven's existing branding.
+
+The customer completes the assessment.
+
+The website calculates the applicable Sector Seven rate.
+
+Then the customer is taken to a dedicated quote page.
+
+At the top:
+
+
+HERE'S YOUR SECTOR SEVEN CYBERSECURITY QUOTE
+
+Protection customized for your organization's environment
+
+Then show:
+
+
+SECTOR SEVEN CYBER PROTECTION
+
+$XXX / month
+
+The monthly rate should be large, clean, and immediately visible.
+
+
+
+
+
+13. “WHAT'S INCLUDED” CHECKLIST
+
+Under the rate, create a What's Included section similar to the checkbox/checkmark layout in the insurance quote screenshot I sent.
+
+Display the included capabilities as checkmarked items:
+
+✓ Cloud & Endpoint Managed Detection & Response
+
+✓ 24/7 Security Operations Center (SOC) with Active Response
+
+✓ Managed Detection & Response with EDR
+
+✓ Cloud Identity Detection & Response
+
+✓ Security Posture Rating
+
+✓ Asset Inventory
+
+✓ Supported Endpoint Security Integrations
+
+✓ Windows Defender Management
+
+✓ Microsoft Defender for Endpoint Management
+
+Do not place individual prices beside these features.
+
+They are simply showing the customer what is included in the overall Sector Seven Cyber Protection service.
+
+Also, please do not invent or add cybersecurity capabilities that I haven't provided just to make the package appear larger.
+
+
+
+
+
+14. QUOTE SUMMARY
+
+Similar to the insurance quote example, the page should have a clear summary card/area showing:
+
+SECTOR SEVEN CYBER PROTECTION
+
+Protected Devices: XX
+
+Protected Cloud Users: XX
+
+MONTHLY TOTAL
+
+
+$XXX/month
+
+Then:
+
+CONTINUE TO ACTIVATION
+
+Again, the customer sees one monthly Sector Seven price.
+
+They do not see our internal pricing calculations.
+
+
+
+
+
+15. AGREEMENT / ACTIVATION PAGE
+
+After clicking Continue to Activation, take the customer to a final activation page.
+
+Display:
+
+
+ACTIVATE YOUR PROTECTION
+
+Company: [Legal Entity Name]
+
+Service: Sector Seven Cyber Protection
+
+Protected Devices: XX
+
+Protected Cloud Users: XX
+
+Monthly Service: $XXX/month
+
+Add:
+
+VIEW SERVICE AGREEMENT
+
+Then a required checkbox:
+
+☐ I have read and agree to the Sector Seven Cyber LLC Service Agreement and authorize the recurring monthly charge displayed above.
+
+They cannot continue without checking the box.
+
+Final button:
+
+
+AGREE & PAY
+
+
+
+
+
+16. STRIPE PAYMENT
+
+Agree & Pay should launch Stripe Checkout.
+
+This is a recurring monthly subscription, not a one-time payment.
+
+Stripe should securely process and store the customer's payment information. Sector Seven's website should not store raw card information.
+
+The amount sent to Stripe should be the exact Sector Seven monthly price shown on the customer's approved quote.
+
+After successful payment:
+
+Stripe → Sector Seven Welcome/Onboarding Page
+
+Internally, update the customer to:
+
+PAID — READY FOR ONBOARDING
+
+We are not using DocuSign or SignNow for this flow.
+
+Please tell me what Stripe access/configuration you need from me. Private Stripe API keys should never be exposed in frontend/public code.
+
+
+
+
+
+17. QUANTITY CHANGES DURING ONBOARDING
+
+The initial quote is based on the quantities the customer provides.
+
+During onboarding, if the actual number of devices or cloud users requiring protection differs from what they submitted, Sector Seven needs the ability to change their service level and recurring Stripe subscription accordingly.
+
+Please include:
+
+Pricing is based on the information and quantities provided during your assessment. If the number of devices or cloud users requiring protection differs during onboarding or changes during the service period, your service plan and recurring monthly charge may be adjusted accordingly.
+
+
+
+
+
+18. ADMIN DASHBOARD / LEAD MANAGEMENT
+
+I need a basic internal view where I can see:
+
+Company
+
+Contact
+
+Executive Title
+
+Email
+
+Phone
+
+Industry
+
+Cyber Insurance Status
+
+Insurance Partner Referral
+
+Referring Broker/Agency
+
+Device Count
+
+Cloud User Count
+
+Sector Seven Monthly Price
+
+Internal Estimated Cost
+
+Status
+
+Suggested statuses:
+
+ASSESSMENT SUBMITTED
+
+QUOTE GENERATED
+
+ACTIVATION STARTED
+
+PAID
+
+ONBOARDING
+
+ACTIVE
+
+CUSTOM QUOTE REQUIRED
+
+
+
+
+
+19. UPDATE “HOW IT WORKS”
+
+Change this section to:
+
+01 — Complete Your Security Assessment
+
+Tell us about your organization and the environment requiring protection.
+
+02 — Receive Your Cybersecurity Quote
+
+Receive a Sector Seven monthly rate based on your protected environment.
+
+03 — Review Your Protection
+
+Review your monthly rate and everything included in Sector Seven Cyber Protection.
+
+04 — Agree & Pay
+
+Review the Service Agreement and securely activate recurring billing.
+
+05 — Security Onboarding
+
+We begin connecting the approved cloud environment and deploying supported endpoint protection.
+
+06 — 24/7 Managed Protection
+
+Your protected environment enters Sector Seven's managed cybersecurity service.
+
+
+
+
+
+20. FAQ — REMOVE ABSOLUTE GUARANTEES
+
+Keep the FAQ accordion functionality.
+
+However, please remove language from the previous version that makes absolute guarantees such as:
+
+“within minutes”
+
+“neutralize the threat before data can be stolen”
+
+or anything guaranteeing that using Sector Seven will automatically qualify a company for cyber insurance.
+
+We can describe the actual monitoring, detection, investigation, and active-response capabilities strongly without promising that a cyberattack, breach, loss, or insurance outcome can never occur.
+
+
+
+
+
+21. REMOVE OLD PRICING/MESSAGING
+
+Please remove/disregard:
+
+$4,000+ monthly retainer messaging
+
+Any previous $750/$1,250/$1,750/$2,500 pricing model
+
+Any previous automatic insurance referral commission
+
+Any language implying Sector Seven sells cyber insurance
+
+Any customer-facing Blackpoint/vendor pricing
+
+Any requirement for Domotz, Network Detective, or other discovery software
+
+Any DocuSign/SignNow workflow
+
+
+
+
+
+22. TERMS / PRIVACY / SERVICE AGREEMENT
+
+Keep the Terms of Service and Privacy Policy pages functional and linked from the assessment.
+
+However, do not treat the previous $100 liability-cap language I sent as the final client Service Agreement.
+
+The customer Service Agreement used during Agree & Pay will be finalized separately.
+
+
+
+
+
+23. PRIMARY CTAs
+
+Main CTA:
+
+
+START YOUR SECURITY ASSESSMENT
+
+Secondary CTAs can include:
+
+GET PROTECTED
+
+GET YOUR CYBERSECURITY QUOTE
+
+The primary CTA should not imply that Sector Seven sells insurance.
+
+
+
+
+
+24. FINAL CUSTOMER FLOW
+
+The final customer experience should be:
+
+Sector Seven Website
+
+↓
+
+Start Security Assessment
+
+↓
+
+Business Information
+
+↓
+
+Device + Cloud User Information
+
+↓
+
+Website Determines Sector Seven Rate
+
+↓
+
+Professional Quote Page
+
+Price at Top + What's Included
+
+↓
+
+Continue to Activation
+
+↓
+
+Review Service Agreement
+
+↓
+
+Agree & Pay
+
+↓
+
+Stripe Monthly Subscription
+
+↓
+
+Welcome / Onboarding
+
+↓
+
+24/7 Managed Cybersecurity Protection
+
+For environments outside our automatic pricing ranges:
+
+Assessment → Custom Quote Required → Sector Seven Review → Quote → Agreement → Payment → Onboarding
+
+
+
+
+
+25. IMPORTANT DEVELOPMENT NOTES
+
+Please keep the internal cost engine separate from the customer-facing quote engine.
+
+Customers should only ever see their Sector Seven monthly price.
+
+Please make pricing variables and tiers editable wherever reasonably possible so we can change rates later without rebuilding the site.
+
+Please do not add new paid third-party software or subscriptions without checking with me first.
+
+Please do not invent service capabilities that aren't included in the services I've provided.
+
+Once these changes are implemented on the test site, please send me the test link so I can run through the entire customer journey from assessment → quote → agreement → Stripe checkout → onboarding before anything goes live.
+
+Thanks, Destiny Joy Sagay Founder, Sector Seven Cyber LLC
+
+
+
+
+
+
+
+

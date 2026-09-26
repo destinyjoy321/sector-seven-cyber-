@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, ShieldCheck, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Logo } from './Logo';
 
@@ -28,7 +28,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               className="group relative inline-block text-[clamp(1.5rem,4.5vw,3.75rem)] font-extrabold text-slate-900 tracking-tighter hover:text-[#0284C7] transition-colors duration-300"
             >
               <span>contact@sectorsevencyber.com</span>
-              {/* Electric Cyan Underline Animation */}
               <motion.span 
                 className="absolute bottom-0 left-0 w-full h-[3px] bg-[#00D2FF] origin-left"
                 initial={{ scaleX: 0 }}
@@ -46,31 +45,31 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="lg:col-span-4 space-y-4">
             <Logo size="md" />
             <p className="text-slate-600 text-xs leading-relaxed max-w-sm">
-              Sector Seven Cyber LLC builds and operates continuously managed cybersecurity environments for Georgia law firms, medical clinics, and high-liability enterprises.
+              Sector Seven Cyber LLC provides Cloud & Endpoint Managed Detection & Response (MDR) for high-value Georgia practices and enterprises facing rigorous security and cyber insurance audits.
             </p>
             <div className="pt-1">
-              <span className="inline-flex items-center gap-1.5 bg-slate-100 text-[#0284C7] text-[11px] font-mono font-bold px-3 py-1 rounded-full border border-slate-200">
+              <span className="inline-flex items-center gap-1.5 bg-slate-100 text-[#0284C7] text-xs font-semibold px-3 py-1 rounded-full border border-slate-200">
                 <span className="w-2 h-2 rounded-full bg-[#00D2FF] animate-ping" />
                 Atlanta, Georgia Jurisdiction (Fulton County)
               </span>
             </div>
           </div>
 
-          {/* Column 2: Core Services (3 cols) */}
+          {/* Column 2: Core Practices (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Core Practices</h4>
+            <h4 className="text-xs font-bold text-[#0284C7] uppercase tracking-wider">Managed Defense</h4>
             <ul className="space-y-2 text-xs text-slate-600 font-medium">
-              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Carrier Audit & Alignment</a></li>
-              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">MFA & Hardware Backup Setup</a></li>
-              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">EDR & Endpoint Protection</a></li>
-              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Continuous Compliance Monitoring</a></li>
-              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Georgia Breach Law Alignment</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Cloud & Endpoint MDR</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">24/7 Human Security Operations Center</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Identity Compromise Detection</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Windows Defender Management</a></li>
+              <li><a href="#services" className="hover:text-[#0284C7] transition-colors">Continuous Security Posture Rating</a></li>
             </ul>
           </div>
 
           {/* Column 3: Navigation (2 cols) */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Navigation</h4>
+            <h4 className="text-xs font-bold text-[#0284C7] uppercase tracking-wider">Navigation</h4>
             <ul className="space-y-2 text-xs text-slate-600 font-medium">
               <li>
                 <button onClick={() => onNavigate('/')} className="hover:text-[#0284C7] transition-colors text-left">
@@ -79,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button onClick={() => onNavigate('/apply')} className="hover:text-[#0284C7] transition-colors text-left font-bold text-slate-900 flex items-center gap-1">
-                  Intake Application <ArrowUpRight className="w-3 h-3 text-[#0284C7]" />
+                  Start Assessment <ArrowUpRight className="w-3 h-3 text-[#0284C7]" />
                 </button>
               </li>
               <li>
@@ -97,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 4: Contact Direct (3 cols) */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-mono text-xs font-bold text-[#0284C7] uppercase tracking-widest">// Direct Contact</h4>
+            <h4 className="text-xs font-bold text-[#0284C7] uppercase tracking-wider">Direct Contact</h4>
             <ul className="space-y-2.5 text-xs text-slate-600 font-medium">
               <li className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
@@ -105,7 +104,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
-                <a href="tel:+14603639083" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">+1 (460) 363-9083</a>
+                <a href="tel:+14703639083" className="hover:text-[#0284C7] transition-colors font-bold text-slate-900">+1 (470) 363-9083</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
@@ -118,13 +117,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         {/* Bottom Architectural Copyright & Legal Links Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          {/* Bottom Left: Monospace Copyright */}
-          <p className="font-mono text-xs text-slate-500 font-normal text-left">
+          {/* Bottom Left: Copyright */}
+          <p className="text-xs text-slate-500 font-normal text-left">
             © 2026 Sector Seven Cyber LLC. All rights reserved. Atlanta, Georgia.
           </p>
 
-          {/* Bottom Right: Mandatory Legal Links */}
-          <div className="flex items-center gap-6 font-mono text-xs text-slate-600">
+          {/* Bottom Right: Legal Links + Discreet Admin Console Link */}
+          <div className="flex items-center gap-5 text-xs text-slate-600">
             <button 
               onClick={() => onNavigate('/privacy')} 
               className="hover:text-[#0284C7] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] rounded px-1"
@@ -137,6 +136,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               className="hover:text-[#0284C7] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] rounded px-1"
             >
               Terms of Service
+            </button>
+            <span className="text-slate-300">•</span>
+            <button 
+              onClick={() => onNavigate('/admin')} 
+              className="hover:text-[#0284C7] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] rounded px-1 text-slate-400 hover:text-slate-700 flex items-center gap-1"
+              title="Internal Administrative Portal"
+            >
+              <Lock className="w-3 h-3" />
+              <span>Admin Console</span>
             </button>
           </div>
         </div>

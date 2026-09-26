@@ -10,8 +10,7 @@ All codebase updates requested in Destiny Joy's Master List have been **100% com
 
 ### Key Features Implemented:
 - ✅ **Master List Fixes**: Page flow loop removal, `sentra.io` button link, Marcus Whitfield narrative, 3 Pillars technical copy, and post-submission thank-you screen with calendar booking integration.
-- ✅ **Multi-File Upload Vault**: Supports up to **5 files** per submission (Max 10 MB per file, **50 MB total aggregate limit**) across PDF, DOC, DOCX, XLS, and XLSX formats.
-- ✅ **Transactional Email Backend**: Verified dual email delivery via Resend API using `Sector Seven Cyber <contact@sectorsevencyber.com>` with automatic Gmail SMTP fallback.
+- ✅ **Transactional Email Backend**: Verified dual email delivery via Resend API using `Sector Seven Cyber <contact@sectorsevencyber.com>`.
 - ✅ **Mobile & Form Styling**: Fixed mobile navigation overlay ring bug and aligned form grid rows symmetrically with 16px digital accessibility input standards.
 
 ---
