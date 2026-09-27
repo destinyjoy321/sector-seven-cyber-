@@ -10,18 +10,16 @@ import {
   PhoneCall, 
   Mail, 
   FileText, 
-  Copy, 
   Check, 
-  Download, 
   Activity, 
   Shield, 
   Lock, 
-  Terminal, 
   Search,
   ExternalLink,
   Clock,
   Key
 } from 'lucide-react';
+import { CoverageCertificate } from '../components/certificate/CoverageCertificate';
 
 interface DashboardPageProps {
   onNavigate: (path: string) => void;
@@ -31,11 +29,11 @@ interface DashboardPageProps {
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applicationId }) => {
   const [app, setApp] = useState<ProspectApplication | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [copiedCmd, setCopiedCmd] = useState<boolean>(false);
   const [tenantConnected, setTenantConnected] = useState<boolean>(false);
   const [lookupQuery, setLookupQuery] = useState<string>('');
   const [lookupError, setLookupError] = useState<string>('');
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -51,8 +49,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
       if (sessionIdParam) {
         setIsVerifying(true);
         try {
-          const verifyUrl = `/api/verify-payment?session_id=${encodeURIComponent(sessionIdParam)}${targetId ? `&id=${encodeURIComponent(targetId)}` : ''}`;
-          const verifyRes = await fetch(verifyUrl);
+          const verifyRes = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: sessionIdParam,
+              id: targetId,
+            }),
+          });
           if (verifyRes.ok) {
             const verifyData = await verifyRes.json();
             if (verifyData.application) {
@@ -130,14 +134,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
     setLoading(false);
   };
 
-  const copyInstallerCommand = (command: string) => {
-    navigator.clipboard.writeText(command);
-    setCopiedCmd(true);
-    setTimeout(() => setCopiedCmd(false), 2500);
-  };
-
   const handlePrintCertificate = () => {
-    window.print();
+    setShowCertificateModal(true);
   };
 
   if (loading || isVerifying) {
@@ -213,10 +211,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
   }
 
   const activeApp = app;
-  const silentCmd = `msiexec /i SectorSeven-Agent-x64.msi /qn ORG_REF="${activeApp.id}" SOC_ROUTER="telemetry.sectorsevencyber.com" /L*V "C:\\SectorSeven\\install.log"`;
 
   return (
-    <div className="pt-28 pb-24 bg-[#F8FAFC] text-slate-900 min-h-screen relative overflow-hidden">
+    <>
+      {/* Interactive Modal Preview of the Certificate */}
+      {showCertificateModal && (
+        <CoverageCertificate
+          app={activeApp}
+          isModal
+          onClose={() => setShowCertificateModal(false)}
+        />
+      )}
+
+      {/* Hidden on Screen, Active Only for Physical Print Engine */}
+      <div className="hidden print:block certificate-print-root">
+        <CoverageCertificate app={activeApp} />
+      </div>
+
+      {/* Main Interactive Screen Dashboard (Auto-hidden in print) */}
+      <div className="dashboard-screen-content pt-28 pb-24 bg-[#F8FAFC] text-slate-900 min-h-screen relative overflow-hidden">
       
       {/* Background Operational Grid */}
       <div 
@@ -243,7 +256,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold tracking-wide">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  MDR Active • 24/7 SOC Standby
+                  PAID — READY FOR ONBOARDING
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono">
                   REF: {activeApp.id}
@@ -347,7 +360,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
               </div>
             </div>
 
-            {/* MODULE 2: Endpoint Agent Silent Distribution */}
+            {/* MODULE 2: Endpoint Protection Coordination */}
             <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-5">
               <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
@@ -356,78 +369,60 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-slate-900">
-                      Step 2: Silent Endpoint Agent Package
+                      Step 2: Endpoint Protection Coordination
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Licensed Quota: {activeApp.device_count} Laptops & Workstations
+                      Designated Quota: {activeApp.device_count} Protected Laptops & Desktops
                     </p>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-sky-50 text-[#0284C7] border border-sky-100 text-[11px] font-semibold">
-                  Installer v2.6.4 Ready
+                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold">
+                  Onboarding Active
                 </span>
               </div>
 
               <p className="text-xs text-slate-600 leading-relaxed">
-                Deploy the lightweight Sector Seven telemetry sensor across your fleet. It operates silently in the background, utilizing under 1% CPU with zero user disruption.
+                Sector Seven coordinates deployment across your designated company devices, utilizing supported enterprise integrations without requiring disruptive third-party discovery agents.
               </p>
 
-              {/* Package Download Buttons */}
+              {/* Supported Integration Architecture Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <button
-                  type="button"
-                  onClick={() => alert(`Downloading SectorSeven-Agent-x64.msi for Organization ${activeApp.id}`)}
-                  className="p-3.5 rounded-2xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 flex items-center justify-between transition-all group text-left"
-                >
-                  <div className="space-y-0.5">
-                    <span className="font-bold text-slate-900 block group-hover:text-[#0284C7]">Windows MSI Installer</span>
-                    <span className="text-[11px] text-slate-500 font-mono">64-bit • Signed GPO Ready</span>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-left">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+                    <span className="font-bold text-slate-900">Windows Defender Management</span>
                   </div>
-                  <Download className="w-4 h-4 text-slate-400 group-hover:text-[#0284C7] shrink-0" />
-                </button>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Continuous 24/7 SOC telemetry and active containment utilizing native Windows enterprise security.
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => alert(`Downloading SectorSeven-Agent-macOS.pkg for Organization ${activeApp.id}`)}
-                  className="p-3.5 rounded-2xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 flex items-center justify-between transition-all group text-left"
-                >
-                  <div className="space-y-0.5">
-                    <span className="font-bold text-slate-900 block group-hover:text-[#0284C7]">macOS PKG Package</span>
-                    <span className="text-[11px] text-slate-500 font-mono">Universal • MDM Compatible</span>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-left">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+                    <span className="font-bold text-slate-900">Defender for Endpoint Management</span>
                   </div>
-                  <Download className="w-4 h-4 text-slate-400 group-hover:text-[#0284C7] shrink-0" />
-                </button>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Enterprise detection, automated threat investigation, and host-level isolation by live SOC analysts.
+                  </p>
+                </div>
               </div>
 
-              {/* Silent GPO / Script Deployment Command */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                    <Terminal className="w-3.5 h-3.5 text-[#0284C7]" />
-                    Silent Script Deployment (Group Policy / Intune / RMM)
+              {/* Onboarding Technical Coordinator Callout */}
+              <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <span className="font-bold text-slate-900 block">Dedicated Onboarding Engineering Team</span>
+                  <span className="text-[11px] text-slate-600">
+                    A Sector Seven technical onboarding engineer is assigned to synchronize your environment.
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => copyInstallerCommand(silentCmd)}
-                    className="text-[#0284C7] hover:text-[#0369A1] font-semibold inline-flex items-center gap-1 text-[11px] transition-colors"
-                  >
-                    {copiedCmd ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-600 font-bold">Copied to Clipboard</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        Copy Command
-                      </>
-                    )}
-                  </button>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] leading-relaxed break-all border border-slate-800 relative">
-                  {silentCmd}
-                </div>
+                <a
+                  href="tel:+14703639083"
+                  className="px-4 py-2 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs shrink-0 transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                >
+                  <PhoneCall className="w-3.5 h-3.5" />
+                  <span>Call (470) 363-9083</span>
+                </a>
               </div>
             </div>
 
@@ -492,11 +487,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
                 </div>
               </dl>
 
-              {/* Environment Scale Policy Note */}
-              <div className="p-3 rounded-xl bg-sky-50/70 border border-sky-100 text-[11px] text-slate-600 leading-relaxed flex items-start gap-2.5">
-                <Shield className="w-3.5 h-3.5 text-[#0284C7] shrink-0 mt-0.5" />
+              {/* Mandatory Section 17 Onboarding Scale Notice */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed flex items-start gap-2.5">
+                <Shield className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
                 <p>
-                  <strong>Scale Adjustments:</strong> Pricing reflects verified scope. Should your device count or active cloud accounts change during service, quotas adjust automatically on your monthly billing cycle.
+                  <strong>Notice Regarding Environment Scale:</strong> Pricing is based on the information and quantities provided during your assessment. If the number of devices or cloud users requiring protection differs during onboarding or changes during the service period, your service plan and recurring monthly charge may be adjusted accordingly.
                 </p>
               </div>
             </div>
@@ -588,5 +583,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, applic
 
       </div>
     </div>
+    </>
   );
 };

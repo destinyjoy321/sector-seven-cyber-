@@ -271,15 +271,17 @@ CREATE POLICY "Public lead submission"
   ON public.applications FOR INSERT 
   WITH CHECK (terms_accepted = true);
 
+-- Security Hardening: Remove open public SELECT.
+-- Public clients query individual applications by ID via secure serverless API (/api/get-application)
 DROP POLICY IF EXISTS "Public read own application" ON public.applications;
-CREATE POLICY "Public read own application" 
-  ON public.applications FOR SELECT 
-  USING (true);
 
 DROP POLICY IF EXISTS "Staff admin full access on applications" ON public.applications;
-CREATE POLICY "Staff admin full access on applications" 
+DROP POLICY IF EXISTS "Service role full access on applications" ON public.applications;
+CREATE POLICY "Service role full access on applications" 
   ON public.applications FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- pricing_engine_config
 ALTER TABLE public.pricing_engine_config ENABLE ROW LEVEL SECURITY;
@@ -289,20 +291,27 @@ CREATE POLICY "Public read pricing config"
   USING (true);
 
 DROP POLICY IF EXISTS "Staff update pricing config" ON public.pricing_engine_config;
-CREATE POLICY "Staff update pricing config" 
+DROP POLICY IF EXISTS "Service role update pricing config" ON public.pricing_engine_config;
+CREATE POLICY "Service role update pricing config" 
   ON public.pricing_engine_config FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- audit_logs
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Staff read audit logs" ON public.audit_logs;
-CREATE POLICY "Staff read audit logs" 
+DROP POLICY IF EXISTS "Service role read audit logs" ON public.audit_logs;
+CREATE POLICY "Service role read audit logs" 
   ON public.audit_logs FOR SELECT 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true);
 
 DROP POLICY IF EXISTS "System insert audit logs" ON public.audit_logs;
-CREATE POLICY "System insert audit logs" 
+DROP POLICY IF EXISTS "Service role insert audit logs" ON public.audit_logs;
+CREATE POLICY "Service role insert audit logs" 
   ON public.audit_logs FOR INSERT 
+  TO service_role
   WITH CHECK (true);
 
 -- subscriptions & payments
@@ -310,26 +319,33 @@ ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payment_transactions ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Staff subscription access" ON public.subscriptions;
-CREATE POLICY "Staff subscription access" 
+DROP POLICY IF EXISTS "Service role subscription access" ON public.subscriptions;
+CREATE POLICY "Service role subscription access" 
   ON public.subscriptions FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Staff payment access" ON public.payment_transactions;
-CREATE POLICY "Staff payment access" 
+DROP POLICY IF EXISTS "Service role payment access" ON public.payment_transactions;
+CREATE POLICY "Service role payment access" 
   ON public.payment_transactions FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- onboarding_deployments
 ALTER TABLE public.onboarding_deployments ENABLE ROW LEVEL SECURITY;
+-- Security Hardening: Remove open public SELECT on onboarding deployments
 DROP POLICY IF EXISTS "Public read own onboarding" ON public.onboarding_deployments;
-CREATE POLICY "Public read own onboarding" 
-  ON public.onboarding_deployments FOR SELECT 
-  USING (true);
 
 DROP POLICY IF EXISTS "Staff onboarding access" ON public.onboarding_deployments;
-CREATE POLICY "Staff onboarding access" 
+DROP POLICY IF EXISTS "Service role onboarding access" ON public.onboarding_deployments;
+CREATE POLICY "Service role onboarding access" 
   ON public.onboarding_deployments FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- readiness_assessments
 ALTER TABLE public.readiness_assessments ENABLE ROW LEVEL SECURITY;
@@ -339,9 +355,11 @@ CREATE POLICY "Public insert readiness assessment"
   WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Staff read readiness assessments" ON public.readiness_assessments;
-CREATE POLICY "Staff read readiness assessments" 
+DROP POLICY IF EXISTS "Service role read readiness assessments" ON public.readiness_assessments;
+CREATE POLICY "Service role read readiness assessments" 
   ON public.readiness_assessments FOR SELECT 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true);
 
 -- broker_partners
 ALTER TABLE public.broker_partners ENABLE ROW LEVEL SECURITY;
@@ -351,28 +369,33 @@ CREATE POLICY "Public read broker partners"
   USING (true);
 
 DROP POLICY IF EXISTS "Staff broker partner access" ON public.broker_partners;
-CREATE POLICY "Staff broker partner access" 
+DROP POLICY IF EXISTS "Service role broker partner access" ON public.broker_partners;
+CREATE POLICY "Service role broker partner access" 
   ON public.broker_partners FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- signed_agreements
 ALTER TABLE public.signed_agreements ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public insert signed agreements" ON public.signed_agreements;
-CREATE POLICY "Public insert signed agreements" 
-  ON public.signed_agreements FOR INSERT 
-  WITH CHECK (true);
-
 DROP POLICY IF EXISTS "Staff signed agreements access" ON public.signed_agreements;
-CREATE POLICY "Staff signed agreements access" 
+DROP POLICY IF EXISTS "Service role signed agreements access" ON public.signed_agreements;
+CREATE POLICY "Service role signed agreements access" 
   ON public.signed_agreements FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- erasure_requests
 ALTER TABLE public.erasure_requests ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Staff erasure request access" ON public.erasure_requests;
-CREATE POLICY "Staff erasure request access" 
+DROP POLICY IF EXISTS "Service role erasure request access" ON public.erasure_requests;
+CREATE POLICY "Service role erasure request access" 
   ON public.erasure_requests FOR ALL 
-  USING (auth.role() = 'service_role' OR auth.role() = 'authenticated');
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- ------------------------------------------------------------------------------
 -- 12. STORAGE POLICIES: insurance-questionnaires

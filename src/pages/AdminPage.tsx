@@ -134,15 +134,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
   const [isSavingConfig, setIsSavingConfig] = useState<boolean>(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === 'sector7' || passcode === 'admin2026' || passcode === 'destiny') {
-      sessionStorage.setItem('sector_seven_admin_auth', 'true');
-      sessionStorage.setItem('sector_seven_admin_passcode', passcode);
-      setIsAuthenticated(true);
-      setAuthError('');
-    } else {
-      setAuthError('Invalid administrator credentials.');
+    setAuthError('');
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.authenticated) {
+        sessionStorage.setItem('sector_seven_admin_auth', 'true');
+        sessionStorage.setItem('sector_seven_admin_passcode', passcode);
+        if (data.token) {
+          sessionStorage.setItem('sector_seven_admin_token', data.token);
+        }
+        setIsAuthenticated(true);
+        setAuthError('');
+      } else {
+        setAuthError(data.error || 'Invalid administrator credentials.');
+      }
+    } catch (err) {
+      setAuthError('Connection error. Please try again.');
     }
   };
 
@@ -502,7 +516,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
             </button>
 
             <p className="text-xs text-slate-400 text-center pt-2">
-              Default access passcode: <span className="font-semibold text-slate-600">sector7</span>
+              Authorized Sector Seven Cyber Operations personnel only.
             </p>
           </form>
         </motion.div>

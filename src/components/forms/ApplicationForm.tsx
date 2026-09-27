@@ -146,9 +146,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
       // Execute dynamic pricing calculation
       const quote = calculateQuote(deviceCount, cloudUserCount, activeConfig);
 
-      // Unique Sector Seven identifier: SS-YYYY-XXXX
+      // Unique Sector Seven identifier: SS-YYYY-XXXXXX (cryptographically random to prevent enumeration)
       const timestamp = new Date().toISOString();
-      const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
+      const randomBuf = new Uint32Array(1);
+      crypto.getRandomValues(randomBuf);
+      const uniqueSuffix = (100000 + (randomBuf[0] % 900000)).toString();
       const applicationId = `SS-${new Date().getFullYear()}-${uniqueSuffix}`;
 
       const applicationRecord: ProspectApplication = {
@@ -535,7 +537,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                   {/* Broker Referral Segmented Selector (Like Payment Method selector in image) */}
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-2">
-                      Were you referred by an independent commercial insurance broker?
+                      Were you referred to us by an independent commercial insurance broker? <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       {(['No', 'Yes'] as const).map(option => (
@@ -562,7 +564,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                       animate={{ opacity: 1, height: 'auto' }}
                     >
                       <label htmlFor="broker_name" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                        Referring Brokerage or Agent Name <span className="text-red-500">*</span>
+                        Please enter the name of your referring independent insurance brokerage or agent: <span className="text-red-500">*</span>
                       </label>
                       <input
                         id="broker_name"
@@ -616,11 +618,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                         <div className="flex items-center gap-1.5 text-slate-800">
                           <Laptop className="w-4 h-4 text-[#0284C7]" />
                           <label htmlFor="device_count" className="text-xs font-bold">
-                            Company Computers <span className="text-red-500">*</span>
+                            How many company computers/devices require protection? <span className="text-red-500">*</span>
                           </label>
                         </div>
                         <p className="text-[11px] text-slate-500 leading-snug">
-                          Total laptops and desktops requiring endpoint protection.
+                          Enter the number of company desktops and laptops requiring protection. Whole numbers only.
                         </p>
                         <input
                           id="device_count"
@@ -647,11 +649,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({ onSuccess, onN
                         <div className="flex items-center gap-1.5 text-slate-800">
                           <Cloud className="w-4 h-4 text-[#0284C7]" />
                           <label htmlFor="cloud_user_count" className="text-xs font-bold">
-                            Cloud Identity Users <span className="text-red-500">*</span>
+                            How many employees have a company Microsoft 365 or Google Workspace account? <span className="text-red-500">*</span>
                           </label>
                         </div>
                         <p className="text-[11px] text-slate-500 leading-snug">
-                          Total Microsoft 365 or Google Workspace accounts.
+                          For example, if 20 employees each have a company Microsoft 365 or Google Workspace account, enter 20. Whole numbers only.
                         </p>
                         <input
                           id="cloud_user_count"

@@ -20,9 +20,9 @@ function apiMiddlewarePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const env = loadEnv(server.config.mode, process.cwd(), '');
-        const supabaseUrl = env.VITE_SUPABASE_URL || '';
-        const serviceKey = env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
-        const resendApiKey = env.VITE_RESEND_API_KEY || '';
+        const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL || '';
+        const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+        const resendApiKey = env.RESEND_API_KEY || env.VITE_RESEND_API_KEY || '';
         const fromEmail = env.FROM_EMAIL || env.VITE_FROM_EMAIL || 'Sector Seven Cyber <contact@sectorsevencyber.com>';
         const teamEmail = env.VITE_INTERNAL_NOTIFICATION_EMAIL || 'contact@sectorsevencyber.com';
         const siteUrl = env.VITE_SITE_URL || 'http://localhost:3000';
@@ -530,79 +530,207 @@ function apiMiddlewarePlugin(): Plugin {
           return;
         }
 
-        // Handle Instant Payment Verification (Local Dev & Testing)
-        if (url.pathname === '/api/verify-payment' && (req.method === 'GET' || req.method === 'POST')) {
-          const sessionId = url.searchParams.get('session_id') || url.searchParams.get('sessionId') || '';
-          const applicationId = url.searchParams.get('id') || url.searchParams.get('applicationId') || '';
+        // Handle Instant Payment Verification (Strict POST & Verified Only)
+        if (url.pathname === '/api/verify-payment') {
+          if (req.method !== 'POST') {
+            res.statusCode = 405;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Method Not Allowed. Payment verification requires POST.' }));
+            return;
+          }
 
-          if (stripeKey && sessionId && !sessionId.startsWith('sim_') && !sessionId.startsWith('local_sim_')) {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', async () => {
             try {
-              const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${stripeKey}` },
-              });
-              const session = await stripeRes.json();
+              const payload = JSON.parse(body || '{}');
+              const sessionId = payload.sessionId || payload.session_id || '';
+              const applicationId = payload.id || payload.applicationId || '';
 
-              const isPaid = session.payment_status === 'paid' || session.status === 'complete';
-              const appId = applicationId || session.client_reference_id || session.metadata?.application_id;
+              if (!sessionId) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Missing required sessionId parameter.' }));
+                return;
+              }
 
-              let appRecord = null;
-              if (isPaid && appId && serviceKey) {
-                const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-                const now = new Date().toISOString();
-                await supabaseAdmin
-                  .from('applications')
-                  .update({
-                    status: 'PAID',
-                    onboarding_status: 'IN_PROGRESS',
-                    stripe_session_id: session.id,
-                    stripe_subscription_id: session.subscription || null,
-                    paid_at: now,
-                    updated_at: now,
-                  })
-                  .eq('id', appId);
+              if (stripeKey && !sessionId.startsWith('sim_') && !sessionId.startsWith('local_sim_')) {
+                const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+                  method: 'GET',
+                  headers: { Authorization: `Bearer ${stripeKey}` },
+                });
+                const session = await stripeRes.json();
+                const isPaid = session.payment_status === 'paid' || session.status === 'complete';
+                const appId = applicationId || session.client_reference_id || session.metadata?.application_id;
 
-                const { data } = await supabaseAdmin
-                  .from('applications')
-                  .select('*')
-                  .eq('id', appId)
-                  .maybeSingle();
-                appRecord = data;
+                let appRecord = null;
+                if (isPaid && appId && serviceKey) {
+                  const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+                  const now = new Date().toISOString();
+                  await supabaseAdmin
+                    .from('applications')
+                    .update({
+                      status: 'PAID',
+                      onboarding_status: 'IN_PROGRESS',
+                      stripe_session_id: session.id,
+                      stripe_subscription_id: session.subscription || null,
+                      paid_at: now,
+                      updated_at: now,
+                    })
+                    .eq('id', appId);
+
+                  const { data } = await supabaseAdmin
+                    .from('applications')
+                    .select('*')
+                    .eq('id', appId)
+                    .maybeSingle();
+                  appRecord = data;
+                }
+
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({
+                  verified: isPaid,
+                  status: isPaid ? 'PAID' : 'PENDING',
+                  applicationId: appId,
+                  application: appRecord,
+                }));
+                return;
+              }
+
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Valid Stripe checkout session is required.' }));
+              return;
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Payment verification failed' }));
+            }
+          });
+          return;
+        }
+
+        // Handle Admin Authentication (Local Dev & Testing)
+        if (url.pathname === '/api/admin-auth' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { passcode } = JSON.parse(body || '{}');
+              const configuredPasscode = (env.ADMIN_PASSCODE || 'sector7').trim();
+              const validPasscodes = new Set([configuredPasscode, 'admin2026', 'destiny']);
+
+              if (!passcode || !validPasscodes.has(passcode.trim())) {
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Invalid administrative passcode.' }));
+                return;
               }
 
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({
-                verified: isPaid,
-                status: isPaid ? 'PAID' : 'PENDING',
-                applicationId: appId,
-                application: appRecord,
-              }));
-              return;
-            } catch (e: any) {
-              console.error('Verify payment local error:', e);
+              res.end(JSON.stringify({ authenticated: true, token: 'local_admin_token' }));
+            } catch {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Authentication processing error' }));
             }
+          });
+          return;
+        }
+
+        // Handle Admin Applications Fetch / Update (Local Dev & Testing)
+        if (url.pathname === '/api/admin-applications') {
+          const authHeader = req.headers.authorization || '';
+          const passcode = authHeader.replace(/^Bearer\s+/i, '').trim() || url.searchParams.get('passcode') || '';
+          const configuredPasscode = (env.ADMIN_PASSCODE || 'sector7').trim();
+          const validPasscodes = new Set([configuredPasscode, 'admin2026', 'destiny', 'local_admin_token']);
+
+          if (!passcode || !validPasscodes.has(passcode)) {
+            res.statusCode = 401;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Unauthorized: Admin authentication required.' }));
+            return;
           }
 
-          let fallbackApp = null;
-          if (applicationId && serviceKey) {
+          if (req.method === 'GET' && serviceKey) {
             try {
               const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-              const { data } = await supabaseAdmin
-                .from('applications')
-                .select('*')
-                .eq('id', applicationId)
-                .maybeSingle();
-              fallbackApp = data;
-            } catch {
-              // ignore
+              const [appsRes, logsRes] = await Promise.all([
+                supabaseAdmin.from('applications').select('*').order('created_at', { ascending: false }),
+                supabaseAdmin.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(100),
+              ]);
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ applications: appsRes.data || [], auditLogs: logsRes.data || [] }));
+              return;
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Failed to fetch admin data' }));
+              return;
             }
           }
 
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ verified: true, simulated: true, status: 'PAID', applicationId, application: fallbackApp }));
-          return;
+          if ((req.method === 'PATCH' || req.method === 'POST') && serviceKey) {
+            let body = '';
+            req.on('data', chunk => { body += chunk; });
+            req.on('end', async () => {
+              try {
+                const { id, status, notes } = JSON.parse(body || '{}');
+                const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+                const updates: any = { updated_at: new Date().toISOString() };
+                if (status) updates.status = status;
+                if (notes !== undefined) updates.notes = notes;
+
+                const { data } = await supabaseAdmin.from('applications').update(updates).eq('id', id).select().single();
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ success: true, application: data }));
+              } catch (err: any) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Update failed' }));
+              }
+            });
+            return;
+          }
+        }
+
+        // Handle Get Application By ID (Local Dev & Testing)
+        if (url.pathname === '/api/get-application' && req.method === 'GET') {
+          const id = url.searchParams.get('id') || '';
+          if (!id) {
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Missing application id' }));
+            return;
+          }
+          if (serviceKey) {
+            try {
+              const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+              const { data, error } = await supabaseAdmin.from('applications').select('*').eq('id', id).maybeSingle();
+              if (error || !data) {
+                res.statusCode = 404;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Application not found' }));
+                return;
+              }
+              const sanitized = { ...data };
+              delete (sanitized as any).internal_estimated_cost;
+              delete (sanitized as any).internal_estimated_margin;
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ application: sanitized }));
+              return;
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Server error' }));
+              return;
+            }
+          }
         }
 
         // Handle Dynamic Pricing Update (Local Dev & Testing)
@@ -629,8 +757,10 @@ function apiMiddlewarePlugin(): Plugin {
             req.on('end', async () => {
               try {
                 const { config, passcode } = JSON.parse(body || '{}');
-                const validPasscodes = ['sector7', 'admin2026', 'destiny'];
-                if (!passcode || !validPasscodes.includes(passcode)) {
+                const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+                const effectivePasscode = passcode || authHeader;
+                const validPasscodes = ['sector7', 'admin2026', 'destiny', 'local_admin_token'];
+                if (!effectivePasscode || !validPasscodes.includes(effectivePasscode)) {
                   res.statusCode = 401;
                   res.setHeader('Content-Type', 'application/json');
                   res.end(JSON.stringify({ error: 'Unauthorized' }));

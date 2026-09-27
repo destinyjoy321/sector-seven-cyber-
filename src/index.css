@@ -100,4 +100,60 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
+/* ============================================================== */
+/* EXECUTIVE CERTIFICATE PRINT STYLESHEET                         */
+/* Enforces clean 1-page 8.5" x 11" Letter format for underwriters */
+/* ============================================================== */
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 0.35in;
+  }
+
+  html, body {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide website navigation, footers, background noise, and interactive chrome */
+  header,
+  nav,
+  footer,
+  .noise-overlay,
+  #preloader,
+  .no-print,
+  .certificate-modal-backdrop,
+  .dashboard-screen-content {
+    display: none !important;
+  }
+
+  /* Ensure the dedicated Certificate container prints with zero clipping */
+  .certificate-print-root {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #FFFFFF !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .certificate-document {
+    border-color: #0F172A !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+
+
 

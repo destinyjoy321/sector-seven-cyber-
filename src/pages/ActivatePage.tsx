@@ -128,28 +128,13 @@ export const ActivatePage: React.FC<ActivatePageProps> = ({ onNavigate, applicat
         }
       }
 
-      // If Stripe serverless key is unconfigured or in local demo mode:
-      setTimeout(() => {
-        updateApplicationFields(activeApp.id, {
-          status: 'PAID',
-          paid_at: new Date().toISOString(),
-          stripe_session_id: `sim_cs_${Date.now().toString(36)}`,
-          onboarding_status: 'IN_PROGRESS',
-        });
-        setIsProcessing(false);
-        onNavigate(`/dashboard?id=${activeApp.id}&session_id=demo_session`);
-      }, 1000);
-
-    } catch (err: any) {
-      console.warn('Checkout redirection exception, using local transition fallback:', err);
-      updateApplicationFields(activeApp.id, {
-        status: 'PAID',
-        paid_at: new Date().toISOString(),
-        stripe_session_id: `sim_cs_${Date.now().toString(36)}`,
-        onboarding_status: 'IN_PROGRESS',
-      });
+      const errData = await response.json().catch(() => ({}));
+      setErrorMessage(errData.error || 'Unable to initiate secure checkout session. Please try again or contact our security team.');
       setIsProcessing(false);
-      onNavigate(`/dashboard?id=${activeApp.id}&session_id=demo_session`);
+    } catch (err: any) {
+      console.warn('Checkout redirection exception:', err);
+      setErrorMessage('A connection error occurred while initiating checkout. Please try again.');
+      setIsProcessing(false);
     }
   };
 

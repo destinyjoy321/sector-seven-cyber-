@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 // Rate Limiting Map
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -37,8 +38,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin as string | undefined;
   if (origin && isOriginAllowed(origin, hostHeader)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -133,7 +132,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const hasFile = payload.file_path && payload.file_path !== 'NONE';
-    const viewQuestionnaireUrl = hasFile ? `${siteUrl}/api/view-questionnaire?path=${encodeURIComponent(payload.file_path)}` : '';
+    const docToken = hasFile && serviceKey ? crypto.createHmac('sha256', serviceKey).update(payload.file_path).digest('hex').substring(0, 32) : '';
+    const viewQuestionnaireUrl = hasFile ? `${siteUrl}/api/view-questionnaire?path=${encodeURIComponent(payload.file_path)}${docToken ? `&token=${docToken}` : ''}` : '';
 
     // Fetch file from Supabase Storage for Attachment (if present)
     let attachments: Array<{ filename: string; content: string }> = [];

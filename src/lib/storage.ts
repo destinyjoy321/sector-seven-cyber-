@@ -90,29 +90,18 @@ function normalizeApplicationRecord(a: any): ProspectApplication {
 export async function fetchLiveApplications(): Promise<ProspectApplication[]> {
   const localApps = getStoredApplications().map(normalizeApplicationRecord);
   try {
-    const { data: dbApps, error } = await supabase
-      .from('applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (dbApps && !error && dbApps.length > 0) {
-      // Filter out any mock entries from DB as well
-      const sanitizedDb = dbApps
-        .filter((a: any) => !MOCK_IDS.has(a.id) && !MOCK_EMAILS.has(a.email))
-        .map(normalizeApplicationRecord);
-
-      const dbMap = new Map<string, ProspectApplication>(
-        sanitizedDb.map((a: any) => [a.id, a])
-      );
-      localApps.forEach((app) => {
-        if (!dbMap.has(app.id)) {
-          dbMap.set(app.id, app);
-        }
-      });
-      return Array.from(dbMap.values());
+    const adminPasscode = typeof sessionStorage !== 'undefined' ? (sessionStorage.getItem('sector_seven_admin_passcode') || '') : '';
+    const res = await fetch(`/api/admin-applications?passcode=${encodeURIComponent(adminPasscode)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.applications) && data.applications.length > 0) {
+        return data.applications
+          .filter((a: any) => !MOCK_IDS.has(a.id) && !MOCK_EMAILS.has(a.email))
+          .map(normalizeApplicationRecord);
+      }
     }
   } catch (err) {
-    console.warn('Could not fetch live Supabase apps:', err);
+    console.warn('Could not fetch live admin apps via API:', err);
   }
   return localApps;
 }
@@ -123,12 +112,15 @@ export async function getApplicationById(id: string): Promise<ProspectApplicatio
   if (matched) return normalizeApplicationRecord(matched);
 
   try {
-    const { data, error } = await supabase.from('applications').select('*').eq('id', id).single();
-    if (data && !error && !MOCK_IDS.has(data.id)) {
-      return normalizeApplicationRecord(data);
+    const res = await fetch(`/api/get-application?id=${encodeURIComponent(id)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.application && !MOCK_IDS.has(data.application.id)) {
+        return normalizeApplicationRecord(data.application);
+      }
     }
   } catch (err) {
-    console.warn('Error fetching application by id from Supabase:', err);
+    console.warn('Error fetching application by id via secure API:', err);
   }
 
   return null;
@@ -150,10 +142,13 @@ export async function saveApplication(
       const dirPath = targetFilePath.includes('/')
         ? targetFilePath.substring(0, targetFilePath.lastIndexOf('/'))
         : targetFilePath;
+      const randomId = typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? crypto.randomUUID().slice(0, 8)
+        : Math.floor(100000 + Math.random() * 900000).toString(36);
       const storagePath =
         filesList.length === 1
           ? targetFilePath
-          : `${dirPath}/doc-${i + 1}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+          : `${dirPath}/doc-${i + 1}-${randomId}.${ext}`;
 
       try {
         await supabase.storage.from('insurance-questionnaires').upload(storagePath, file, { upsert: true });
@@ -375,6 +370,20 @@ export function updateApplicationStatus(id: string, status: ApplicationStatus, n
     status,
     ...(notes !== undefined ? { notes } : {}),
   });
+
+  try {
+    const adminPasscode = typeof sessionStorage !== 'undefined' ? (sessionStorage.getItem('sector_seven_admin_passcode') || '') : '';
+    fetch('/api/admin-applications', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminPasscode}`,
+      },
+      body: JSON.stringify({ id, status, notes }),
+    }).catch(() => {});
+  } catch (err) {
+    // ignore
+  }
 }
 
 // Data Erasure Request (Retained for regulatory compliance)
@@ -410,12 +419,12 @@ export function createErasureRequest(
 
 export async function fetchLiveAuditLogs(): Promise<any[]> {
   try {
-    const { data, error } = await supabase
-      .from('audit_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (!error && data) return data;
+    const adminPasscode = typeof sessionStorage !== 'undefined' ? (sessionStorage.getItem('sector_seven_admin_passcode') || '') : '';
+    const res = await fetch(`/api/admin-applications?passcode=${encodeURIComponent(adminPasscode)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.auditLogs)) return data.auditLogs;
+    }
   } catch (e) {
     console.warn('Fetch audit logs error:', e);
   }

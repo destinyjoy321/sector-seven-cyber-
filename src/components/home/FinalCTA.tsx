@@ -39,7 +39,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onNavigate }) => {
 
           <div className="space-y-4 pt-2 border-t border-slate-200">
             <h3 className="text-lg font-bold text-[#0284C7] font-mono">
-              Start with the documentation.
+              Start with the assessment.
             </h3>
             
             <button
@@ -51,7 +51,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onNavigate }) => {
             </button>
 
             <p className="text-xs text-slate-500">
-              Upload the questionnaire, renewal notice or deficiency letter your broker or carrier provided.
+              Complete your security assessment online in minutes to receive your customized cybersecurity quote.
             </p>
             <div className="inline-block text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
               Confidential. Secure. No obligation.
@@ -86,14 +86,14 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onNavigate }) => {
             And if your renewal is coming up, you don't want to discover your gaps from the person deciding whether to insure you.
           </p>
           <p className="font-bold text-slate-900 pt-2">
-            Find them first. Upload your compliance packet.
+            Find them first. Get your cybersecurity quote.
           </p>
           <div className="pt-2">
             <button
               onClick={() => onNavigate('/apply')}
               className="text-xs font-mono font-bold text-[#0284C7] hover:underline inline-flex items-center gap-1"
             >
-              Upload Compliance Packet Now →
+              Start Your Security Assessment Now →
             </button>
           </div>
         </motion.div>
